@@ -7,3 +7,5 @@ export default function access(initialState: { currentUser?: API.CurrentUser } |
     canAdmin: currentUser && currentUser.access === 'admin',
   };
 }
+
+//用不上，考虑优化掉
