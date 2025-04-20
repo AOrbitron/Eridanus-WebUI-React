@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Ant Design Pro",
+    "title": "Eridanus WebUI",
     "version": "1.0.0"
   },
   "servers": [
@@ -292,6 +292,34 @@
         }
       },
       "x-swagger-router-controller": "api"
+    },
+    "/api/files": {
+      "get": {
+        "tags": ["api"],
+        "description": "获取文件列表",
+        "operationId": "getFileList",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["basic_config.yaml", "api.yaml", "settings.yaml", "controller.yaml"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "/swagger": {
       "x-swagger-pipe": "swagger_raw"

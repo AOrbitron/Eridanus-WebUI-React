@@ -7,5 +7,4 @@
  */
 import Footer from './Footer';
 import { ColorMode,UserProfile,LogOut } from './RightContent';
-import { AvatarDropdown, AvatarName } from './RightContent/AvatarDropdown';
-export { Footer, ColorMode, UserProfile,LogOut, AvatarDropdown, AvatarName};
+export { Footer, ColorMode, UserProfile,LogOut};

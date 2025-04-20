@@ -1,72 +1,54 @@
 // @ts-ignore
 /* eslint-disable */
-
+//需要特定值或者格式的API，集中在这里处理
 declare namespace API {
-  type CurrentUser = {
-    name?: string;
-    avatar?: string;
-    userid?: string;
-    email?: string;
-    signature?: string;
-    title?: string;
-    group?: string;
-    tags?: { key?: string; label?: string }[];
-    notifyCount?: number;
-    unreadCount?: number;
-    country?: string;
-    access?: string;
-    geographic?: {
-      province?: { label?: string; key?: string };
-      city?: { label?: string; key?: string };
-    };
-    address?: string;
-    phone?: string;
+  //api/profile
+  type Profile = {
+    account?: string;
+    error?: string;
   };
-
+  //通用返回值
+  type CommonResult = {
+    message?: string;
+    error?: string;
+  };
+  //api/login
   type LoginResult = {
-    status?: string;
-    type?: string;
-    currentAuthority?: string;
+    message?: string;
+    auth_token?: string;
+  };
+  //api/logout
+  type LogoutResult = {
+    message?: string;
+    error?: string;
+  };
+  //api/clone
+  type CloneResult = {
+    message?: string;
+    error?: string;
+  };
+  //api/file2base64
+  type file2b64Result = {
+    base64?: string;
+    error?: string;
   };
 
-  type PageParams = {
-    current?: number;
-    pageSize?: number;
-  };
-
-  type RuleListItem = {
-    key?: number;
-    disabled?: boolean;
-    href?: string;
-    avatar?: string;
-    name?: string;
-    owner?: string;
-    desc?: string;
-    callNo?: number;
-    status?: number;
-    updatedAt?: string;
-    createdAt?: string;
-    progress?: number;
-  };
-
-  type RuleList = {
-    data?: RuleListItem[];
-    /** 列表的内容总数 */
-    total?: number;
-    success?: boolean;
-  };
-
-  type FakeCaptcha = {
-    code?: number;
-    status?: string;
-  };
-
+  //登录参数
   type LoginParams = {
-    username?: string;
+    account?: string;
     password?: string;
-    autoLogin?: boolean;
-    type?: string;
   };
+
+  //登出参数
+  type LogoutParams = {
+    auth?: string;
+  };
+
+  type UpdateProfileProfiles = {
+    account?: string;
+    password?: string;
+  };
+
 
   type ErrorResponse = {
     /** 业务约定的错误码 */
