@@ -134,7 +134,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   // 根据当前主题设置应用全局主题配置
   const isDarkMode = initialState?.settings?.navTheme === 'realDark';
   ConfigProvider.config({
-<<<<<<< HEAD
     // theme: {
     //   algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
     //   token: {
@@ -146,19 +145,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     //     colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
     //   },
     // },
-=======
-    theme: {
-      algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-      token: {
-        colorSuccess: "#95da73",
-        colorBgBase: isDarkMode ? "#0e0e0e" : "#f6f6f6",
-        fontSize: 16,
-        sizeStep: 4,
-        borderRadius: 8,
-        colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
-      },
-    },
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   });
   return {
     actionsRender: () => [
