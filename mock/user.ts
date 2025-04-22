@@ -34,13 +34,24 @@ export default {
     }
     res.send({
       files: [
+<<<<<<< HEAD
       "dev_test.yaml",
+=======
+      "basic_config.yaml",
+      "api.yaml",
+      "settings.yaml",
+      "controller.yaml"
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     ]
   });
   },
 
 
+<<<<<<< HEAD
 
+=======
+  // 支持值为 Object 和 Array
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   'GET /api/profile': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.status(400).send({
@@ -52,7 +63,11 @@ export default {
       name: 'Eridanus',
     });
   },
+<<<<<<< HEAD
 
+=======
+  // GET POST 可省略
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   'POST /api/login': async (req: Request, res: Response) => {
     const { password, account } = req.body;
     await waitTime(1000);
@@ -76,7 +91,11 @@ export default {
   },
 
 
+<<<<<<< HEAD
   'GET /api/load/dev_test.yaml': async (req: Request, res: Response) => {
+=======
+  'GET /api/load/basic_config.yaml': async (req: Request, res: Response) => {
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     await waitTime(1000);
     if (!getAccess()) {
       res.status(400).send({

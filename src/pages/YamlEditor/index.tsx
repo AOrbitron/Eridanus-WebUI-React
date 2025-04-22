@@ -19,10 +19,20 @@ const YamlEditor: React.FC = () => {
   const [yamlData, setYamlData] = useState<YamlData>({});
   const [loading, setLoading] = React.useState<boolean>(false);
 
+<<<<<<< HEAD
 
   const fetchYamlFiles = async () => {
     try {
       const response = await fetch(`/api/files`);
+=======
+  // const requestURL = `http://${window.location.hostname}:5007`;
+
+  const requestURL = `.`;
+
+  const fetchYamlFiles = async () => {
+    try {
+      const response = await fetch(`${requestURL}/api/files`);
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
       if (!response.ok) {
         throw new Error('网络响应失败');
       }
@@ -44,7 +54,11 @@ const YamlEditor: React.FC = () => {
   const loadYamlFile = async (fileName: string) => {
     try {
       setLoading(true);
+<<<<<<< HEAD
       const response = await fetch(`/api/load/${fileName}`);
+=======
+      const response = await fetch(`${requestURL}/api/load/${fileName}`);
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
       const data = await response.json();
       if (data) {
         setYamlData(data);
@@ -63,7 +77,11 @@ const YamlEditor: React.FC = () => {
 
   const saveYamlFile = async () => {
     try {
+<<<<<<< HEAD
       const response = await fetch(`/api/save/${currentFile}`, {
+=======
+      const response = await fetch(`${requestURL}/api/save/${currentFile}`, {
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(yamlData),

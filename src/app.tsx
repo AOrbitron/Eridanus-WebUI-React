@@ -13,6 +13,21 @@ import { ConfigProvider, theme, message } from 'antd';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
+// const { initialState, setInitialState } = useModel('@@initialState');
+// const isDarkMode = initialState?.settings?.navTheme === 'realDark';
+// ConfigProvider.config({
+//   theme: {
+//     algorithm: theme.darkAlgorithm,
+//     token: {
+//       colorSuccess: "#95da73",
+//       colorBgBase: "#f6f6f6",
+//       fontSize: 16,
+//       sizeStep: 4,
+//       borderRadius: 8,
+//       colorTextBase: "#f6f6f6"
+//     },
+//   },
+// });
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -28,9 +43,16 @@ export async function getInitialState(): Promise<{
       const token = localStorage.getItem('auth_token');
       if (token) {
         // 设置cookie
+<<<<<<< HEAD
         document.cookie = `auth_token=${token}`;
 
         // 向API获取用户信息
+=======
+        document.cookie = `auth_token=${token}; path=/`;
+        // return 'abc';
+
+        // 尝试获取用户信息
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
         const response = await fetch(`/api/profile`, {
           method: 'GET',
           headers: {
@@ -86,7 +108,11 @@ export async function getInitialState(): Promise<{
   };
 
 
+<<<<<<< HEAD
   // 如果不在登录页面，先检查用户信息。如果用户信息本地不存在或者过期，跳转到登录页面
+=======
+  // 如果不是登录页面，先检查用户信息，如果用户信息本地不存在或者过期，跳转到登录页面
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   const { location } = history;
   if (location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
@@ -108,6 +134,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   // 根据当前主题设置应用全局主题配置
   const isDarkMode = initialState?.settings?.navTheme === 'realDark';
   ConfigProvider.config({
+<<<<<<< HEAD
     // theme: {
     //   algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
     //   token: {
@@ -119,6 +146,19 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     //     colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
     //   },
     // },
+=======
+    theme: {
+      algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token: {
+        colorSuccess: "#95da73",
+        colorBgBase: isDarkMode ? "#0e0e0e" : "#f6f6f6",
+        fontSize: 16,
+        sizeStep: 4,
+        borderRadius: 8,
+        colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
+      },
+    },
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   });
   return {
     actionsRender: () => [
@@ -128,8 +168,19 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         <LogOut key="logout" />
       </React.Fragment>
     ],
+<<<<<<< HEAD
 
     //页面变更时响应
+=======
+    // avatarProps: {
+    //   src: initialState?.currentUser?.avatar,
+    //   title: <AvatarName />,
+    //   render: (_, avatarChildren) => {
+    //     return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
+    //   },
+    // },
+    // footerRender: () => <Footer />,
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
@@ -137,8 +188,35 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         history.push(loginPath);
       }
     },
+<<<<<<< HEAD
 
     menuHeaderRender: undefined,
+=======
+    // bgLayoutImgList: [
+    //   {
+    //     src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr',
+    //     left: 85,
+    //     bottom: 100,
+    //     height: '303px',
+    //   },
+    //   {
+    //     src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpJpiC0AAAAAAAAAAAAAFl94AQBr',
+    //     bottom: -68,
+    //     right: -45,
+    //     height: '303px',
+    //   },
+    //   {
+    //     src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/F6vSTbj8KpYAAAAAAAAAAAAAFl94AQBr',
+    //     bottom: 0,
+    //     left: 0,
+    //     width: '331px',
+    //   },
+    // ],
+    menuHeaderRender: undefined,
+    // menuContentRender: (props,defaultDom) => {<div style={{backgroundColor:"#0e0e0e"}}>{defaultDom}</div>},
+    // 自定义 403 页面
+    // unAccessible: <div>unAccessible</div>,
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     // 增加一个 loading 的状态
     childrenRender: (children) => {
       // if (initialState?.loading) return <PageLoading />;
@@ -148,7 +226,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
           token: {
             colorSuccess: "#95da73",
+<<<<<<< HEAD
             colorBgBase: isDarkMode ? "#0e0e0e" : "#f9f9f9",
+=======
+            colorBgBase: isDarkMode ? "#0e0e0e" : "#f6f6f6",
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
             fontSize: 16,
             sizeStep: 4,
             borderRadius: 8,
@@ -156,7 +238,26 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           },
         }}
       >
+<<<<<<< HEAD
           {children}
+=======
+        <>
+          {children}
+          {isDev && (
+            <SettingDrawer
+              disableUrlParams
+              enableDarkTheme
+              settings={initialState?.settings}
+              onSettingChange={(settings) => {
+                setInitialState((preInitialState) => ({
+                  ...preInitialState,
+                  settings,
+                }));
+              }}
+            />
+          )}
+        </>
+>>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
         </ConfigProvider>
       );
     },
