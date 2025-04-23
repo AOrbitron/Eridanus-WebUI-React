@@ -26,25 +26,29 @@ export const ColorMode = () => {
   const isDark = initialState?.settings?.navTheme === 'realDark';
 
   const toggleTheme = () => {
-    const theme = isDark ? 'light' : 'realDark';
-
     if (initialState?.settings) {
+      // 计算切换后的主题状态
+      const newNavTheme = isDark ? 'light' : 'realDark';
+      const newIsDark = newNavTheme === 'realDark';
+
       setInitialState((preInitialState) => ({
         ...preInitialState!,
         settings: {
           ...preInitialState!.settings,
-          navTheme: theme,
+          // 使用计算出的新主题
+          navTheme: newNavTheme,
+          // 根据新主题设置 token
           token: {
-            bgLayout: !isDark ? '#181818' : '#f9f9f9',
+            bgLayout: newIsDark ? '#181818' : '#f5f5f5',
             sider: {
-              colorMenuBackground: !isDark ? '#1f1f1f' : "#e3e3e3",
+              colorMenuBackground: newIsDark ? ' #1f1f1f' : " #fbfbfb",
             }
           },
         },
       }));
 
-      // 保存设置到 localStorage
-      localStorage.setItem('theme', theme);
+      // 保存切换后的设置到 localStorage
+      localStorage.setItem('isDark', newIsDark ? 'true' : 'false');
     }
   };
 

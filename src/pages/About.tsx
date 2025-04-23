@@ -36,11 +36,7 @@ const About: React.FC = () => {
 
         </div>
         <p style={{margin: '10px 0'}}>
-<<<<<<< HEAD
           Eridanus WebUI基于 <a href="https://pro.ant.design/" target='_blank'>React</a> 与 <a href="https://pro.ant.design/" target='_blank'>Ant Design Pro</a> 开发。
-=======
-          Eridanus WebUI基于 <a href="https://pro.ant.design/" target='_blank'>Ant Design Pro</a> 开发
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
         </p>
       </Card>
     </PageContainer>

@@ -37,6 +37,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
       open={visible}
       onCancel={onClose}
       footer={null}
+      centered
     >
       <Form
         form={form}
@@ -82,9 +83,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
           <Popconfirm
             title="确认修改吗？"
             placement='bottom'
-            // description="Are you sure to delete this task?"
             onConfirm={handleSubmit}
-            // onCancel={cancel}
             okText="是"
             cancelText="否"
           >

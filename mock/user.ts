@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+//这个是本地预览的时候伪装返回的API
 
+import { Request, Response } from 'express';
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -13,8 +14,6 @@ const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION } = process.env;
 
 /**
  * 当前用户的权限，如果为空代表没登录
- * current user access， if is '', user need login
- * 如果是 pro 的预览，默认是有权限的
  */
 let access = ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site' ? 'admin' : '';
 
@@ -34,24 +33,12 @@ export default {
     }
     res.send({
       files: [
-<<<<<<< HEAD
       "dev_test.yaml",
-=======
-      "basic_config.yaml",
-      "api.yaml",
-      "settings.yaml",
-      "controller.yaml"
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     ]
   });
   },
 
 
-<<<<<<< HEAD
-
-=======
-  // 支持值为 Object 和 Array
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   'GET /api/profile': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.status(400).send({
@@ -63,11 +50,6 @@ export default {
       name: 'Eridanus',
     });
   },
-<<<<<<< HEAD
-
-=======
-  // GET POST 可省略
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   'POST /api/login': async (req: Request, res: Response) => {
     const { password, account } = req.body;
     await waitTime(1000);
@@ -91,11 +73,7 @@ export default {
   },
 
 
-<<<<<<< HEAD
   'GET /api/load/dev_test.yaml': async (req: Request, res: Response) => {
-=======
-  'GET /api/load/basic_config.yaml': async (req: Request, res: Response) => {
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     await waitTime(1000);
     if (!getAccess()) {
       res.status(400).send({

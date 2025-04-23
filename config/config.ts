@@ -37,7 +37,6 @@ export default defineConfig({
     // 如果不想要 configProvide 动态设置主题需要把这个设置为 default
     // 只有设置为 variable， 才能使用 configProvide 动态设置主色调
     'root-entry-name': 'variable',
-    'bg-color': '#0e0e0e',
   },
   /**
    * @name moment 的国际化配置

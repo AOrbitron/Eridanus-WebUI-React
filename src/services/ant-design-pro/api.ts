@@ -2,7 +2,6 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-<<<<<<< HEAD
 /** 获取当前用户 GET /api/profile */
 export async function currentUser() {
   const token = localStorage.getItem('auth');
@@ -14,25 +13,6 @@ export async function currentUser() {
 export async function updateProfile(body: API.UpdateProfileProfiles) {
   return request<{
   }>('/api/profile', {
-=======
-/** 获取当前的用户 GET /api/profile */
-export async function currentUser(options?: { [key: string]: any }) {
-  const token = localStorage.getItem('auth_token');
-  return request<{
-    data: API.CurrentUser;
-  }>('/api/profile', {
-    method: 'GET',
-    headers: {
-      'auth': token ? `${token}` : '',
-    },
-    ...(options || {}),
-  });
-}
-
-/** 退出登录接口 POST /api/login/outLogin */
-export async function outLogin(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/api/logout', {
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

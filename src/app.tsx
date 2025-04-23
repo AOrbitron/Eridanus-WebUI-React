@@ -85,15 +85,15 @@ export async function getInitialState(): Promise<{
 
   // 初始化主题
   const initTheme = () => {
-    const savedTheme = localStorage.getItem('theme');
-    const isDark = savedTheme ==='realDark';
+    const isDark = localStorage.getItem('isDark') === 'true';
       return {
         ...defaultSettings,
-        navTheme: savedTheme,
+        navTheme: isDark? 'realDark': 'light',
         token: {
-          bgLayout: isDark ? '#181818' : '#f9f9f9',
+          bgLayout: isDark ? '#181818' : '#f5f5f5',
+          // bgLayout: 'linear-gradient(to bottom, #181818 0%,#252525 100%)',
           sider: {
-            colorMenuBackground: isDark ? '#1f1f1f' : "#f3f3f3",
+            colorMenuBackground: isDark ? ' #1f1f1f' : " #fbfbfb",
           }
         },
       } as Partial<LayoutSettings>;
@@ -123,17 +123,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   // 根据当前主题设置应用全局主题配置
   const isDarkMode = initialState?.settings?.navTheme === 'realDark';
   ConfigProvider.config({
-    // theme: {
-    //   algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-    //   token: {
-    //     colorSuccess: "#95da73",
-    //     colorBgBase: isDarkMode ? "#0e0e0e" : "#f9f9f9",
-    //     fontSize: 16,
-    //     sizeStep: 4,
-    //     borderRadius: 8,
-    //     colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
-    //   },
-    // },
+    theme: {
+      algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token: {
+        colorSuccess: "#95da73",
+        colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
+        fontSize: 16,
+        sizeStep: 4,
+        borderRadius: 8,
+        colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
+      },
+    },
   });
   return {
     actionsRender: () => [
@@ -163,7 +163,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
           token: {
             colorSuccess: "#95da73",
-            colorBgBase: isDarkMode ? "#0e0e0e" : "#f9f9f9",
+            colorBgBase: isDarkMode ? "#0e0e0e" : "#fff",
             fontSize: 16,
             sizeStep: 4,
             borderRadius: 8,
