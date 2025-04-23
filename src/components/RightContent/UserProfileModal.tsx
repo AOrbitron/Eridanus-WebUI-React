@@ -1,9 +1,5 @@
 import React from 'react';
-<<<<<<< HEAD
 import { Modal, Form, Input, Button, Popconfirm, message, PopconfirmProps } from 'antd';
-=======
-import { Modal, Form, Input, Button } from 'antd';
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
 
 interface UserProfileModalProps {
   visible: boolean;
@@ -13,14 +9,11 @@ interface UserProfileModalProps {
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm();
 
-<<<<<<< HEAD
   const confirm: PopconfirmProps['onConfirm'] = (e) => {
     message.success('Click on Yes');
   };
 
 
-=======
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -29,17 +22,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         newPassword: values.newPassword,
       };
       console.log('提交的数据:', submitData);
-<<<<<<< HEAD
       message.success('修改成功');
       // TODO: 调用后端 API
       onClose();
     } catch (error) {
       message.error('修改失败');
-=======
-      // TODO: 调用后端 API
-      onClose();
-    } catch (error) {
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
       console.error('表单验证失败:', error);
     }
   };
@@ -92,7 +79,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         </Form.Item>
 
         <Form.Item>
-<<<<<<< HEAD
           <Popconfirm
             title="确认修改吗？"
             placement='bottom'
@@ -106,19 +92,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
               确认修改
             </Button>
           </Popconfirm>
-=======
-          <Button type="primary" htmlType="submit" block>
-            确认修改
-          </Button>
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
         </Form.Item>
       </Form>
     </Modal>
   );
 };
 
-<<<<<<< HEAD
 export default UserProfileModal;
-=======
-export default UserProfileModal; 
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69

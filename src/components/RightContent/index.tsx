@@ -5,11 +5,7 @@ import React, { useState } from 'react';
 import { useModel } from '@umijs/max';
 import { history } from '@umijs/max';
 import { stringify } from 'querystring';
-<<<<<<< HEAD
 import { accountLogout } from '@/services/ant-design-pro/api';
-=======
-import { outLogin } from '@/services/ant-design-pro/api';
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
 import { flushSync } from 'react-dom';
 import UserProfileModal from './UserProfileModal';
 
@@ -94,12 +90,8 @@ export const LogOut = () => {
    * 退出登录，并且将当前的 url 保存
    */
   const loginOut = async () => {
-<<<<<<< HEAD
     // 退出登录
     await accountLogout({ auth: localStorage.getItem('token') || undefined });
-=======
-    await outLogin();
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -120,7 +112,6 @@ export const LogOut = () => {
 
   return (
     <Tooltip title="退出登录">
-<<<<<<< HEAD
       <Popconfirm
         title="确认退出登录吗？"
         placement='bottomLeft'
@@ -134,14 +125,6 @@ export const LogOut = () => {
           <LogoutOutlined />
         </div>
       </Popconfirm>
-=======
-      <div
-        style={BottonStyle}
-        onClick={loginOut}
-      >
-        <LogoutOutlined />
-      </div>
->>>>>>> 2eb1461b120906aedb5b7f172ea9336e7814de69
     </Tooltip>
   );
 };
