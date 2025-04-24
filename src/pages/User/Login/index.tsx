@@ -167,7 +167,7 @@ const Login: React.FC = () => {
             minWidth: 280,
             maxWidth: '75vw',
           }}
-          logo={<img alt="logo" src="/logo.svg" />}
+          logo={<img alt="logo" src="/icons/icon-192x192.png" />}
           title="Eridanus WebUI"
           subTitle={'请登录'}
           initialValues={{

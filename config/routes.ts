@@ -10,7 +10,6 @@ export default [
   { path: '/manage',
     name: '权限管理',
     icon: 'crown',
-    component: './Chat',
     routes: [
       { path: '/manage/blacklist', name: '黑名单管理', component: './About' },
       { path: '/manage/whitelist', name: '白名单管理', component: './About' },
