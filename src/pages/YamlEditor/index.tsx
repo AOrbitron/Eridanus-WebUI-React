@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Typography, Select, FloatButton } from 'antd';
-import { PlusOutlined, DeleteOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Typography, Menu, Dropdown, Space, Popconfirm } from 'antd';
+import { PlusOutlined, DeleteOutlined, DownOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 
 
@@ -130,9 +130,14 @@ const YamlEditor: React.FC = () => {
     } else if (typeof value === 'number') {
       return (
         <InputNumber
+          type={'number'}
           value={value}
           style={{ width: '100%' }}
-          onChange={(value) => updateData(path, value)}
+          onChange={(value) => {
+            // `${value}`.replace(/\D/g, '');
+            updateData(path, value);
+          }}
+        // formatter={(value) => )} // 格式化：移除所有非数字字符
         // size="small"
         />
       );
@@ -153,16 +158,23 @@ const YamlEditor: React.FC = () => {
               />
 
 
-
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                onClick={() => {
+              <Popconfirm
+                title="确认删除吗？"
+                placement='topRight'
+                onConfirm={() => {
                   const newValue = value.filter((_, i) => i !== index);
                   updateData(path, newValue);
                 }}
-              // size="small"
-              />
+                okText="是"
+                cancelText="否"
+              >
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  // onClick={ }
+                // size="small"
+                />
+              </Popconfirm>
             </div>
           ))}
           <Button
@@ -199,7 +211,8 @@ const YamlEditor: React.FC = () => {
                 <div className="key-container">
                   <strong style={{ fontSize: '1.2rem' }}>{key}:</strong>
                   {comment && (
-                    <span style={{ left: "5px" }} className="comment" dangerouslySetInnerHTML={{
+                    <span style={{ left: "5px",opacity: 0.7 }} className="comment" dangerouslySetInnerHTML={{
+                      // 正则表达式匹配URL，并将其转换为可点击的链接
                       __html: comment.replace(
                         /((?:https?:\/\/)?(?:(?:[a-z0-9]?(?:[a-z0-9\-]{1,61}[a-z0-9])?\.[^\.|\s])+[a-z\.]*[a-z]+|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})(?::\d{1,5})*[a-z0-9.,_\/~#&=;%+?\-\\(\\)]*)/gi,
                         '<a href="$&" target="_blank">$&</a>'
@@ -226,55 +239,67 @@ const YamlEditor: React.FC = () => {
     fetchYamlFiles();
   }, []);
 
+  const EditorHeader: React.FC = () => {
+    return (
+      <>
+        <Dropdown
+          overlay={(
+            <Menu
+              onClick={({ key }) => {
+                setCurrentFile(key);
+                loadYamlFile(key);
+              }}
+            >
+              {fileList.map((file) => (
+                <Menu.Item key={file}>{file}</Menu.Item>
+              ))}
+            </Menu>
+          )}
+        >
+          <Button
+            style={{ width: '100%' }}
+            onClick={(e) => e.preventDefault()}>
+            <Space>
+              {currentFile || '选择文件'}
+              <DownOutlined
+                style={{ marginRight: '0' }}
+              />
+            </Space>
+          </Button>
+        </Dropdown>
+        <Button type="primary" onClick={saveYamlFile} style={{ marginLeft: '8px' }}>
+          保存配置
+        </Button>
+      </>
+    );
+  };
+
   return (
     <Spin spinning={loading} size='large'>
       <PageContainer>
         <Card>
           <div className="yaml-editor">
-            <div className="editor-header">
+            {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
+            <Affix offsetTop={60}>
               <div className="file-controls">
-                <Select
-                  value={currentFile}
-                  onChange={(value) => {
-                    setCurrentFile(value);
-                    loadYamlFile(value);
-                  }}
-                  style={{ width: 200 }}
-                >
-                  {fileList.map((file) => (
-                    <Select.Option key={file} value={file}>
-                      {file}
-                    </Select.Option>
-                  ))}
-                </Select>
-                <Affix offsetTop={60}>
-                  <Button type="primary" onClick={saveYamlFile}>
-                    保存配置
-                  </Button>
-                </Affix>
+                <EditorHeader />
               </div>
-            </div>
+            </Affix>
             <div className="editor-content">
               {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments)}
             </div>
-            <FloatButton
-              icon={<VerticalAlignTopOutlined />}
-              tooltip="返回顶部"
-              type="primary"
-            />
-            <style jsx>{`
+            <style>{`
         .yaml-editor {
           // padding: 20px;
         }
-        .editor-header {
+        .file-controls {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
-        }
-        .file-controls {
           display: flex;
           gap: 5px;
+          padding: 5px;
         }
         .yaml-item {
           // border: 1px solid #e8e8e8;

@@ -76,8 +76,8 @@ const directLogin = () => {
     })
     .catch(() => {
       // Token无效，清除存储
-      localStorage.removeItem('auth_token');
-      document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      localStorage.removeItem('auth');
+      document.cookie = '';
     });
   }
 }
@@ -114,7 +114,7 @@ const Login: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          account: values.username,
+          account: values.account,
           password: encryptedPassword,
         }),
       });
@@ -182,7 +182,7 @@ const Login: React.FC = () => {
           )}
 
               <ProFormText
-                name="username"
+                name="account"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined />,

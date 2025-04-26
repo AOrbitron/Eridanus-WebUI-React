@@ -1,3 +1,5 @@
+import { Component } from "react";
+
 export default [
   {
     path: '/user',
@@ -11,6 +13,7 @@ export default [
     name: '权限管理',
     icon: 'crown',
     routes: [
+      { path: '/manage', redirect: '/manage/blacklist' ,component: './About' },
       { path: '/manage/blacklist', name: '黑名单管理', component: './About' },
       { path: '/manage/whitelist', name: '白名单管理', component: './About' },
     ],
