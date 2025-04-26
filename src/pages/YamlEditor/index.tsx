@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Typography, Menu, Dropdown, Space, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined, DownOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
+import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Menu, Dropdown, Space, Popconfirm } from 'antd';
+import { PlusOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 
 
@@ -11,7 +11,7 @@ interface YamlData {
   error?: string;
 }
 
-const { Title } = Typography;
+const {TextArea} = Input;
 
 const YamlEditor: React.FC = () => {
   const [fileList, setFileList] = useState<string[]>([]);
@@ -120,10 +120,10 @@ const YamlEditor: React.FC = () => {
       );
     } else if (typeof value === 'string') {
       return (
-        <Input
-          type={'text'}
+        <TextArea
           value={value}
           onChange={(e) => updateData(path, e.target.value)}
+          autoSize={{ minRows: 1, maxRows: 5 }}
         // size="small"
         />
       );
@@ -147,13 +147,14 @@ const YamlEditor: React.FC = () => {
         <div className="array-container">
           {value.map((item, index) => (
             <div key={index} className="array-item">
-              <Input
+              <TextArea
                 value={item}
                 onChange={(e) => {
                   const newValue = [...value];
                   newValue[index] = e.target.value;
                   updateData(path, newValue);
                 }}
+                autoSize={{ minRows: 1, maxRows: 5 }}
               // size="small"
               />
 
