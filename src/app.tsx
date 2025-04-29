@@ -32,7 +32,7 @@ const loginPath = '/user/login';
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<{
-  settings?: Partial<LayoutSettings>;
+  settings?: Partial<LayoutSettings> & { isDark: boolean }; // 更新类型定义以包含 isDark
   currentUser?: API.Profile;
   loading?: boolean;
   fetchUserInfo?: () => Promise<API.Profile | undefined>;
@@ -86,18 +86,19 @@ export async function getInitialState(): Promise<{
   // 初始化主题
   const initTheme = () => {
     const isDark = localStorage.getItem('isDark') === 'true';
-      return {
-        ...defaultSettings,
-        navTheme: isDark? 'realDark': 'light',
-        token: {
-          bgLayout: isDark ? '#181818' : '#f5f5f5',
-          // bgLayout: 'linear-gradient(to bottom, #181818 0%,#252525 100%)',
-          sider: {
-            colorMenuBackground: isDark ? ' #1f1f1f' : " #fbfbfb",
-          }
-        },
-      } as Partial<LayoutSettings>;
-    return defaultSettings as Partial<LayoutSettings>;
+    return {
+      ...defaultSettings,
+      navTheme: isDark ? 'realDark' : 'light',
+      isDark: isDark, // 将 isDark 添加到 settings 中
+      token: {
+        bgLayout: isDark ? '#181818' : '#f5f5f5',
+        // bgLayout: 'linear-gradient(to bottom, #181818 0%,#252525 100%)',
+        sider: {
+          colorMenuBackground: isDark ? ' #1f1f1f' : " #fbfbfb",
+        }
+      },
+    } as Partial<LayoutSettings> & { isDark: boolean }; // 更新类型定义以包含 isDark
+    // 注意：原始代码在这里有一个冗余的 return 语句，已移除。
   };
 
 
@@ -126,7 +127,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     theme: {
       algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
       token: {
-        colorSuccess: "#95da73",
+        // colorSuccess: "#95da73",
         colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
         fontSize: 16,
         sizeStep: 4,
@@ -163,11 +164,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
           token: {
             colorSuccess: "#95da73",
-            colorBgBase: isDarkMode ? "#0e0e0e" : "#fff",
+            colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
             fontSize: 16,
             sizeStep: 4,
             borderRadius: 8,
             colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
+          },
+          components: {
+            Card: {
+              paddingLG: 10,
+              boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+            },
           },
         }}
       >

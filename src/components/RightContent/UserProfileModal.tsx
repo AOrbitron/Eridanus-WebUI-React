@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Form, Input, Button, Popconfirm, message, PopconfirmProps } from 'antd';
 
 interface UserProfileModalProps {
@@ -8,7 +8,7 @@ interface UserProfileModalProps {
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm();
-
+  const [matchPswd, setMatchPswd] = useState<boolean>(false);
   const confirm: PopconfirmProps['onConfirm'] = (e) => {
     message.success('Click on Yes');
   };
@@ -22,7 +22,16 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         newPassword: values.newPassword,
       };
       console.log('提交的数据:', submitData);
+      // 发送用户信息修改请求
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submitData),
+      });
       message.success('修改成功');
+
       // TODO: 调用后端 API
       onClose();
     } catch (error) {
@@ -69,8 +78,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || !getFieldValue('newPassword') || getFieldValue('newPassword') === value) {
+                  setMatchPswd(true);
                   return Promise.resolve();
                 }
+                setMatchPswd(false);
                 return Promise.reject(new Error('两次输入的密码不一致'));
               },
             }),
@@ -78,20 +89,17 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         >
           <Input.Password placeholder="请确认新密码" />
         </Form.Item>
-
-        <Form.Item>
-          <Popconfirm
-            title="确认修改吗？"
-            placement='bottom'
-            onConfirm={handleSubmit}
-            okText="是"
-            cancelText="否"
-          >
-            <Button type="primary" block>
-              确认修改
-            </Button>
-          </Popconfirm>
-        </Form.Item>
+        <Popconfirm
+          title="确认修改吗？"
+          placement='bottom'
+          onConfirm={handleSubmit}
+          okText="是"
+          cancelText="否"
+        >
+          <Button type="primary" block disabled={!matchPswd}>
+            确认修改
+          </Button>
+        </Popconfirm>
       </Form>
     </Modal>
   );

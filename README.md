@@ -17,7 +17,13 @@
 ## 准备环境
 - 请确认电脑已经安装好node.js
 - 切换到项目目录下，执行：
+---
 
+换淘宝镜像源
+```bash
+ npm config set registry https://registry.npmmirror.com
+```
+安装环境
 ```bash
 npm install
 ```
@@ -36,9 +42,9 @@ npm run build
 ```
 ## 提示
 - `mock`目录下为模拟API的数据，用于本地调试，可根据需要修改
-
+- `public`目录下为静态资源
 ## 关于
-- [Ant Design Pro Github仓库](https://github.com/ant-design/ant-design-pro)
+- [Ant Design Pro Github 仓库](https://github.com/ant-design/ant-design-pro)
 - [Ant Design Pro 文档](https://pro.ant.design)
 - [Ant Design 文档](https://pro.ant.design)
 - [Ant Design X 文档](https://ant-design-x.antgroup.com/components/overview-cn)

@@ -1,6 +1,5 @@
 import { Footer } from '@/components';
 import { login } from '@/services/ant-design-pro/api';
-import { getFakeCaptcha } from '@/services/ant-design-pro/login';
 import {
   LockOutlined,
   UserOutlined,
@@ -14,24 +13,7 @@ import { Alert, message } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useState, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { createStyles } from 'antd-style';
 import { sha3_256 } from 'js-sha3';
-
-
-const useStyles = createStyles(({ token }) => {
-  return {
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      overflow: 'auto',
-      // backgroundColor:,
-      // backgroundImage:
-      //   "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
-      backgroundSize: '100% 100%',
-    },
-  };
-});
 
 
 const LoginMessage: React.FC<{
@@ -83,12 +65,13 @@ const directLogin = () => {
 }
 
 const Login: React.FC = () => {
+  const { initialState, setInitialState } = useModel('@@initialState');
+  const isDark = initialState?.settings?.navTheme === 'realDark';
   //登录状态
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
   //设置账户类型
   const [type, setType] = useState<string>('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
-  const { styles } = useStyles();
+
   //获取用户信息
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -150,7 +133,17 @@ const Login: React.FC = () => {
     directLogin();
   }, []);
   return (
-    <div className={styles.container}>
+    <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999,
+      background: isDark ? '#1f1f1f' : '#f5f5f5',
+    }}
+    >
       <Helmet>
         <title>
           {'登录'} - {Settings.title}

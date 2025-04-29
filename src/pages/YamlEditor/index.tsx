@@ -17,7 +17,7 @@ const YamlEditor: React.FC = () => {
   const [fileList, setFileList] = useState<string[]>([]);
   const [currentFile, setCurrentFile] = useState<string>('');
   const [yamlData, setYamlData] = useState<YamlData>({});
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
 
   const fetchYamlFiles = async () => {
@@ -208,17 +208,29 @@ const YamlEditor: React.FC = () => {
 
           return (
             <List.Item className="yaml-item">
-              <Card style={{ margin: '-8px' }} className="yaml-content">
+              <Card style={{padding:0}} className="yaml-content">
                 <div className="key-container">
                   <strong style={{ fontSize: '1.2rem' }}>{key}:</strong>
                   {comment && (
-                    <span style={{ left: "5px",opacity: 0.7 }} className="comment" dangerouslySetInnerHTML={{
-                      // 正则表达式匹配URL，并将其转换为可点击的链接
-                      __html: comment.replace(
-                        /((?:https?:\/\/)?(?:(?:[a-z0-9]?(?:[a-z0-9\-]{1,61}[a-z0-9])?\.[^\.|\s])+[a-z\.]*[a-z]+|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})(?::\d{1,5})*[a-z0-9.,_\/~#&=;%+?\-\\(\\)]*)/gi,
-                        '<a href="$&" target="_blank">$&</a>'
-                      )
-                    }} />
+                    <span
+                      style={{
+                        left: "10px",
+                        opacity: 0.8,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'block',
+                        maxWidth: '100%'
+                      }}
+                      className="comment"
+                      dangerouslySetInnerHTML={{
+                        // 正则表达式匹配注释中的URL，并将其转换为可点击的链接
+                        __html: comment.replace(
+                          /((?:https?:\/\/)?(?:(?:[a-z0-9]?(?:[a-z0-9\-]{1,61}[a-z0-9])?\.[^\.|\s])+[a-z\.]*[a-z]+|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})(?::\d{1,5})*[a-z0-9.,_\/~#&=;%+?\-\\(\\)]*)/gi,
+                          '<a href="$&" target="_blank">$&</a>'
+                        )
+                      }}
+                    />
                   )}
                 </div>
                 {typeof value === 'object' && !Array.isArray(value) ? (
@@ -244,6 +256,8 @@ const YamlEditor: React.FC = () => {
     return (
       <>
         <Dropdown
+        autoAdjustOverflow={true}
+        // getPopupContainer={(triggerNode) => triggerNode.parentElement}
           overlay={(
             <Menu
               onClick={({ key }) => {
@@ -278,7 +292,7 @@ const YamlEditor: React.FC = () => {
   return (
     <Spin spinning={loading} size='large'>
       <PageContainer>
-        <Card>
+        <Card style={{padding:0}}>
           <div className="yaml-editor">
             {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
             <Affix offsetTop={60}>

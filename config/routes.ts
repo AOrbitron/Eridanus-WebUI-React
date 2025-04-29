@@ -3,7 +3,6 @@ import { Component } from "react";
 export default [
   {
     path: '/user',
-    layout: false,
     routes: [{ name: '登录', path: '/user/login', component: './User/Login' }],
   },
   { path: '/dashboard', name: '总览', icon: 'compass', component: './About' },
@@ -26,5 +25,5 @@ export default [
   { name: '关于', icon: 'infoCircle', path: '/about', component: './About' },
   { name: 'Eridanus文档', icon: 'file', path: 'https://eridanus-doc.netlify.app/' },
   { path: '/', redirect: '/dashboard' },
-  { path: '*', layout: false, component: './404' },
+  { path: '*', component: './404' },
 ];
