@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, Popconfirm, message, PopconfirmProps } from 'antd';
-
+import { sha3_256 } from 'js-sha3';
+import { updateProfile } from '@/services/ant-design-pro/api';
 interface UserProfileModalProps {
   visible: boolean;
   onClose: () => void;
@@ -9,35 +10,28 @@ interface UserProfileModalProps {
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm();
   const [matchPswd, setMatchPswd] = useState<boolean>(false);
-  const confirm: PopconfirmProps['onConfirm'] = (e) => {
-    message.success('Click on Yes');
-  };
+
 
 
   const handleSubmit = async () => {
-    try {
       const values = await form.validateFields();
-      const submitData = {
-        newAccount: values.newAccount,
-        newPassword: values.newPassword,
+      const submitData: API.UpdateProfileParams = {
+        account: values.newAccount,
+        password: values.newPassword,
       };
-      console.log('提交的数据:', submitData);
       // 发送用户信息修改请求
-      await fetch('/api/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData),
-      });
-      message.success('修改成功');
-
-      // TODO: 调用后端 API
-      onClose();
-    } catch (error) {
-      message.error('修改失败');
-      console.error('表单验证失败:', error);
-    }
+      const submitResult = await updateProfile(submitData);
+      if (submitResult.message == 'Success') {
+        message.success('修改成功，请重新登录');
+        return;
+      }
+      if (submitResult.error) {
+        message.error(submitResult.error);
+        return;
+      }
+      // onClose();
+      // message.error('修改失败');
+      // console.error('表单验证失败:', error);
   };
 
   return (

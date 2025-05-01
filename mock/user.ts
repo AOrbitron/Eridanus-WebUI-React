@@ -33,50 +33,50 @@ export default {
     }
     res.send({
       files: [
-      "dev_test.yaml",
-      "fake_dev_test_2.yaml",
-      "fake_dev_test_3.yaml",
-      "fake_dev_test_4.yaml",
-      "fake_dev_test_5.yaml",
-      "fake_dev_test_6.yaml",
-      "fake_dev_test_7.yaml",
-      "fake_dev_test_8.yaml",
-      "fake_dev_test_9.yaml",
-      "fake_dev_test_10.yaml",
-      "fake_dev_test_11.yaml",
-      "fake_dev_test_12.yaml",
-      "fake_dev_test_13.yaml",
-      "fake_dev_test_14.yaml",
-      "fake_dev_test_15.yaml",
-      "fake_dev_test_16.yaml",
-      "fake_dev_test_17.yaml",
-      "fake_dev_test_18.yaml",
-      "fake_dev_test_19.yaml",
-      "fake_dev_test_20.yaml",
-      "fake_dev_test_21.yaml",
-      "fake_dev_test_22.yaml",
-      "fake_dev_test_23.yaml",
-      "fake_dev_test_24.yaml",
-      "fake_dev_test_25.yaml",
-      "fake_dev_test_26.yaml",
-      "fake_dev_test_27.yaml",
-      "fake_dev_test_28.yaml",
-      "fake_dev_test_29.yaml",
-      "fake_dev_test_30.yaml",
-      "fake_dev_test_31.yaml",
-      "fake_dev_test_32.yaml",
-      "fake_dev_test_33.yaml",
-      "fake_dev_test_34.yaml",
-      "fake_dev_test_35.yaml",
-      "fake_dev_test_36.yaml",
-      "fake_dev_test_37.yaml",
-      "fake_dev_test_38.yaml",
-      "fake_dev_test_39.yaml",
-      "fake_dev_test_40.yaml",
-      "fake_dev_test_41.yaml",
-      "fake_dev_test_42.yaml",
-    ]
-  });
+        "dev_test.yaml",
+        "fake_dev_test_2.yaml",
+        "fake_dev_test_3.yaml",
+        "fake_dev_test_4.yaml",
+        "fake_dev_test_5.yaml",
+        "fake_dev_test_6.yaml",
+        "fake_dev_test_7.yaml",
+        "fake_dev_test_8.yaml",
+        "fake_dev_test_9.yaml",
+        "fake_dev_test_10.yaml",
+        "fake_dev_test_11.yaml",
+        "fake_dev_test_12.yaml",
+        "fake_dev_test_13.yaml",
+        "fake_dev_test_14.yaml",
+        "fake_dev_test_15.yaml",
+        "fake_dev_test_16.yaml",
+        "fake_dev_test_17.yaml",
+        "fake_dev_test_18.yaml",
+        "fake_dev_test_19.yaml",
+        "fake_dev_test_20.yaml",
+        "fake_dev_test_21.yaml",
+        "fake_dev_test_22.yaml",
+        "fake_dev_test_23.yaml",
+        "fake_dev_test_24.yaml",
+        "fake_dev_test_25.yaml",
+        "fake_dev_test_26.yaml",
+        "fake_dev_test_27.yaml",
+        "fake_dev_test_28.yaml",
+        "fake_dev_test_29.yaml",
+        "fake_dev_test_30.yaml",
+        "fake_dev_test_31.yaml",
+        "fake_dev_test_32.yaml",
+        "fake_dev_test_33.yaml",
+        "fake_dev_test_34.yaml",
+        "fake_dev_test_35.yaml",
+        "fake_dev_test_36.yaml",
+        "fake_dev_test_37.yaml",
+        "fake_dev_test_38.yaml",
+        "fake_dev_test_39.yaml",
+        "fake_dev_test_40.yaml",
+        "fake_dev_test_41.yaml",
+        "fake_dev_test_42.yaml",
+      ]
+    });
   },
 
 
@@ -92,13 +92,26 @@ export default {
     });
   },
 
+  'POST /api/profile': (req: Request, res: Response) => {
+    if (!getAccess()) {
+      res.status(400).send({
+        error: 'Unauthorized',
+      });
+      return;
+    }
+    res.send({
+      message: 'Success',
+    });
+    access = '';
+  },
+
   'POST /api/login': async (req: Request, res: Response) => {
     const { password, account } = req.body;
     await waitTime(200);
     if (password === 'f6074ac37e2f8825367d9ae118a523abf16924a86414242ae921466db1e84583' && account === 'eridanus') {
       res.send({
-      message:"Success",
-      auth_token: "114514"
+        message: "Success",
+        auth_token: "114514"
       });
       access = 'admin';
       return;
@@ -109,9 +122,13 @@ export default {
     });
   },
 
-  'POST /api/logout': (req: Request, res: Response) => {
-    access = '';
-    res.send({ message:"Success"});
+  'GET /api/logout': (req: Request, res: Response) => {
+    if (access) {
+      access = '';
+      res.send({ message: "Success" });
+    } else {
+      res.send({ error: 'Failed' });
+    }
   },
 
 

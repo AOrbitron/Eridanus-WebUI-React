@@ -1,5 +1,5 @@
 import { SunOutlined, UserOutlined, MoonOutlined, LogoutOutlined } from '@ant-design/icons';
-import { Tooltip, Popconfirm } from "antd";
+import { Tooltip, Popconfirm, message } from "antd";
 import '@umijs/max';
 import React, { useState } from 'react';
 import { useModel } from '@umijs/max';
@@ -96,7 +96,21 @@ export const LogOut = () => {
    */
   const loginOut = async () => {
     // 退出登录
-    userLogout();
+    try {
+      const logoutResult = await userLogout();
+      if (logoutResult.message) {
+        message.success("退出登录成功");
+      }
+      if (logoutResult.error) {
+        message.error("退出登录失败，token已过期");
+        return;
+      }
+    } catch (error) {
+      //网络问题交给umi处理
+      return;
+    }
+    localStorage.removeItem('auth_token');
+    document.cookie = "auth_token=;";
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -113,6 +127,7 @@ export const LogOut = () => {
         }),
       });
     }
+    return;
   };
 
   return (

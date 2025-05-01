@@ -63,19 +63,19 @@ export async function getInitialState(): Promise<{
 
 
   // 如果不在登录页面，先检查用户信息。如果用户信息本地不存在或者过期，跳转到登录页面
-  const { location } = history;
-  if (location.pathname !== loginPath) {
-    const currentUser = await directLogin();
+  // const { location } = history;
+  // if (location.pathname !== loginPath) {
+    // const currentUser = await directLogin();
     return {
       directLogin,
-      currentUser,
+      currentUser: await directLogin(),
       settings: initTheme(),
     };
-  }
-  return {
-    directLogin,
-    settings: initTheme(),
-  };
+  // }
+  // return {
+  //   directLogin,
+  //   settings: initTheme(),
+  // };
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
@@ -111,7 +111,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       console.log(initialState?.currentUser?.account);
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser?.account && location.pathname !== loginPath) {
-        message.info('请先登录');
+        //如果是主页，不弹出该提示
+        location.pathname == '/dashboard' ? null : message.info('请先登录');
         history.push(loginPath);
       }
     },

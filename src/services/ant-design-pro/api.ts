@@ -9,9 +9,8 @@ export async function getCurrentUser() {
   });
 }
 
-export async function updateProfile(body: API.UpdateProfileProfiles) {
-  return request<{
-  }>('/api/profile', {
+export async function updateProfile(body: API.UpdateProfileParams) {
+  return request<API.CommonResult>('/api/profile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -45,7 +45,7 @@ declare namespace API {
     auth?: string;
   };
 
-  type UpdateProfileProfiles = {
+  type UpdateProfileParams = {
     account?: string;
     password?: string;
   };
