@@ -36,6 +36,7 @@ export const ColorMode = () => {
         settings: {
           ...preInitialState!.settings,
           // 使用计算出的新主题
+          isDark: newIsDark,
           navTheme: newNavTheme,
           // 根据新主题设置 token
           token: {

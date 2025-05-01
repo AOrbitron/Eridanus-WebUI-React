@@ -22,45 +22,6 @@ export async function getInitialState(): Promise<{
   loading?: boolean;
   directLogin?: () => Promise<API.Profile | undefined>;
 }> {
-  // const fetchUserInfo = async () => {
-  //   try {
-  //     // 检查是否有auth_token
-  //     const token = localStorage.getItem('auth_token');
-  //     if (token) {
-  //       // 设置cookie
-  //       document.cookie = `auth_token=${token}`;
-  //       // 向API获取用户信息
-  //       const response = await
-  //       if (!response.ok) {
-  //         return undefined;
-  //       }
-  //       try {
-  //         const data = await response.json();
-  //         if (data.name !== '') {
-  //           return data;
-  //         }
-  //       } catch (error) {
-  //         message.error('400');
-  //         // return undefined; // Us
-  //         // Token无效，清除存储
-  //         // localStorage.removeItem('auth_token');
-  //         // document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-  //         // history.push(loginPath);
-  //       }
-  //     }
-  //     // 如果没有token或token无效，尝试使用原有方式获取用户信息
-  //     //   const msg = await queryCurrentUser({
-  //     //     skipErrorHandler: true,
-  //     //   });
-  //     //   return msg.data;
-  //   } catch (error) {
-  //     message.error(`${error}`);
-  //     history.push(loginPath);
-  //   }
-  //   message.error('undefined');
-  //   return undefined;
-  // };
-
   //本地读取token验证.如果验证失败，清除本地存储的token。返回API.Profile
   const directLogin = async () => {
     const token = localStorage.getItem('auth_token');
@@ -75,11 +36,11 @@ export async function getInitialState(): Promise<{
         document.cookie = '';
         message.error('登录过期，请重新登录');
         return undefined;
-      } else {
-        // 登录成功
-        return userStatus;
       }
+      // 登录成功
+      return userStatus;
     }
+    return undefined;
   }
 
   // 初始化主题
@@ -120,17 +81,18 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   // 根据当前主题设置应用全局主题配置
-  const isDarkMode = initialState?.settings?.navTheme === 'realDark';
+  const isDark = initialState?.settings?.isDark;
+
+  //这一段configprovider主要是给message组件用的
   ConfigProvider.config({
     theme: {
-      algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       token: {
-        // colorSuccess: "#95da73",
-        colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
+        colorBgBase: isDark ? "#1b1b1b" : "#f5f5f5",
         fontSize: 16,
         sizeStep: 4,
         borderRadius: 8,
-        colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
+        colorTextBase: isDark ? "#f6f6f6" : "#0e0e0e",
       },
     },
   });
@@ -146,8 +108,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     //页面变更时响应
     onPageChange: () => {
       const { location } = history;
+      console.log(initialState?.currentUser?.account);
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      if (!initialState?.currentUser?.account && location.pathname !== loginPath) {
+        message.info('请先登录');
         history.push(loginPath);
       }
     },
@@ -157,27 +121,30 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     childrenRender: (children) => {
       // if (initialState?.loading) return <PageLoading />;
       return (
-        <ConfigProvider
-          theme={{
-            algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-            token: {
-              colorSuccess: "#95da73",
-              colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
-              fontSize: 16,
-              sizeStep: 4,
-              borderRadius: 8,
-              colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
-            },
-            components: {
-              Card: {
-                paddingLG: 10,
-                boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+        <>
+          {/*这一段configprovider给子组件用，不然子组件颜色渲染没有预期效果 */}
+          <ConfigProvider
+            theme={{
+              algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+              token: {
+                colorSuccess: "#95da73",
+                colorBgBase: isDark ? "#0e0e0e" : "#fff",
+                fontSize: 16,
+                sizeStep: 4,
+                borderRadius: 8,
+                colorTextBase: isDark ? "#f6f6f6" : "#0e0e0e",
               },
-            },
-          }}
-        >
-          {children}
-        </ConfigProvider>
+              components: {
+                Card: {
+                  paddingLG: 10,
+                  boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+                },
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
+        </>
       );
     },
     ...initialState?.settings,

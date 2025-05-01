@@ -88,7 +88,7 @@ export default {
       return;
     }
     res.send({
-      name: 'Eridanus',
+      account: 'Eridanus',
     });
   },
 

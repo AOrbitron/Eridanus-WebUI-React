@@ -10,7 +10,7 @@ import { sha3_256 } from 'js-sha3';
 
 const Login: React.FC = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
-  const isDark = initialState?.settings?.navTheme === 'realDark';
+  const isDark = initialState?.settings?.isDark;
   //登录状态
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
 
@@ -44,9 +44,19 @@ const Login: React.FC = () => {
         localStorage.setItem('auth_token', loginResult.auth_token ? loginResult.auth_token : '');
         //设置cookies，服务端已经设置过了（为了本地模拟还是要加上）
         document.cookie = `auth_token=${loginResult.auth_token}`;
+        //获取当前用户信息
+        const currentUser = await getCurrentUser();
+        //更新到全局状态
+        flushSync(() => {
+          setInitialState((s) => ({
+            ...s,
+            currentUser,
+          }));
+        });
         message.success('登录成功');
         const urlParams = new URL(window.location.href).searchParams;
         history.push(urlParams.get('redirect') || '/');
+        // 获取当前用户信息并更新到全局状态
         return;
       }
     } catch (error) {
