@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, theme } from 'antd';
+import { Card } from 'antd';
 import React from 'react';
 
 const About: React.FC = () => {
@@ -48,7 +48,6 @@ const About: React.FC = () => {
           </h2>
           <a href="https://github.com/avilliai/Eridanus" target="_blank" style={{ marginLeft: '20px' }}>Eridanus 仓库</a><br />
           <a href="https://eridanus-doc.netlify.app/" target="_blank" style={{ marginLeft: '20px' }}>Eridanus 文档</a><br />
-
         </div>
       </Card>
     </PageContainer>

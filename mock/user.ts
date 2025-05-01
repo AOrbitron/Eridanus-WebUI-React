@@ -91,9 +91,10 @@ export default {
       name: 'Eridanus',
     });
   },
+
   'POST /api/login': async (req: Request, res: Response) => {
     const { password, account } = req.body;
-    await waitTime(1000);
+    await waitTime(200);
     if (password === 'f6074ac37e2f8825367d9ae118a523abf16924a86414242ae921466db1e84583' && account === 'eridanus') {
       res.send({
       message:"Success",
@@ -103,7 +104,7 @@ export default {
       return;
     }
 
-    res.status(400).send({
+    res.send({
       error: 'Failed',
     });
   },

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useModel } from '@umijs/max';
 import { history } from '@umijs/max';
 import { stringify } from 'querystring';
-import { accountLogout } from '@/services/ant-design-pro/api';
+import { userLogout } from '@/services/ant-design-pro/api';
 import { flushSync } from 'react-dom';
 import UserProfileModal from './UserProfileModal';
 
@@ -95,7 +95,7 @@ export const LogOut = () => {
    */
   const loginOut = async () => {
     // 退出登录
-    await accountLogout({ auth: localStorage.getItem('token') || undefined });
+    userLogout();
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */

@@ -1,4 +1,4 @@
-import { Footer, ColorMode,UserProfile, LogOut} from '@/components';
+import { Footer, ColorMode, UserProfile, LogOut } from '@/components';
 import { useModel } from '@umijs/max';
 import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
@@ -7,27 +7,12 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
+import { getCurrentUser } from '@/services/ant-design-pro/api';
 import React from 'react';
 import { ConfigProvider, theme, message } from 'antd';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
-// const { initialState, setInitialState } = useModel('@@initialState');
-// const isDarkMode = initialState?.settings?.navTheme === 'realDark';
-// ConfigProvider.config({
-//   theme: {
-//     algorithm: theme.darkAlgorithm,
-//     token: {
-//       colorSuccess: "#95da73",
-//       colorBgBase: "#f6f6f6",
-//       fontSize: 16,
-//       sizeStep: 4,
-//       borderRadius: 8,
-//       colorTextBase: "#f6f6f6"
-//     },
-//   },
-// });
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
@@ -35,53 +20,67 @@ export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings> & { isDark: boolean }; // 更新类型定义以包含 isDark
   currentUser?: API.Profile;
   loading?: boolean;
-  fetchUserInfo?: () => Promise<API.Profile | undefined>;
+  directLogin?: () => Promise<API.Profile | undefined>;
 }> {
-  const fetchUserInfo = async () => {
-    try {
-      // 检查是否有auth_token
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        // 设置cookie
-        document.cookie = `auth_token=${token}`;
+  // const fetchUserInfo = async () => {
+  //   try {
+  //     // 检查是否有auth_token
+  //     const token = localStorage.getItem('auth_token');
+  //     if (token) {
+  //       // 设置cookie
+  //       document.cookie = `auth_token=${token}`;
+  //       // 向API获取用户信息
+  //       const response = await
+  //       if (!response.ok) {
+  //         return undefined;
+  //       }
+  //       try {
+  //         const data = await response.json();
+  //         if (data.name !== '') {
+  //           return data;
+  //         }
+  //       } catch (error) {
+  //         message.error('400');
+  //         // return undefined; // Us
+  //         // Token无效，清除存储
+  //         // localStorage.removeItem('auth_token');
+  //         // document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  //         // history.push(loginPath);
+  //       }
+  //     }
+  //     // 如果没有token或token无效，尝试使用原有方式获取用户信息
+  //     //   const msg = await queryCurrentUser({
+  //     //     skipErrorHandler: true,
+  //     //   });
+  //     //   return msg.data;
+  //   } catch (error) {
+  //     message.error(`${error}`);
+  //     history.push(loginPath);
+  //   }
+  //   message.error('undefined');
+  //   return undefined;
+  // };
 
-        // 向API获取用户信息
-        const response = await fetch(`/api/profile`, {
-          method: 'GET',
-          headers: {
-            'auth': `${token}`,
-          },
-        });
-        if(!response.ok){
-          return undefined;
-        }
-        try{
-          const data = await response.json();
-          if(data.name !==''){
-            return data;
-          }
-        } catch (error) {
-          message.error('400');
-          // return undefined; // Us
-          // Token无效，清除存储
-          // localStorage.removeItem('auth_token');
-          // document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-          // history.push(loginPath);
-        }
+  //本地读取token验证.如果验证失败，清除本地存储的token。返回API.Profile
+  const directLogin = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      // 设置cookie
+      document.cookie = `auth_token=${token}`;
+      // 验证token有效性
+      const userStatus = await getCurrentUser();
+      if (userStatus.error) {
+        // 清除token
+        localStorage.removeItem('auth_token');
+        document.cookie = '';
+        message.error('登录过期，请重新登录');
+        return undefined;
+      } else {
+        // 登录成功
+        return userStatus;
       }
-
-      // 如果没有token或token无效，尝试使用原有方式获取用户信息
-    //   const msg = await queryCurrentUser({
-    //     skipErrorHandler: true,
-    //   });
-    //   return msg.data;
-    } catch (error) {
-      message.error(`${error}`);
-      history.push(loginPath);
     }
-    return undefined;
-  };
-
+  }
 
   // 初始化主题
   const initTheme = () => {
@@ -105,19 +104,18 @@ export async function getInitialState(): Promise<{
   // 如果不在登录页面，先检查用户信息。如果用户信息本地不存在或者过期，跳转到登录页面
   const { location } = history;
   if (location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
+    const currentUser = await directLogin();
     return {
-      fetchUserInfo,
+      directLogin,
       currentUser,
       settings: initTheme(),
     };
   }
   return {
-    fetchUserInfo,
+    directLogin,
     settings: initTheme(),
   };
 }
-
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
@@ -139,7 +137,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   return {
     actionsRender: () => [
       <React.Fragment key="actions">
-        <ColorMode key="doc" />
+        <ColorMode key="colormode" />
         <UserProfile key="userprofile" />
         <LogOut key="logout" />
       </React.Fragment>
@@ -160,24 +158,24 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       // if (initialState?.loading) return <PageLoading />;
       return (
         <ConfigProvider
-        theme={{
-          algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
-          token: {
-            colorSuccess: "#95da73",
-            colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
-            fontSize: 16,
-            sizeStep: 4,
-            borderRadius: 8,
-            colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
-          },
-          components: {
-            Card: {
-              paddingLG: 10,
-              boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+          theme={{
+            algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+            token: {
+              colorSuccess: "#95da73",
+              colorBgBase: isDarkMode ? "#0e0e0e" : "#f5f5f5",
+              fontSize: 16,
+              sizeStep: 4,
+              borderRadius: 8,
+              colorTextBase: isDarkMode ? "#f6f6f6" : "#0e0e0e",
             },
-          },
-        }}
-      >
+            components: {
+              Card: {
+                paddingLG: 10,
+                boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
+              },
+            },
+          }}
+        >
           {children}
         </ConfigProvider>
       );

@@ -16,6 +16,7 @@ declare namespace API {
   type LoginResult = {
     message?: string;
     auth_token?: string;
+    error?: string;
   };
   //api/logout
   type LogoutResult = {
