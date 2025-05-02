@@ -133,7 +133,7 @@ export default {
 
 
   'GET /api/load/dev_test.yaml': async (req: Request, res: Response) => {
-    await waitTime(1000);
+    await waitTime(200);
     if (!getAccess()) {
       res.status(400).send({
         error: 'Unauthorized',

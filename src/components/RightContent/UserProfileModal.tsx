@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, Popconfirm, message, PopconfirmProps } from 'antd';
+import { history } from '@umijs/max';
 import { sha3_256 } from 'js-sha3';
 import { updateProfile } from '@/services/ant-design-pro/api';
 interface UserProfileModalProps {
@@ -11,8 +12,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
   const [form] = Form.useForm();
   const [matchPswd, setMatchPswd] = useState<boolean>(false);
 
-
-
   const handleSubmit = async () => {
       const values = await form.validateFields();
       const submitData: API.UpdateProfileParams = {
@@ -22,6 +21,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
       // 发送用户信息修改请求
       const submitResult = await updateProfile(submitData);
       if (submitResult.message == 'Success') {
+        document.cookie = 'auth_token=';
+        localStorage.removeItem('auth_token');
+        history.push('/user/login');
         message.success('修改成功，请重新登录');
         return;
       }

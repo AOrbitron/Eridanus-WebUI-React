@@ -23,13 +23,13 @@ export async function getInitialState(): Promise<{
   directLogin?: () => Promise<API.Profile | undefined>;
 }> {
   //本地读取token验证.如果验证失败，清除本地存储的token。返回API.Profile
-  const directLogin = async () => {
+  const directLogin = () => {
     const token = localStorage.getItem('auth_token');
     if (token) {
       // 设置cookie
       document.cookie = `auth_token=${token}`;
       // 验证token有效性
-      const userStatus = await getCurrentUser();
+      const userStatus = getCurrentUser();
       if (userStatus.error) {
         // 清除token
         localStorage.removeItem('auth_token');
@@ -65,10 +65,10 @@ export async function getInitialState(): Promise<{
   // 如果不在登录页面，先检查用户信息。如果用户信息本地不存在或者过期，跳转到登录页面
   // const { location } = history;
   // if (location.pathname !== loginPath) {
-    // const currentUser = await directLogin();
+    const currentUser = await directLogin();
     return {
-      directLogin,
-      currentUser: await directLogin(),
+      directLogin: async () => await directLogin(),
+      currentUser: currentUser? currentUser : undefined,
       settings: initTheme(),
     };
   // }

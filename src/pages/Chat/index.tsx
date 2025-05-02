@@ -39,7 +39,7 @@ const Chat: React.FC = () => {
   }, [messages]);
 
   const connectWebSocket = () => {
-    const newWs = new WebSocket(`ws://${window.location.hostname}:5008`);
+    const newWs = new WebSocket(`/api/ws`);
 
     newWs.onopen = () => {
       setLoading(false);
