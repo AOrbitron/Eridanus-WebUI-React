@@ -19,6 +19,17 @@ export async function updateProfile(body: API.UpdateProfileParams) {
   });
 }
 
+//修改用户登录信息
+export async function file2b64(body: string) {
+  return request<API.file2b64Result>('/api/file2base64', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+  });
+}
+
 /** 退出登录接口 POST /api/logout */
 export async function userLogout(options?: { [key: string]: any }) {
   return request<API.LogoutResult>('/api/logout', {

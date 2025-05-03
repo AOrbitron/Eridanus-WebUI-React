@@ -4,6 +4,7 @@ import type { BubbleProps } from '@ant-design/x';
 import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import styles from './index.less';
+import { file2b64 } from '@/services/ant-design-pro/api';
 
 // const wsURL = `/api/ws`;
 // const requestURL = ``;
@@ -54,7 +55,6 @@ const Chat: React.FC = () => {
       //如果路由在chat页面才重新连接，避免ws断开就一直重连，不在chat页面也会重连
       if (window.location.pathname == '/chat') {
         setLoading(true);
-        message.loading('WebSocket 连接已断开，正在尝试重新连接...');
         setTimeout(connectWebSocket, 5000);
       }
     };
@@ -62,11 +62,10 @@ const Chat: React.FC = () => {
     newWs.onerror = (error: Event) => {
       addServerMessage('WebSocket 连接错误');
     };
-
     setWs(newWs);
   };
 
-  //渲染多媒体消息
+  //渲染消息气泡
   const renderBubble = (content?: string, base64?: string | undefined, loading?: boolean) => (
     <div>
       {content ? (`${content}`) : ('')}
@@ -106,24 +105,33 @@ const Chat: React.FC = () => {
   );
 
   const convertFileToBase64 = async (filePath: string): Promise<string | null> => {
-    try {
-      const response = await fetch(`${requestURL}/api/file2base64`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ path: filePath })
-      });
-
-      const data = await response.json();
-      if (data.base64) {
-        return data.base64;
-      } else {
-        console.error('Error:', data.error);
+    return await file2b64(JSON.stringify({ path: filePath }))
+      .then((res) => {
+        if (res.base64) {
+          return res.base64;
+        }
         return null;
-      }
-    } catch (error) {
-      console.error('Request failed:', error);
-      return null;
-    }
+      })
+      .catch((error) => {
+        return null;
+      });
+    // try {
+    // const response = await fetch(`${requestURL}/api/file2base64`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ path: filePath })
+    // });
+    //   const data = await response.json();
+    //   if (data.base64) {
+    //     return data.base64;
+    //   } else {
+    //     console.error('Error:', data.error);
+    //     return null;
+    //   }
+    // } catch (error) {
+    //   console.error('Request failed:', error);
+    //   return null;
+    // }
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -293,103 +301,97 @@ const Chat: React.FC = () => {
 
 
   return (
-    <Spin spinning={loading} size='large'>
-        <Card className={styles.chatCard} ref={chatContainRef}>
-          <div className={styles.chatContainer} ref={chatContainerRef}>
-            {messages.map((msg, index) => (
+    <Spin spinning={loading} tip='websocket连接中...' size='large'>
+      <Card className={styles.chatCard} ref={chatContainRef}>
+        <div className={styles.chatContainer} ref={chatContainerRef}>
+          {messages.map((msg, index) => (
+            //antd-x bubble样式
+            <Bubble
+              key={index}
+              placement={msg.role}
+              shape='corner'
+              // content={msg.content}
+              className={styles.message}
+              messageRender={() => renderBubble(msg.content, msg.base64, msg.loading)}
+            // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
+            />
+          ))}
+        </div>
 
-              //antd-x bubble样式
-              <Bubble
-                key={index}
-                placement={msg.role}
-                shape='corner'
-                // content={msg.content}
-                className={styles.message}
-                messageRender={() => renderBubble(msg.content, msg.base64, msg.loading)}
-              // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
-              />
+        <Sender
 
+          placeholder="请输入..."
+          className={styles.bottomTools}
+          value={inputValue}
+          //自动调节输入框大小
+          autoSize={true}
+          onChange={(v) => {
+            setInputValue(v);
+          }}
+          onSubmit={(v) => {
+            handleSend(v);
+          }}
+          prefix={
+            <>
+              <Attachments
+                beforeUpload={() => false}
+                onChange={(info) => {
+                  if (!info.file.originFileObj) {
+                    console.error('文件对象不存在');
+                    message.error('文件上传失败：无法获取文件');
+                    return;
+                  }
 
-            ))}
-          </div>
+                  const file = info.file.originFileObj;
+                  console.log('文件上传:', file.name, file.type);
 
-          <Sender
-            style={{
-              backgroundColor: colorBgContainer,
-              marginRight: 5,
-            }}
-            placeholder="请输入..."
-            className={styles.bottomTools}
-            value={inputValue}
-            //自动调节输入框大小
-            autoSize={true}
-            onChange={(v) => {
-              setInputValue(v);
-            }}
-            onSubmit={(v) => {
-              handleSend(v);
-            }}
-            prefix={
-              <>
-                <Attachments
-                  beforeUpload={() => false}
-                  onChange={(info) => {
-                    if (!info.file.originFileObj) {
-                      console.error('文件对象不存在');
-                      message.error('文件上传失败：无法获取文件');
-                      return;
-                    }
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    console.log('文件读取完成');
+                    const base64Data = e.target?.result as string;
+                    const mimeType = file.type;
+                    const fileType = file.type.split('/')[0];
 
-                    const file = info.file.originFileObj;
-                    console.log('文件上传:', file.name, file.type);
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                      console.log('文件读取完成');
-                      const base64Data = e.target?.result as string;
-                      const mimeType = file.type;
-                      const fileType = file.type.split('/')[0];
-
-                      if (ws && ws.readyState === WebSocket.OPEN) {
-                        let messageData;
-                        if (fileType === 'image') {
-                          messageData = { type: fileType, data: { url: base64Data, file: file.name } };
-                        } else if (fileType === 'video' || fileType === 'audio') {
-                          messageData = { type: fileType, data: { file: base64Data } };
-                        } else {
-                          messageData = { type: 'file', data: { name: file.name, content: base64Data } };
-                        }
-
-                        ws.send(JSON.stringify([messageData]));
-                        addUserMessage(`[${file.name}]`);
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                      let messageData;
+                      if (fileType === 'image') {
+                        messageData = { type: fileType, data: { url: base64Data, file: file.name } };
+                      } else if (fileType === 'video' || fileType === 'audio') {
+                        messageData = { type: fileType, data: { file: base64Data } };
                       } else {
-                        message.error('WebSocket 连接未就绪');
+                        messageData = { type: 'file', data: { name: file.name, content: base64Data } };
                       }
-                    };
 
-                    reader.onerror = (error) => {
-                      console.error('文件读取错误:', error);
-                      message.error('文件读取失败');
-                    };
+                      ws.send(JSON.stringify([messageData]));
+                      addUserMessage(`[${file.name}]`);
+                    } else {
+                      message.error('WebSocket 连接未就绪');
+                    }
+                  };
 
-                    reader.readAsDataURL(file);
-                  }}
-                  getDropContainer={() => chatContainRef.current}
-                  maxCount={5}
-                  multiple={true}
-                  showUploadList={false}
-                  placeholder={{
-                    icon: <CloudUploadOutlined />,
-                    title: '松开上传',
-                    description: '支持文件：图片、视频、音频等',
-                  }}
-                >
-                  <Button type="text" icon={<CloudUploadOutlined />} />
-                </Attachments>
-              </>
-            }
-          />
-        </Card>
+                  reader.onerror = (error) => {
+                    console.error('文件读取错误:', error);
+                    message.error('文件读取失败');
+                  };
+
+                  reader.readAsDataURL(file);
+                }}
+                getDropContainer={() => chatContainRef.current}
+                maxCount={5}
+                multiple={true}
+                showUploadList={false}
+                placeholder={{
+                  icon: <CloudUploadOutlined />,
+                  title: '松开上传',
+                  description: '支持文件：图片、视频、音频等',
+                }}
+              >
+                <Button type="text" icon={<CloudUploadOutlined />} />
+              </Attachments>
+            </>
+          }
+        />
+      </Card>
     </Spin>
 
   );
