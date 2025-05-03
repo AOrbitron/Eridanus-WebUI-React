@@ -11,7 +11,7 @@ interface YamlData {
   error?: string;
 }
 
-const {TextArea} = Input;
+const { TextArea } = Input;
 
 const YamlEditor: React.FC = () => {
   const [fileList, setFileList] = useState<string[]>([]);
@@ -172,7 +172,7 @@ const YamlEditor: React.FC = () => {
                 <Button
                   danger
                   icon={<DeleteOutlined />}
-                  // onClick={ }
+                // onClick={ }
                 // size="small"
                 />
               </Popconfirm>
@@ -208,7 +208,7 @@ const YamlEditor: React.FC = () => {
 
           return (
             <List.Item className="yaml-item">
-              <Card style={{padding:0}} className="yaml-content">
+              <Card style={{ padding: 0 }} className="yaml-content">
                 <div className="key-container">
                   <strong style={{ fontSize: '1.2rem' }}>{key}:</strong>
                   {comment && (
@@ -256,8 +256,8 @@ const YamlEditor: React.FC = () => {
     return (
       <>
         <Dropdown
-        autoAdjustOverflow={true}
-        // getPopupContainer={(triggerNode) => triggerNode.parentElement}
+          autoAdjustOverflow={true}
+          // getPopupContainer={(triggerNode) => triggerNode.parentElement}
           overlay={(
             <Menu
               onClick={({ key }) => {
@@ -291,19 +291,18 @@ const YamlEditor: React.FC = () => {
 
   return (
     <Spin spinning={loading} size='large'>
-      <PageContainer>
-        <Card style={{padding:0}}>
-          <div className="yaml-editor">
-            {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
-            <Affix offsetTop={60}>
-              <div className="file-controls">
-                <EditorHeader />
-              </div>
-            </Affix>
-            <div className="editor-content">
-              {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments)}
+      <Card style={{ padding: 0 }}>
+        <div className="yaml-editor">
+          {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
+          <Affix offsetTop={60}>
+            <div className="file-controls">
+              <EditorHeader />
             </div>
-            <style>{`
+          </Affix>
+          <div className="editor-content">
+            {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments)}
+          </div>
+          <style>{`
         .yaml-editor {
           // padding: 20px;
         }
@@ -345,9 +344,8 @@ const YamlEditor: React.FC = () => {
           align-items: center;
         }
       `}</style>
-          </div>
-        </Card>
-      </PageContainer>
+        </div>
+      </Card>
     </Spin>
   );
 };

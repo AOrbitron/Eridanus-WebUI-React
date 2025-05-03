@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Input, Button, message, theme, Layout, Spin, Space } from 'antd';
+import { Card, Input, Button, message, theme, Layout, Spin, Space, Image } from 'antd';
 import type { BubbleProps } from '@ant-design/x';
 import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import styles from './index.less';
-import { set } from 'lodash';
-import { PageContainer } from '@ant-design/pro-components';
-import Viewer from 'react-viewer';
 
 // const wsURL = `/api/ws`;
+// const requestURL = ``;
 const wsURL = `ws://v4.frp1.gcbe.eu.org:5008`;
 const requestURL = `http://v4.frp1.gcbe.eu.org:5007`;
 const Chat: React.FC = () => {
@@ -21,9 +19,6 @@ const Chat: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // 图片查看器状态
-  const [viewerVisible, setViewerVisible] = useState<boolean>(false);
-  const [viewerImage, setViewerImage] = useState<string>('');
 
   //输入的值
   const [inputValue, setInputValue] = useState<string>('');
@@ -31,7 +26,6 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    // addServerMessage('Hi');
     connectWebSocket();
     return () => {
       if (ws) {
@@ -80,19 +74,15 @@ const Chat: React.FC = () => {
         <div style={{ padding: '10px', textAlign: 'center' }}>
           <Space>
             <Spin size="small" />
-            <span>媒体加载中...</span>
+            <span>加载中...</span>
           </Space>
         </div>
       ) : base64 ? (
         <div>
           {base64.startsWith('data:image') ? (
-            <img
+            <Image
               src={base64}
               style={{ maxWidth: '200px', cursor: 'pointer' }}
-              onClick={() => {
-                setViewerImage(base64);
-                setViewerVisible(true);
-              }}
             />
           ) : base64.startsWith('data:video') ? (
             <video
@@ -322,17 +312,6 @@ const Chat: React.FC = () => {
 
             ))}
           </div>
-
-          {/* 图片查看器组件 */}
-          <Viewer
-            visible={viewerVisible}
-            onClose={() => setViewerVisible(false)}
-            images={[{ src: viewerImage, alt: '' }]}
-            zIndex={1000}
-            noNavbar
-            scalable
-            rotatable
-          />
 
           <Sender
             style={{
