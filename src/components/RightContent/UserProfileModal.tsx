@@ -10,13 +10,15 @@ interface UserProfileModalProps {
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm();
-  const [matchPswd, setMatchPswd] = useState<boolean>(false);
+  const [matchPswd, setMatchPswd] = useState<boolean>(true);
 
   const handleSubmit = async () => {
       const values = await form.validateFields();
+      // 对密码进行sha3-256加密
+      const encryptedPassword = values.newPassword ? sha3_256(values.newPassword) : '';
       const submitData: API.UpdateProfileParams = {
-        account: values.newAccount,
-        password: values.newPassword,
+        account: values.newAccount ? values.newAccount : '',
+        password: encryptedPassword,
       };
       // 发送用户信息修改请求
       const submitResult = await updateProfile(submitData);
@@ -25,7 +27,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         localStorage.removeItem('auth_token');
         history.push('/user/login');
         message.success('修改成功，请重新登录');
-        return;
+        location.reload();
       }
       if (submitResult.error) {
         message.error(submitResult.error);
