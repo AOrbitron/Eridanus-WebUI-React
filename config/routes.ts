@@ -7,7 +7,7 @@ export default [
   },
   { path: '/dashboard', name: '总览', icon: 'compass', component: './TBD' },
   { path: '/chat', name: '聊天', icon: 'comment', component: './Chat' },
-  { name: '聊天-测试', icon: 'comment', path: '/chat-1', component: './Independent' },
+  // { name: '聊天测试', icon: 'comment', path: '/chat-1', component: './chatDemo' },
   { path: '/setconfig', name: '修改配置文件', icon: 'form', component: './YamlEditor' },
   { path: '/manage',
     name: '权限管理',

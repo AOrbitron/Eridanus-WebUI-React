@@ -8,7 +8,7 @@ import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import { getCurrentUser } from '@/services/ant-design-pro/api';
-import React from 'react';
+import React, { Children } from 'react';
 import { ConfigProvider, theme, message } from 'antd';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -29,16 +29,16 @@ export async function getInitialState(): Promise<{
       // 设置cookie
       document.cookie = `auth_token=${token}`;
       // 验证token有效性
-      const userStatus = getCurrentUser();
-      if (userStatus.error) {
-        // 清除token
-        localStorage.removeItem('auth_token');
-        document.cookie = '';
-        message.error('登录过期，请重新登录');
-        return undefined;
-      }
-      // 登录成功
-      return userStatus;
+      getCurrentUser().then(userStatus => {
+        if (userStatus.error) {
+          // 清除token
+          localStorage.removeItem('auth_token');
+          document.cookie = '';
+          message.error('登录过期，请重新登录');
+          return undefined;
+        }
+        return userStatus;
+      })
     }
     return undefined;
   }
@@ -58,19 +58,18 @@ export async function getInitialState(): Promise<{
         }
       },
     } as Partial<LayoutSettings> & { isDark: boolean }; // 更新类型定义以包含 isDark
-    // 注意：原始代码在这里有一个冗余的 return 语句，已移除。
   };
 
 
   // 如果不在登录页面，先检查用户信息。如果用户信息本地不存在或者过期，跳转到登录页面
   // const { location } = history;
   // if (location.pathname !== loginPath) {
-    const currentUser = await directLogin();
-    return {
-      directLogin: async () => await directLogin(),
-      currentUser: currentUser? currentUser : undefined,
-      settings: initTheme(),
-    };
+  const currentUser = directLogin();
+  return {
+    directLogin: async () => directLogin(),
+    currentUser: currentUser ? currentUser : undefined,
+    settings: initTheme(),
+  };
   // }
   // return {
   //   directLogin,
@@ -108,13 +107,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     //页面变更时响应
     onPageChange: () => {
       const { location } = history;
-      console.log(initialState?.currentUser?.account);
+      const userStatus = getCurrentUser().then(userStatus => {
+        if (location.pathname !== loginPath && userStatus?.error) {
+          // 清除token
+          localStorage.removeItem('auth_token');
+          document.cookie = '';
+          location.pathname === '/dashboard'? null : message.info('请先登录');
+          history.push(loginPath);
+        }
+      });
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser?.account && location.pathname !== loginPath) {
-        //如果是主页，不弹出该提示
-        location.pathname == '/dashboard' ? null : message.info('请先登录');
-        history.push(loginPath);
-      }
+
     },
 
     menuHeaderRender: undefined,

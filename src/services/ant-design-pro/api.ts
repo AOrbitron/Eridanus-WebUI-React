@@ -8,7 +8,7 @@ export async function getCurrentUser() {
     method: 'GET',
   });
 }
-
+//修改用户登录信息
 export async function updateProfile(body: API.UpdateProfileParams) {
   return request<API.CommonResult>('/api/profile', {
     method: 'POST',

@@ -82,7 +82,7 @@ export default {
 
   'GET /api/profile': (req: Request, res: Response) => {
     if (!getAccess()) {
-      res.status(400).send({
+      res.send({
         error: 'Unauthorized',
       });
       return;
@@ -94,7 +94,7 @@ export default {
 
   'POST /api/profile': (req: Request, res: Response) => {
     if (!getAccess()) {
-      res.status(400).send({
+      res.send({
         error: 'Unauthorized',
       });
       return;
@@ -135,7 +135,7 @@ export default {
   'GET /api/load/dev_test.yaml': async (req: Request, res: Response) => {
     await waitTime(200);
     if (!getAccess()) {
-      res.status(400).send({
+      res.send({
         error: 'Unauthorized',
       });
       return;

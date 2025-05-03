@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Input, Button, message, theme, Layout, Spin } from 'antd';
+import { Card, Input, Button, message, theme, Layout, Spin, Space } from 'antd';
 import type { BubbleProps } from '@ant-design/x';
 import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import styles from './index.less';
 import { set } from 'lodash';
 import { PageContainer } from '@ant-design/pro-components';
+import Viewer from 'react-viewer';
 
-const requestURL = `.`;
-
+// const wsURL = `/api/ws`;
+const wsURL = `ws://v4.frp1.gcbe.eu.org:5008`;
+const requestURL = `http://v4.frp1.gcbe.eu.org:5007`;
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; base64?: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; base64?: string; loading?: boolean; id?: string }>>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -19,13 +21,17 @@ const Chat: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // 图片查看器状态
+  const [viewerVisible, setViewerVisible] = useState<boolean>(false);
+  const [viewerImage, setViewerImage] = useState<string>('');
+
   //输入的值
   const [inputValue, setInputValue] = useState<string>('');
 
 
   useEffect(() => {
     setLoading(true);
-    addServerMessage('Hi');
+    // addServerMessage('Hi');
     connectWebSocket();
     return () => {
       if (ws) {
@@ -39,11 +45,11 @@ const Chat: React.FC = () => {
   }, [messages]);
 
   const connectWebSocket = () => {
-    const newWs = new WebSocket(`/api/ws`);
+    const newWs = new WebSocket(wsURL);
 
     newWs.onopen = () => {
       setLoading(false);
-      message.success('WebSocket 已连接！');
+      addServerMessage('WebSocket 已连接！');
     };
 
     newWs.onmessage = (event) => {
@@ -54,7 +60,7 @@ const Chat: React.FC = () => {
       //如果路由在chat页面才重新连接，避免ws断开就一直重连，不在chat页面也会重连
       if (window.location.pathname == '/chat') {
         setLoading(true);
-        message.error('WebSocket 连接已断开，正在尝试重新连接...');
+        message.loading('WebSocket 连接已断开，正在尝试重新连接...');
         setTimeout(connectWebSocket, 5000);
       }
     };
@@ -67,11 +73,43 @@ const Chat: React.FC = () => {
   };
 
   //渲染多媒体消息
-  const renderBubble: BubbleProps['messageRender'] = (content?: string, base64?: string) => (
+  const renderBubble = (content?: string, base64?: string | undefined, loading?: boolean) => (
     <div>
       {content ? (`${content}`) : ('')}
-      {base64 ? (
-        <img src={base64} style={{ maxWidth: '200px' }} />
+      {loading ? (
+        <div style={{ padding: '10px', textAlign: 'center' }}>
+          <Space>
+            <Spin size="small" />
+            <span>媒体加载中...</span>
+          </Space>
+        </div>
+      ) : base64 ? (
+        <div>
+          {base64.startsWith('data:image') ? (
+            <img
+              src={base64}
+              style={{ maxWidth: '200px', cursor: 'pointer' }}
+              onClick={() => {
+                setViewerImage(base64);
+                setViewerVisible(true);
+              }}
+            />
+          ) : base64.startsWith('data:video') ? (
+            <video
+              src={base64}
+              controls
+              style={{ maxWidth: '200px' }}
+            />
+          ) : base64.startsWith('data:audio') ? (
+            <audio
+              src={base64}
+              controls
+              style={{ width: '200px' }}
+            />
+          ) : (
+            <div>不支持的媒体类型</div>
+          )}
+        </div>
       ) : ('')
       }
     </div>
@@ -105,6 +143,7 @@ const Chat: React.FC = () => {
     for (const file of files) {
       const reader = new FileReader();
       reader.onload = async (e) => {
+        console.log('文件读取完成 (handleFileUpload)');
         const base64Data = e.target?.result as string;
         const mimeType = file.type;
         const fileType = file.type.split('/')[0];
@@ -123,6 +162,13 @@ const Chat: React.FC = () => {
           message.error('WebSocket 连接未就绪');
         }
       };
+
+      reader.onerror = (error) => {
+        console.error('文件读取错误 (handleFileUpload):', error);
+        message.error('文件读取失败');
+      };
+
+      console.log('开始读取文件:', file.name);
       reader.readAsDataURL(file);
     }
   };
@@ -144,22 +190,51 @@ const Chat: React.FC = () => {
       messages.forEach(msg => {
         if (msg.type === 'text' && msg.data?.text) {
           addServerMessage(msg.data.text);
-        } else if (msg.type === 'image' && msg.data?.file) {
-          const filePath = msg.data.file;
-          convertFileToBase64(filePath).then(base64 => {
-            if (base64) {
-              addServerMedia(base64);
-            }
-            else {
-              addServerMessage('文件转换失败');
-            }
-          });
-        } else if (msg.type === 'video' && msg.data?.file) {
-          addServerMessage('[视频]');
-        } else if (msg.type === 'audio' && msg.data?.file) {
-          addServerMessage('[音频]');
-        } else if (msg.type === 'file' && msg.data?.file) {
-          addServerMessage('[文件]');
+        } else if (msg.type === 'image') {
+          const messageId = Date.now().toString();
+          // 先添加一个带加载状态的空消息
+          addServerMediaLoading(messageId);
+
+          if (msg.data?.file && typeof msg.data.file === 'string' && !msg.data.file.startsWith('data:')) {
+            // 如果是文件路径，需要转换为base64
+            convertFileToBase64(msg.data.file).then(base64 => {
+              if (base64) {
+                // 更新消息，显示图片并移除加载状态
+                updateServerMedia(messageId, base64);
+              } else {
+                // 更新消息，显示错误信息
+                updateServerMediaError(messageId);
+              }
+            });
+          } else if (msg.data?.url) {
+            // 如果已经是base64格式的图片数据
+            updateServerMedia(messageId, msg.data.url);
+          } else if (msg.data?.file && typeof msg.data.file === 'string' && msg.data.file.startsWith('data:')) {
+            // 如果file字段包含base64数据
+            updateServerMedia(messageId, msg.data.file);
+          } else {
+            updateServerMediaError(messageId);
+          }
+        } else if (msg.type === 'video' && (msg.data?.file || msg.data?.url)) {
+          const videoUrl = msg.data.url || msg.data.file;
+          if (typeof videoUrl === 'string' && videoUrl.startsWith('data:')) {
+            // 如果是base64格式的视频，可以直接显示
+            addServerMessage(`[视频] ${msg.data.name || ''}`);
+            // 这里可以扩展为显示视频播放器
+          } else {
+            addServerMessage(`[视频] ${msg.data.name || ''}`);
+          }
+        } else if (msg.type === 'audio' && (msg.data?.file || msg.data?.url)) {
+          const audioUrl = msg.data.url || msg.data.file;
+          if (typeof audioUrl === 'string' && audioUrl.startsWith('data:')) {
+            // 如果是base64格式的音频，可以直接显示
+            addServerMessage(`[音频] ${msg.data.name || ''}`);
+            // 这里可以扩展为显示音频播放器
+          } else {
+            addServerMessage(`[音频] ${msg.data.name || ''}`);
+          }
+        } else if (msg.type === 'file') {
+          addServerMessage(`[文件] ${msg.data?.name || ''}`);
         } else {
           addServerMessage(`未知消息类型: ${msg.type}`);
         }
@@ -181,6 +256,26 @@ const Chat: React.FC = () => {
     setMessages(prev => [...prev, { role: 'start', content }]);
   };
 
+  // 添加带加载状态的媒体消息
+  const addServerMediaLoading = (id: string) => {
+    setMessages(prev => [...prev, { role: 'start', loading: true, id }]);
+  };
+
+  // 更新媒体消息，显示图片
+  const updateServerMedia = (id: string, base64: string) => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === id ? { ...msg, base64, loading: false } : msg
+    ));
+  };
+
+  // 更新媒体消息，显示错误
+  const updateServerMediaError = (id: string) => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === id ? { ...msg, content: '图片加载失败', loading: false } : msg
+    ));
+  };
+
+  // 保留原函数用于兼容性
   const addServerMedia = (base64: string) => {
     setMessages(prev => [...prev, { role: 'start', base64 }]);
   };
@@ -208,30 +303,19 @@ const Chat: React.FC = () => {
 
 
   return (
-    // <Layout
-    // className={styles.container}
-    //   style={{
-    //     // padding: 24,
-    //     // margin: 0,
-    //     // height: '100vh',
-    //     // minHeight: 280,
-    //     // minHeight: 280,
-    //     background: colorBgContainer,
-    //     borderRadius: borderRadiusLG,
-    //   }}
-    // >
     <Spin spinning={loading} size='large'>
-        <Card style={{ margin: -20 }} className={styles.chatCard} ref={chatContainRef}>
+        <Card className={styles.chatCard} ref={chatContainRef}>
           <div className={styles.chatContainer} ref={chatContainerRef}>
             {messages.map((msg, index) => (
 
               //antd-x bubble样式
               <Bubble
+                key={index}
                 placement={msg.role}
                 shape='corner'
                 // content={msg.content}
                 className={styles.message}
-                messageRender={() => renderBubble(msg.content, msg.base64)}
+                messageRender={() => renderBubble(msg.content, msg.base64, msg.loading)}
               // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
               />
 
@@ -239,13 +323,22 @@ const Chat: React.FC = () => {
             ))}
           </div>
 
+          {/* 图片查看器组件 */}
+          <Viewer
+            visible={viewerVisible}
+            onClose={() => setViewerVisible(false)}
+            images={[{ src: viewerImage, alt: '' }]}
+            zIndex={1000}
+            noNavbar
+            scalable
+            rotatable
+          />
+
           <Sender
             style={{
               backgroundColor: colorBgContainer,
               marginRight: 5,
             }}
-            //已经自带回车发送了，这个弃用
-            // onKeyDown={handleKeyDown}
             placeholder="请输入..."
             className={styles.bottomTools}
             value={inputValue}
@@ -258,23 +351,64 @@ const Chat: React.FC = () => {
               handleSend(v);
             }}
             prefix={
-              <Attachments
-                beforeUpload={() => false}
-                onChange={({ file }) => {
-                  addUserMessage(`[${file.name}]`);
-                  message.info(`Mock upload: ${file.name}`);
-                }}
-                getDropContainer={() => chatContainRef.current}
-                placeholder={{
-                  icon: <CloudUploadOutlined />,
-                  title: '松开上传',
-                  description: '目前支持文件：图片',
-                }}
-              >
-                <Button type="text" icon={<CloudUploadOutlined />} />
-              </Attachments>
-            }
+              <>
+                <Attachments
+                  beforeUpload={() => false}
+                  onChange={(info) => {
+                    if (!info.file.originFileObj) {
+                      console.error('文件对象不存在');
+                      message.error('文件上传失败：无法获取文件');
+                      return;
+                    }
 
+                    const file = info.file.originFileObj;
+                    console.log('文件上传:', file.name, file.type);
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      console.log('文件读取完成');
+                      const base64Data = e.target?.result as string;
+                      const mimeType = file.type;
+                      const fileType = file.type.split('/')[0];
+
+                      if (ws && ws.readyState === WebSocket.OPEN) {
+                        let messageData;
+                        if (fileType === 'image') {
+                          messageData = { type: fileType, data: { url: base64Data, file: file.name } };
+                        } else if (fileType === 'video' || fileType === 'audio') {
+                          messageData = { type: fileType, data: { file: base64Data } };
+                        } else {
+                          messageData = { type: 'file', data: { name: file.name, content: base64Data } };
+                        }
+
+                        ws.send(JSON.stringify([messageData]));
+                        addUserMessage(`[${file.name}]`);
+                      } else {
+                        message.error('WebSocket 连接未就绪');
+                      }
+                    };
+
+                    reader.onerror = (error) => {
+                      console.error('文件读取错误:', error);
+                      message.error('文件读取失败');
+                    };
+
+                    reader.readAsDataURL(file);
+                  }}
+                  getDropContainer={() => chatContainRef.current}
+                  maxCount={5}
+                  multiple={true}
+                  showUploadList={false}
+                  placeholder={{
+                    icon: <CloudUploadOutlined />,
+                    title: '松开上传',
+                    description: '支持文件：图片、视频、音频等',
+                  }}
+                >
+                  <Button type="text" icon={<CloudUploadOutlined />} />
+                </Attachments>
+              </>
+            }
           />
         </Card>
     </Spin>

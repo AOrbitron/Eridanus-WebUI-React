@@ -19,6 +19,7 @@ import {
   ShareAltOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
+import { chatAction } from '@ant-design/pro-chat/es/ProChat/store/action';
 import {
   Attachments,
   Bubble,
@@ -144,7 +145,7 @@ const useStyle = createStyles(({ token, css }) => {
     layout: css`
       width: 100%;
       min-width: 1000px;
-      height: 100vh;
+      height: calc(100vh -136px);
       display: flex;
       background: ${token.colorBgContainer};
       font-family: AlibabaPuHuiTi, ${token.fontFamily}, sans-serif;
@@ -249,7 +250,7 @@ const useStyle = createStyles(({ token, css }) => {
   };
 });
 
-const Independent: React.FC = () => {
+const chatDemo: React.FC = () => {
   const { styles } = useStyle();
   const abortController = useRef<AbortController>(null);
 
@@ -589,4 +590,4 @@ const Independent: React.FC = () => {
   );
 };
 
-export default Independent;
+export default chatDemo;
