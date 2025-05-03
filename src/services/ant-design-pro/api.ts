@@ -2,12 +2,15 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** 获取当前用户 GET /api/profile */
+
+const requestURL = '';
+//获取当前用户信息
 export async function getCurrentUser() {
   return request<API.Profile>('/api/profile', {
     method: 'GET',
   });
 }
+
 //修改用户登录信息
 export async function updateProfile(body: API.UpdateProfileParams) {
   return request<API.CommonResult>('/api/profile', {
@@ -19,9 +22,9 @@ export async function updateProfile(body: API.UpdateProfileParams) {
   });
 }
 
-//修改用户登录信息
+//文件转b64接口（日后考虑通过send_staicfile发送）
 export async function file2b64(body: string) {
-  return request<API.file2b64Result>('/api/file2base64', {
+  return request<API.file2b64Result>(`${requestURL}/api/file2base64`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Menu, Dropdown, Space, Popconfirm } from 'antd';
+import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Menu, Select, Space, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 
@@ -194,8 +194,9 @@ const YamlEditor: React.FC = () => {
     return null;
   };
 
-  const renderYamlEditor = (data: any, comments: Record<string, string> = {}, path = '') => {
-    const keys = Object.keys(data);
+  const renderYamlEditor = (data: any, comments: Record<string, string> = {}, order: Record<string, string[]> = {}, path = '') => {
+    // 获取当前路径的键顺序，如果不存在则使用对象的键
+    const keys = order[path] || Object.keys(data);
     return (
       <List
         dataSource={keys}
@@ -235,7 +236,7 @@ const YamlEditor: React.FC = () => {
                 </div>
                 {typeof value === 'object' && !Array.isArray(value) ? (
                   <div className="nested-object">
-                    {renderYamlEditor(value, comments, currentPath)}
+                    {renderYamlEditor(value, comments, order, currentPath)}
                   </div>
                 ) : (
                   renderYamlValue(value, currentPath)
@@ -255,33 +256,20 @@ const YamlEditor: React.FC = () => {
   const EditorHeader: React.FC = () => {
     return (
       <>
-        <Dropdown
-          autoAdjustOverflow={true}
-          // getPopupContainer={(triggerNode) => triggerNode.parentElement}
-          overlay={(
-            <Menu
-              onClick={({ key }) => {
-                setCurrentFile(key);
-                loadYamlFile(key);
-              }}
-            >
-              {fileList.map((file) => (
-                <Menu.Item key={file}>{file}</Menu.Item>
-              ))}
-            </Menu>
-          )}
-        >
-          <Button
-            style={{ width: '100%' }}
-            onClick={(e) => e.preventDefault()}>
-            <Space>
-              {currentFile || '选择文件'}
-              <DownOutlined
-                style={{ marginRight: '0' }}
-              />
-            </Space>
-          </Button>
-        </Dropdown>
+        <Select
+          style={{ width: '100%' }}
+          value={currentFile || undefined}
+          placeholder="选择文件"
+          onChange={(value) => {
+            setCurrentFile(value);
+            loadYamlFile(value);
+          }}
+          suffixIcon={<DownOutlined />}
+          options={fileList.map((file) => ({
+            value: file,
+            label: file
+          }))}
+        />
         <Button type="primary" onClick={saveYamlFile} style={{ marginLeft: '8px' }}>
           保存配置
         </Button>
@@ -300,7 +288,7 @@ const YamlEditor: React.FC = () => {
             </div>
           </Affix>
           <div className="editor-content">
-            {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments)}
+            {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments, yamlData.order)}
           </div>
           <style>{`
         .yaml-editor {

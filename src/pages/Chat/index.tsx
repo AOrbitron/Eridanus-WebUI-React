@@ -6,12 +6,10 @@ import { Attachments, Bubble, Sender } from '@ant-design/x';
 import styles from './index.less';
 import { file2b64 } from '@/services/ant-design-pro/api';
 
-// const wsURL = `/api/ws`;
-// const requestURL = ``;
-const wsURL = `ws://v4.frp1.gcbe.eu.org:5008`;
-const requestURL = `http://v4.frp1.gcbe.eu.org:5007`;
+const wsURL = `/api/ws`;
+const requestURL = ``;
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; base64?: string; loading?: boolean; id?: string }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; base64?: string; loading?: boolean; id?: string; replyTo?: { id: string; content?: string } }>>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -66,43 +64,53 @@ const Chat: React.FC = () => {
   };
 
   //渲染消息气泡
-  const renderBubble = (content?: string, base64?: string | undefined, loading?: boolean) => (
-    <div>
-      {content ? (`${content}`) : ('')}
-      {loading ? (
-        <div style={{ padding: '10px', textAlign: 'center' }}>
-          <Space>
-            <Spin size="small" />
-            <span>加载中...</span>
-          </Space>
-        </div>
-      ) : base64 ? (
-        <div>
-          {base64.startsWith('data:image') ? (
-            <Image
-              src={base64}
-              style={{ maxWidth: '200px', cursor: 'pointer' }}
-            />
-          ) : base64.startsWith('data:video') ? (
-            <video
-              src={base64}
-              controls
-              style={{ maxWidth: '200px' }}
-            />
-          ) : base64.startsWith('data:audio') ? (
-            <audio
-              src={base64}
-              controls
-              style={{ width: '200px' }}
-            />
-          ) : (
-            <div>不支持的媒体类型</div>
-          )}
-        </div>
-      ) : ('')
-      }
-    </div>
-  );
+  const renderBubble = (content?: string, base64?: string | undefined, loading?: boolean, replyTo?: { id: string; content?: string }) => {
+    console.log('renderBubble被调用，replyTo:', replyTo);
+    return (
+      <div>
+        {replyTo?.content ? (
+          <div style={{ padding: '5px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginBottom: '8px', fontSize: '12px', color: '#666' }}>
+            <div style={{ borderLeft: '2px solid #1890ff', paddingLeft: '8px' }}>
+              {replyTo.content.length > 50 ? `${replyTo.content.substring(0, 50)}...` : replyTo.content}
+            </div>
+          </div>
+        ) : null}
+        {content ? (`${content}`) : ('')}
+        {loading ? (
+          <div style={{ padding: '10px', textAlign: 'center' }}>
+            <Space>
+              <Spin size="small" />
+              <span>加载中...</span>
+            </Space>
+          </div>
+        ) : base64 ? (
+          <div>
+            {base64.startsWith('data:image') ? (
+              <Image
+                src={base64}
+                style={{ maxWidth: '200px', cursor: 'pointer' }}
+              />
+            ) : base64.startsWith('data:video') ? (
+              <video
+                src={base64}
+                controls
+                style={{ maxWidth: '200px' }}
+              />
+            ) : base64.startsWith('data:audio') ? (
+              <audio
+                src={base64}
+                controls
+                style={{ width: '200px' }}
+              />
+            ) : (
+              <div>不支持的媒体类型</div>
+            )}
+          </div>
+        ) : ('')
+        }
+      </div>
+    );
+  };
 
   const convertFileToBase64 = async (filePath: string): Promise<string | null> => {
     return await file2b64(JSON.stringify({ path: filePath }))
@@ -185,73 +193,103 @@ const Chat: React.FC = () => {
         return;
       }
 
-      messages.forEach(msg => {
-        if (msg.type === 'text' && msg.data?.text) {
-          addServerMessage(msg.data.text);
-        } else if (msg.type === 'image') {
-          const messageId = Date.now().toString();
-          // 先添加一个带加载状态的空消息
-          addServerMediaLoading(messageId);
+      // 处理整个消息数组，将其作为一个整体添加到气泡中
+      const id = Date.now().toString();
+      let replyInfo: { id: string; content?: string } | undefined;
+      let contentParts: string[] = [];
+      let hasImage = false;
+      let imageData: string | undefined;
 
-          if (msg.data?.file && typeof msg.data.file === 'string' && !msg.data.file.startsWith('data:')) {
+      // 首先处理回复类型的消息，获取回复信息
+      const replyMsg = messages.find(msg => msg.type === 'reply' && msg.data?.id);
+      if (replyMsg) {
+        const replyToId = replyMsg.data.id;
+        const replyToContent = findMessageContent(replyToId);
+        replyInfo = { id: replyToId, content: replyToContent };
+      }
+
+      // 处理所有消息类型并合并内容
+      for (const msg of messages) {
+        if (msg.type === 'text' && msg.data?.text) {
+          contentParts.push(msg.data.text);
+        } else if (msg.type === 'image') {
+          hasImage = true;
+          if (msg.data?.url) {
+            imageData = msg.data.url;
+          } else if (msg.data?.file && typeof msg.data.file === 'string' && msg.data.file.startsWith('data:')) {
+            imageData = msg.data.file;
+          } else if (msg.data?.file && typeof msg.data.file === 'string') {
             // 如果是文件路径，需要转换为base64
+            // 这里先添加一个占位符，后续异步更新
             convertFileToBase64(msg.data.file).then(base64 => {
               if (base64) {
-                // 更新消息，显示图片并移除加载状态
-                updateServerMedia(messageId, base64);
+                // 更新消息，显示图片
+                updateServerMedia(id, base64);
               } else {
                 // 更新消息，显示错误信息
-                updateServerMediaError(messageId);
+                const updatedContent = contentParts.join('\n').replace('[图片加载中...]', '[图片加载失败]');
+                updateServerContent(id, updatedContent);
               }
             });
-          } else if (msg.data?.url) {
-            // 如果已经是base64格式的图片数据
-            updateServerMedia(messageId, msg.data.url);
-          } else if (msg.data?.file && typeof msg.data.file === 'string' && msg.data.file.startsWith('data:')) {
-            // 如果file字段包含base64数据
-            updateServerMedia(messageId, msg.data.file);
-          } else {
-            updateServerMediaError(messageId);
           }
         } else if (msg.type === 'video' && (msg.data?.file || msg.data?.url)) {
-          const videoUrl = msg.data.url || msg.data.file;
-          if (typeof videoUrl === 'string' && videoUrl.startsWith('data:')) {
-            // 如果是base64格式的视频，可以直接显示
-            addServerMessage(`[视频] ${msg.data.name || ''}`);
-            // 这里可以扩展为显示视频播放器
-          } else {
-            addServerMessage(`[视频] ${msg.data.name || ''}`);
-          }
+          contentParts.push(`[视频] ${msg.data.name || ''}`);
         } else if (msg.type === 'audio' && (msg.data?.file || msg.data?.url)) {
-          const audioUrl = msg.data.url || msg.data.file;
-          if (typeof audioUrl === 'string' && audioUrl.startsWith('data:')) {
-            // 如果是base64格式的音频，可以直接显示
-            addServerMessage(`[音频] ${msg.data.name || ''}`);
-            // 这里可以扩展为显示音频播放器
-          } else {
-            addServerMessage(`[音频] ${msg.data.name || ''}`);
-          }
+          contentParts.push(`[音频] ${msg.data.name || ''}`);
         } else if (msg.type === 'file') {
-          addServerMessage(`[文件] ${msg.data?.name || ''}`);
-        } else {
-          addServerMessage(`未知消息类型: ${msg.type}`);
+          contentParts.push(`[文件] ${msg.data?.name || ''}`);
+        } else if (msg.type !== 'reply') { // 排除已处理的回复类型
+          contentParts.push(`未知消息类型: ${msg.type}`);
         }
-      });
+      }
+
+      // 将所有内容合并为一个字符串
+      const content = contentParts.join('\n');
+
+      // 添加合并后的消息到气泡中
+      if (hasImage && imageData) {
+        // 如果有图片数据，直接添加带图片的消息
+        addServerMediaWithContent(id, content, imageData, replyInfo);
+      } else if (hasImage) {
+        // 如果有图片但需要异步加载，先添加带加载状态的消息
+        addServerMediaLoadingWithContent(id, content, replyInfo);
+      } else {
+        // 只有文本内容的消息
+        if (replyInfo) {
+          addServerMessageWithReply(content, replyInfo);
+        } else {
+          addServerMessage(content);
+        }
+      }
     } catch (e) {
       addServerMessage('解析服务器消息失败: ' + e);
       addServerMessage('[消息格式无效]');
     }
   };
 
+  // 查找消息内容的辅助函数
+  const findMessageContent = (messageId: string): string => {
+    const message = messages.find(msg => msg.id === messageId);
+    return message?.content || '原消息不可用';
+  };
+
 
 
 
   const addUserMessage = (content: string) => {
-    setMessages(prev => [...prev, { role: 'end', content }]);
+    const id = Date.now().toString();
+    setMessages(prev => [...prev, { role: 'end', content, id }]);
   };
 
   const addServerMessage = (content: string) => {
-    setMessages(prev => [...prev, { role: 'start', content }]);
+    const id = Date.now().toString();
+    setMessages(prev => [...prev, { role: 'start', content, id }]);
+  };
+
+  // 添加带回复的服务器消息
+  const addServerMessageWithReply = (content: string, replyTo: { id: string; content?: string }) => {
+    const id = Date.now().toString();
+    setMessages(prev => [...prev, { role: 'start', content, id, replyTo }]);
   };
 
   // 添加带加载状态的媒体消息
@@ -259,10 +297,28 @@ const Chat: React.FC = () => {
     setMessages(prev => [...prev, { role: 'start', loading: true, id }]);
   };
 
+  // 添加带内容和图片的服务器消息
+  const addServerMediaWithContent = (id: string, content: string, base64: string, replyTo?: { id: string; content?: string }) => {
+    setMessages(prev => [...prev, { role: 'start', content, base64, id, replyTo }]);
+  };
+
+  // 添加带内容和加载状态的媒体消息
+  const addServerMediaLoadingWithContent = (id: string, content: string, replyTo?: { id: string; content?: string }) => {
+    setMessages(prev => [...prev, { role: 'start', content, loading: true, id, replyTo }]);
+  };
+
   // 更新媒体消息，显示图片
   const updateServerMedia = (id: string, base64: string) => {
     setMessages(prev => prev.map(msg =>
       msg.id === id ? { ...msg, base64, loading: false } : msg
+    ));
+    scrollToBottom();
+  };
+
+  // 更新消息内容
+  const updateServerContent = (id: string, content: string) => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === id ? { ...msg, content, loading: false } : msg
     ));
   };
 
@@ -312,7 +368,7 @@ const Chat: React.FC = () => {
               shape='corner'
               // content={msg.content}
               className={styles.message}
-              messageRender={() => renderBubble(msg.content, msg.base64, msg.loading)}
+              messageRender={() => renderBubble(msg.content, msg.base64, msg.loading, msg.replyTo)}
             // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
             />
           ))}
