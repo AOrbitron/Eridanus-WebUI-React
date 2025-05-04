@@ -3,8 +3,9 @@ import { Card, Input, Button, message, theme, Layout, Spin, Space, Image } from 
 import type { BubbleProps } from '@ant-design/x';
 import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
-import styles from './index.less';
+import styles from './styles.less';
 import { file2b64 } from '@/services/ant-design-pro/api';
+import BubbleRender from './bubbleRender';
 
 const wsURL = `/api/ws`;
 const requestURL = ``;
@@ -14,9 +15,6 @@ const Chat: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatContainRef = React.useRef<HTMLDivElement>(null);
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
 
 
   //输入的值
@@ -24,7 +22,9 @@ const Chat: React.FC = () => {
 
 
   useEffect(() => {
+    //加载动画
     setLoading(true);
+    //连接ws
     connectWebSocket();
     return () => {
       if (ws) {
@@ -34,11 +34,12 @@ const Chat: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    //自动滚动到底部
     scrollToBottom();
   }, [messages]);
 
   const connectWebSocket = () => {
-    const newWs = new WebSocket(wsURL);
+    const newWs = new WebSocket(`${wsURL}?auth_token=${localStorage.getItem('auth_token')}`);
 
     newWs.onopen = () => {
       setLoading(false);
@@ -63,54 +64,7 @@ const Chat: React.FC = () => {
     setWs(newWs);
   };
 
-  //渲染消息气泡
-  const renderBubble = (content?: string, base64?: string | undefined, loading?: boolean, replyTo?: { id: string; content?: string }) => {
-    console.log('renderBubble被调用，replyTo:', replyTo);
-    return (
-      <div>
-        {replyTo?.content ? (
-          <div style={{ padding: '5px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginBottom: '8px', fontSize: '12px', color: '#666' }}>
-            <div style={{ borderLeft: '2px solid #1890ff', paddingLeft: '8px' }}>
-              {replyTo.content.length > 50 ? `${replyTo.content.substring(0, 50)}...` : replyTo.content}
-            </div>
-          </div>
-        ) : null}
-        {content ? (`${content}`) : ('')}
-        {loading ? (
-          <div style={{ padding: '10px', textAlign: 'center' }}>
-            <Space>
-              <Spin size="small" />
-              <span>加载中...</span>
-            </Space>
-          </div>
-        ) : base64 ? (
-          <div>
-            {base64.startsWith('data:image') ? (
-              <Image
-                src={base64}
-                style={{ maxWidth: '200px', cursor: 'pointer' }}
-              />
-            ) : base64.startsWith('data:video') ? (
-              <video
-                src={base64}
-                controls
-                style={{ maxWidth: '200px' }}
-              />
-            ) : base64.startsWith('data:audio') ? (
-              <audio
-                src={base64}
-                controls
-                style={{ width: '200px' }}
-              />
-            ) : (
-              <div>不支持的媒体类型</div>
-            )}
-          </div>
-        ) : ('')
-        }
-      </div>
-    );
-  };
+  // 渲染消息气泡函数已移至BubbleRender组件
 
   const convertFileToBase64 = async (filePath: string): Promise<string | null> => {
     return await file2b64(JSON.stringify({ path: filePath }))
@@ -120,26 +74,9 @@ const Chat: React.FC = () => {
         }
         return null;
       })
-      .catch((error) => {
+      .catch(() => {
         return null;
       });
-    // try {
-    // const response = await fetch(`${requestURL}/api/file2base64`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ path: filePath })
-    // });
-    //   const data = await response.json();
-    //   if (data.base64) {
-    //     return data.base64;
-    //   } else {
-    //     console.error('Error:', data.error);
-    //     return null;
-    //   }
-    // } catch (error) {
-    //   console.error('Request failed:', error);
-    //   return null;
-    // }
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,6 +116,7 @@ const Chat: React.FC = () => {
     }
   };
 
+  //处理发来的消息
   const handleServerMessage = (rawData: string) => {
     try {
       const data = JSON.parse(rawData);
@@ -368,7 +306,7 @@ const Chat: React.FC = () => {
               shape='corner'
               // content={msg.content}
               className={styles.message}
-              messageRender={() => renderBubble(msg.content, msg.base64, msg.loading, msg.replyTo)}
+              messageRender={() => <BubbleRender content={msg.content} base64={msg.base64} loading={msg.loading} replyTo={msg.replyTo} />}
             // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
             />
           ))}
