@@ -6,7 +6,7 @@ import { request } from '@umijs/max';
 const requestURL = '';
 //获取当前用户信息
 export async function getCurrentUser() {
-  return request<API.Profile>('/api/profile', {
+  return request<API.Profile>(`${requestURL}/api/profile`, {
     method: 'GET',
   });
 }
@@ -43,7 +43,7 @@ export async function userLogout(options?: { [key: string]: any }) {
 
 /** 登录接口 POST /api/login */
 export async function userLogin(body: API.LoginParams, options?: { [key: string]: any }) {
-  return request<API.LoginResult>('/api/login', {
+  return request<API.LoginResult>(`${requestURL}/api/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

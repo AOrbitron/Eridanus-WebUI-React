@@ -10,7 +10,9 @@ import BubbleRender from './bubbleRender';
 const wsURL = `/api/ws`;
 const requestURL = ``;
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; base64?: string; loading?: boolean; id?: string; replyTo?: { id: string; content?: string } }>>([]);
+  const [messages, setMessages] = useState<Array<{ role: 'end' | 'start', content?: string; url?: string; type?: string, loading?: boolean; id?: number; replyTo?: { id: number; content?: string } }>>([]);
+  // 使用useRef存储最新的messages，解决异步状态更新问题
+  const messagesRef = useRef<Array<{ role: 'end' | 'start', content?: string; url?: string; type?: string, loading?: boolean; id?: number; replyTo?: { id: number; content?: string } }>>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -19,6 +21,13 @@ const Chat: React.FC = () => {
 
   //输入的值
   const [inputValue, setInputValue] = useState<string>('');
+
+  const handleLogMessages = () => {
+    console.log('Current messages:', messages);
+    messages.forEach((msg, index) => {
+      console.log(`Message ${index}:`, msg);
+    });
+  };
 
 
   useEffect(() => {
@@ -36,6 +45,8 @@ const Chat: React.FC = () => {
   useEffect(() => {
     //自动滚动到底部
     scrollToBottom();
+    // 更新messagesRef以保持最新状态
+    messagesRef.current = messages;
   }, [messages]);
 
   const connectWebSocket = () => {
@@ -43,7 +54,7 @@ const Chat: React.FC = () => {
 
     newWs.onopen = () => {
       setLoading(false);
-      addServerMessage('WebSocket 已连接！');
+      message.success('WebSocket 已连接！');
     };
 
     newWs.onmessage = (event) => {
@@ -59,25 +70,12 @@ const Chat: React.FC = () => {
     };
 
     newWs.onerror = (error: Event) => {
-      addServerMessage('WebSocket 连接错误');
+      message.error('WebSocket 连接错误');
     };
     setWs(newWs);
   };
 
   // 渲染消息气泡函数已移至BubbleRender组件
-
-  const convertFileToBase64 = async (filePath: string): Promise<string | null> => {
-    return await file2b64(JSON.stringify({ path: filePath }))
-      .then((res) => {
-        if (res.base64) {
-          return res.base64;
-        }
-        return null;
-      })
-      .catch(() => {
-        return null;
-      });
-  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -100,7 +98,7 @@ const Chat: React.FC = () => {
             }
           };
           ws.send(JSON.stringify([message]));
-          addUserMessage(`[${file.name}]`);
+          addUserMessage(`[${file.name}]`, Date.now());
         } else {
           message.error('WebSocket 连接未就绪');
         }
@@ -125,151 +123,145 @@ const Chat: React.FC = () => {
         return;
       }
 
-      const messages = data.message.params.messages || data.message.params.message;
-      if (!Array.isArray(messages)) {
-        console.warn('消息格式错误:', messages);
+      const messageList = data.message.params.message;
+      if (!Array.isArray(messageList)) {
+        console.warn('消息格式错误:', messageList);
         return;
       }
 
       // 处理整个消息数组，将其作为一个整体添加到气泡中
-      const id = Date.now().toString();
-      let replyInfo: { id: string; content?: string } | undefined;
+      //这里的id要拿来分辨消息，要配合后端一起改，不然回复不到正确的消息（done）
+      const id = Date.now();
+      //回复信息的参数（可能会有回复多媒体消息？这里只处理了文本消息，todo）
+      let replyInfo: { id: number; content?: string } | undefined;
       let contentParts: string[] = [];
-      let hasImage = false;
-      let imageData: string | undefined;
-
-      // 首先处理回复类型的消息，获取回复信息
-      const replyMsg = messages.find(msg => msg.type === 'reply' && msg.data?.id);
-      if (replyMsg) {
-        const replyToId = replyMsg.data.id;
-        const replyToContent = findMessageContent(replyToId);
-        replyInfo = { id: replyToId, content: replyToContent };
-      }
-
-      // 处理所有消息类型并合并内容
-      for (const msg of messages) {
-        if (msg.type === 'text' && msg.data?.text) {
-          contentParts.push(msg.data.text);
-        } else if (msg.type === 'image') {
-          hasImage = true;
-          if (msg.data?.url) {
-            imageData = msg.data.url;
-          } else if (msg.data?.file && typeof msg.data.file === 'string' && msg.data.file.startsWith('data:')) {
-            imageData = msg.data.file;
-          } else if (msg.data?.file && typeof msg.data.file === 'string') {
-            // 如果是文件路径，需要转换为base64
+      // 标记是否有为媒体文件
+      let isMedia = false;
+      let fileUrl;
+      let msgType;
+      // 处理所有消息，合并内容到一个气泡里面
+      for (const msg of messageList) {
+        //消息类型
+        msgType = msg.type;
+        //消息文本
+        let msgText = msg.data?.text;
+        //回复的消息的id
+        let replyToId = msg.data?.id;
+        fileUrl = msg.data?.file;
+        // 如果是回复消息
+        if (msgType === 'reply') {
+          // 找到回复的消息的内容
+          const replyToContent = findMessageContent(replyToId);
+          //存入回复信息
+          replyInfo = { id: replyToId, content: replyToContent };
+          continue;
+        }
+        //如果为文本消息且不为空
+        else if (msgType === 'text' && msgText) {
+          contentParts.push(msgText);
+          //如果是转发列表
+        } else {
+          isMedia = true;
+          // file就是对应的链接
+          if (fileUrl) {
+            updateServerMedia(id, fileUrl, msgType);
             // 这里先添加一个占位符，后续异步更新
-            convertFileToBase64(msg.data.file).then(base64 => {
-              if (base64) {
-                // 更新消息，显示图片
-                updateServerMedia(id, base64);
-              } else {
-                // 更新消息，显示错误信息
-                const updatedContent = contentParts.join('\n').replace('[图片加载中...]', '[图片加载失败]');
-                updateServerContent(id, updatedContent);
-              }
-            });
+            const updatedContent = contentParts.join('\n').replace('[加载中...]', '[加载失败]');
+            updateServerContent(id, updatedContent);
           }
-        } else if (msg.type === 'video' && (msg.data?.file || msg.data?.url)) {
-          contentParts.push(`[视频] ${msg.data.name || ''}`);
-        } else if (msg.type === 'audio' && (msg.data?.file || msg.data?.url)) {
-          contentParts.push(`[音频] ${msg.data.name || ''}`);
-        } else if (msg.type === 'file') {
-          contentParts.push(`[文件] ${msg.data?.name || ''}`);
-        } else if (msg.type !== 'reply') { // 排除已处理的回复类型
-          contentParts.push(`未知消息类型: ${msg.type}`);
         }
       }
 
-      // 将所有内容合并为一个字符串
+      // 将所有文本内容合并为一个字符串
       const content = contentParts.join('\n');
 
       // 添加合并后的消息到气泡中
-      if (hasImage && imageData) {
-        // 如果有图片数据，直接添加带图片的消息
-        addServerMediaWithContent(id, content, imageData, replyInfo);
-      } else if (hasImage) {
+      if (isMedia && fileUrl) {
+        // 如果有媒体数据，直接添加带图片的消息
+        addServerMediaWithContent(id, content, fileUrl, msgType,replyInfo);
+      } else if (isMedia) {
         // 如果有图片但需要异步加载，先添加带加载状态的消息
-        addServerMediaLoadingWithContent(id, content, replyInfo);
+        addServerMediaLoadingWithContent(id, content,  fileUrl,msgType,replyInfo);
       } else {
         // 只有文本内容的消息
         if (replyInfo) {
-          addServerMessageWithReply(content, replyInfo);
+          addServerMessageWithReply(id,content, msgType,replyInfo);
         } else {
-          addServerMessage(content);
+          addServerMessage(id,content);
         }
       }
     } catch (e) {
-      addServerMessage('解析服务器消息失败: ' + e);
-      addServerMessage('[消息格式无效]');
+      addServerMessage(1,'解析服务器消息失败: ' + e);
+      addServerMessage(1,'[消息格式无效]');
     }
   };
 
-  // 查找消息内容的辅助函数
-  const findMessageContent = (messageId: string): string => {
-    const message = messages.find(msg => msg.id === messageId);
+  // 查找回复对应的消息内容
+  const findMessageContent = (messageId: number): string => {
+    // 使用messagesRef.current获取最新的消息数组，而不是使用可能过时的messages状态
+    console.log('查找消息，当前消息数组长度:', messagesRef.current.length);
+    const message = messagesRef.current.find(msg => msg.id == messageId);
+    console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
     return message?.content || '原消息不可用';
   };
 
 
 
 
-  const addUserMessage = (content: string) => {
-    const id = Date.now().toString();
-    setMessages(prev => [...prev, { role: 'end', content, id }]);
+  const addUserMessage = (content: string, id: number) => {
+    console.log(`用户消息id:${id},内容:${content}`);
+    setMessages(prev => [...prev, { role: 'end', content, id, type: 'text' }]);
   };
 
-  const addServerMessage = (content: string) => {
-    const id = Date.now().toString();
-    setMessages(prev => [...prev, { role: 'start', content, id }]);
+  const addServerMessage = (id:number,content: string) => {
+    setMessages(prev => [...prev, { role: 'start', content, id, type: 'text' }]);
   };
 
   // 添加带回复的服务器消息
-  const addServerMessageWithReply = (content: string, replyTo: { id: string; content?: string }) => {
-    const id = Date.now().toString();
-    setMessages(prev => [...prev, { role: 'start', content, id, replyTo }]);
+  const addServerMessageWithReply = (id:number,content: string, type: string, replyTo: { id: number; content?: string }) => {
+    setMessages(prev => [...prev, { role: 'start', content, id, type, replyTo }]);
   };
 
   // 添加带加载状态的媒体消息
-  const addServerMediaLoading = (id: string) => {
+  const addServerMediaLoading = (id: number) => {
     setMessages(prev => [...prev, { role: 'start', loading: true, id }]);
   };
 
   // 添加带内容和图片的服务器消息
-  const addServerMediaWithContent = (id: string, content: string, base64: string, replyTo?: { id: string; content?: string }) => {
-    setMessages(prev => [...prev, { role: 'start', content, base64, id, replyTo }]);
+  const addServerMediaWithContent = (id: number, content: string, url: string,type:string, replyTo?: { id: number; content?: string }) => {
+    setMessages(prev => [...prev, { role: 'start', content, url, type,id, replyTo }]);
   };
 
   // 添加带内容和加载状态的媒体消息
-  const addServerMediaLoadingWithContent = (id: string, content: string, replyTo?: { id: string; content?: string }) => {
-    setMessages(prev => [...prev, { role: 'start', content, loading: true, id, replyTo }]);
+  const addServerMediaLoadingWithContent = (id: number, content: string,url:string,type:string, replyTo?: { id: number; content?: string }) => {
+    setMessages(prev => [...prev, { role: 'start', content,url,type, loading: true, id, replyTo }]);
   };
 
   // 更新媒体消息，显示图片
-  const updateServerMedia = (id: string, base64: string) => {
+  const updateServerMedia = (id: number, url: string, type: string) => {
     setMessages(prev => prev.map(msg =>
-      msg.id === id ? { ...msg, base64, loading: false } : msg
+      msg.id === id ? { ...msg, url: url, type: type, loading: false } : msg
     ));
     scrollToBottom();
   };
 
   // 更新消息内容
-  const updateServerContent = (id: string, content: string) => {
+  const updateServerContent = (id: number, content: string) => {
     setMessages(prev => prev.map(msg =>
-      msg.id === id ? { ...msg, content, loading: false } : msg
+      msg.id === id ? { ...msg, content, loading: false, id } : msg
     ));
   };
 
   // 更新媒体消息，显示错误
-  const updateServerMediaError = (id: string) => {
+  const updateServerMediaError = (id: number) => {
     setMessages(prev => prev.map(msg =>
-      msg.id === id ? { ...msg, content: '图片加载失败', loading: false } : msg
+      msg.id === id ? { ...msg, content: '图片加载失败', loading: false, id } : msg
     ));
   };
 
   // 保留原函数用于兼容性
-  const addServerMedia = (base64: string) => {
-    setMessages(prev => [...prev, { role: 'start', base64 }]);
+  const addServerMedia = (url: string) => {
+    setMessages(prev => [...prev, { role: 'start', url }]);
   };
 
 
@@ -279,12 +271,15 @@ const Chat: React.FC = () => {
     }
   };
 
+  //待增加文件上传消息
   const handleSend = (content: string) => {
     if (!content.trim()) return;
 
     if (ws && ws.readyState === WebSocket.OPEN) {
-      addUserMessage(content);
-      ws.send(JSON.stringify([{ type: 'text', data: { text: content } }]));
+      //时间戳作为消息唯一id
+      const id = Date.now();
+      addUserMessage(content, id);
+      ws.send(JSON.stringify({ type: 'text', id: id, isat: true, data: { text: content } }));
       setInputValue('');
       setTimeout(() => {
       }, 10);
@@ -306,7 +301,7 @@ const Chat: React.FC = () => {
               shape='corner'
               // content={msg.content}
               className={styles.message}
-              messageRender={() => <BubbleRender content={msg.content} base64={msg.base64} loading={msg.loading} replyTo={msg.replyTo} />}
+              messageRender={() => <BubbleRender content={msg.content} url={msg.url} type={msg.type} loading={msg.loading} replyTo={msg.replyTo} />}
             // style={msg.type === 'user'? styles.userMessageStyle : styles.serverMessageStyle}
             />
           ))}
@@ -356,8 +351,8 @@ const Chat: React.FC = () => {
                         messageData = { type: 'file', data: { name: file.name, content: base64Data } };
                       }
 
-                      ws.send(JSON.stringify([messageData]));
-                      addUserMessage(`[${file.name}]`);
+                      ws.send(JSON.stringify(messageData));
+                      addUserMessage(`[${file.name}]`, Date.now());
                     } else {
                       message.error('WebSocket 连接未就绪');
                     }
@@ -385,6 +380,7 @@ const Chat: React.FC = () => {
             </>
           }
         />
+        {/* <Button onClick={handleLogMessages} style={{ marginTop: '10px' }}>打印消息到控制台</Button> */}
       </Card>
     </Spin>
 
