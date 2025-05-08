@@ -164,10 +164,15 @@ const Chat: React.FC = () => {
           isMedia = true;
           // file就是对应的链接
           if (fileUrl) {
+            fileUrl = `/api/chat/file?path=${fileUrl}`;
             updateServerMedia(id, fileUrl, msgType);
             // 这里先添加一个占位符，后续异步更新
             const updatedContent = contentParts.join('\n').replace('[加载中...]', '[加载失败]');
             updateServerContent(id, updatedContent);
+          }
+          if (msg.data.type == '163'){
+            fileUrl = `https://music.163.com/song/media/outer/url?id=${msg.data.id}.mp3`;
+            updateServerMedia(id, fileUrl, msgType);
           }
         }
       }
@@ -176,13 +181,15 @@ const Chat: React.FC = () => {
       const content = contentParts.join('\n');
 
       // 添加合并后的消息到气泡中
-      if (isMedia && fileUrl) {
+      if (isMedia) {
         // 如果有媒体数据，直接添加带图片的消息
-        addServerMediaWithContent(id, content, fileUrl, msgType,replyInfo);
-      } else if (isMedia) {
+        addServerMediaWithContent(id, content, fileUrl, msgType, replyInfo);
+      }
+      // else if (isMedia) {
         // 如果有图片但需要异步加载，先添加带加载状态的消息
-        addServerMediaLoadingWithContent(id, content,  fileUrl,msgType,replyInfo);
-      } else {
+        // addServerMediaLoadingWithContent(id, content, fileUrl,msgType,replyInfo);
+      // }
+       else {
         // 只有文本内容的消息
         if (replyInfo) {
           addServerMessageWithReply(id,content, msgType,replyInfo);
@@ -199,10 +206,25 @@ const Chat: React.FC = () => {
   // 查找回复对应的消息内容
   const findMessageContent = (messageId: number): string => {
     // 使用messagesRef.current获取最新的消息数组，而不是使用可能过时的messages状态
-    console.log('查找消息，当前消息数组长度:', messagesRef.current.length);
+    // console.log('查找消息，当前消息数组长度:', messagesRef.current.length);
     const message = messagesRef.current.find(msg => msg.id == messageId);
     console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
-    return message?.content || '原消息不可用';
+    if(message?.content)
+      return message?.content;
+    else if (message?.type) {
+      // 根据消息类型返回对应的名称
+      const typeMap: Record<string, string> = {
+        'image': '[图片]',
+        'node': '[转发消息]',
+        // 'text': '文本',
+        'music': '[音乐]',
+        'audio': '[语音]',
+        'video': '[视频]',
+        'file': '[文件]'
+      };
+      return `[${typeMap[message.type]}]`;
+    }
+      return '原消息不可用'
   };
 
 

@@ -3,6 +3,8 @@ import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, M
 import { PlusOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 
+// const requestURL = 'http://192.168.195.41:5007';
+const requestURL = '';
 
 interface YamlData {
   data?: any;
@@ -22,7 +24,7 @@ const YamlEditor: React.FC = () => {
 
   const fetchYamlFiles = async () => {
     try {
-      const response = await fetch(`/api/files`);
+      const response = await fetch(`${requestURL}/api/files`);
       if (!response.ok) {
         throw new Error('网络响应失败');
       }
@@ -44,7 +46,7 @@ const YamlEditor: React.FC = () => {
   const loadYamlFile = async (fileName: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/load/${fileName}`);
+      const response = await fetch(`${requestURL}/api/load/${fileName}`);
       const data = await response.json();
       if (data) {
         setYamlData(data);
@@ -63,7 +65,7 @@ const YamlEditor: React.FC = () => {
 
   const saveYamlFile = async () => {
     try {
-      const response = await fetch(`/api/save/${currentFile}`, {
+      const response = await fetch(`${requestURL}/api/save/${currentFile}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(yamlData),
@@ -134,8 +136,8 @@ const YamlEditor: React.FC = () => {
           value={value}
           style={{ width: '100%' }}
           onChange={(value) => {
-            // `${value}`.replace(/\D/g, '');
-            updateData(path, value);
+            //清空输入框的时候同时，value也会马上被清空，导致报错，所以这里需要先判断value是否为null或者undefined，如果是则不更新内容
+            value === null || value === undefined ? null : updateData(path, value);
           }}
         // formatter={(value) => )} // 格式化：移除所有非数字字符
         // size="small"

@@ -1,4 +1,5 @@
 import { userLogin, getCurrentUser } from '@/services/ant-design-pro/api';
+import { Modal } from 'antd';
 import { LockOutlined, UserOutlined, } from '@ant-design/icons';
 import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { history, useModel, Helmet } from '@umijs/max';
@@ -13,6 +14,7 @@ const Login: React.FC = () => {
   const isDark = initialState?.settings?.isDark;
   //登录状态
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
 
 
   //获取用户信息
@@ -137,10 +139,30 @@ const Login: React.FC = () => {
               },
             ]}
           />
+          <a
+            style={{ float: 'right', marginBottom: '20px'}}
+            onClick={() => setHelpModalVisible(true)}
+          >
+            不知道/忘记账户密码？
+          </a>
+          {/* 帮助信息模态框 */}
+          <Modal
+            title="账户密码帮助"
+            open={helpModalVisible}
+            onCancel={() => setHelpModalVisible(false)}
+            footer={null}
+            centered
+          >
+            <hr />
+            <p>如果您是第一次使用，默认账户密码均为：<h1 style={{ textAlign: 'center' }}>eridanus</h1></p>
+            <hr />
+            <p>如果您忘记了账户和密码，请在<strong style={{ fontSize: '1.5rem' }}> Eridanus </strong>目录下，找到<strong style={{ fontSize: '1.5rem' }}> user_info.yaml </strong>文件，将其删除。然后重启服务端，账户密码恢复为默认。</p>
+            <hr />
+            <p>如果您有公网访问的需要，为了安全起见，请务必在登录后，找到顶部工具栏右上角的  <UserOutlined style={{ fontSize: '2rem' }} />  按钮，立即修改账户密码！</p>
+          </Modal>
 
         </LoginForm>
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };

@@ -2,8 +2,11 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-
 const requestURL = '';
+
+//本地调试用
+// const requestURL = 'http://192.168.195.41:5007';
+
 //获取当前用户信息
 export async function getCurrentUser() {
   return request<API.Profile>(`${requestURL}/api/profile`, {
