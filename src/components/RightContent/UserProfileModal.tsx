@@ -22,12 +22,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
       };
       // 发送用户信息修改请求
       const submitResult = await updateProfile(submitData);
-      if (submitResult.message == 'Success') {
+      if (submitResult.message) {
         document.cookie = 'auth_token=';
         localStorage.removeItem('auth_token');
         history.push('/user/login');
-        message.success('修改成功，请重新登录');
-        location.reload();
+        message.success(submitResult.message);
+        // setTimeout(()=>{location.reload()},1000);
       }
       if (submitResult.error) {
         message.error(submitResult.error);
