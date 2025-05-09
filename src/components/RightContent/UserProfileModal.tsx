@@ -13,29 +13,30 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
   const [matchPswd, setMatchPswd] = useState<boolean>(true);
 
   const handleSubmit = async () => {
-      const values = await form.validateFields();
-      // 对密码进行sha3-256加密
-      const encryptedPassword = values.newPassword ? sha3_256(values.newPassword) : '';
-      const submitData: API.UpdateProfileParams = {
-        account: values.newAccount ? values.newAccount : '',
-        password: encryptedPassword,
-      };
-      // 发送用户信息修改请求
-      const submitResult = await updateProfile(submitData);
-      if (submitResult.message) {
-        document.cookie = 'auth_token=';
-        localStorage.removeItem('auth_token');
-        history.push('/user/login');
-        message.success(submitResult.message);
-        // setTimeout(()=>{location.reload()},1000);
-      }
-      if (submitResult.error) {
-        message.error(submitResult.error);
-        return;
-      }
-      // onClose();
-      // message.error('修改失败');
-      // console.error('表单验证失败:', error);
+    const values = await form.validateFields();
+    // 对密码进行sha3-256加密
+    const encryptedPassword = values.newPassword ? sha3_256(values.newPassword) : '';
+    const submitData: API.UpdateProfileParams = {
+      account: values.newAccount ? values.newAccount : '',
+      password: encryptedPassword,
+    };
+    // 发送用户信息修改请求
+    const submitResult = await updateProfile(submitData);
+    if (submitResult.message) {
+      onClose();
+      document.cookie = 'auth_token=';
+      localStorage.removeItem('auth_token');
+      history.push('/user/login');
+      message.success(submitResult.message);
+      // setTimeout(()=>{location.reload()},1000);
+    }
+    if (submitResult.error) {
+      message.error(submitResult.error);
+      return;
+    }
+    // onClose();
+    // message.error('修改失败');
+    // console.error('表单验证失败:', error);
   };
 
   return (
