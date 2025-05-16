@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useModel } from '@umijs/max';
-import { Space, Spin, Image, Card, Typography } from 'antd';
+import { Space, Spin, Image, Card, Typography, List, Divider } from 'antd';
 import axios from 'axios';
 
 // 渲染网易云音乐卡片(好像没有意义)
@@ -80,12 +80,102 @@ const renderMusicCard = (url: string) => {
   );
 };
 
-const renderMedia = (url: string, type?: string) => {
+// 渲染转发消息
+const renderForwardedMessages = (nodeData: any) => {
+  const { Text, Title } = Typography;
+
+  // 检查nodeData结构，支持多种可能的数据结构
+  if (!nodeData) {
+    return <div>转发消息数据无效</div>;
+  }
+
+  // 处理消息格式
+  let messages = [];
+  let nickname = '转发消息';
+
+  // 处理message.params.messages格式的数据
+  if (nodeData.message && nodeData.message.params && nodeData.message.params.messages) {
+    messages = nodeData.message.params.messages;
+    // 使用第一个消息的昵称作为卡片标题
+    if (messages.length > 0 && messages[0].data && messages[0].data.nickname) {
+      nickname = messages[0].data.nickname;
+    }
+  }
+  // 处理data.content格式的数据
+  else if (nodeData.data && nodeData.data.content) {
+    messages = [{data: {content: nodeData.data.content}}];
+    if (nodeData.data.nickname) {
+      nickname = nodeData.data.nickname;
+    }
+  }
+  // 如果是直接的node数组
+  else if (Array.isArray(nodeData)) {
+    messages = nodeData;
+  }
+
+  if (messages.length === 0) {
+    return <div>转发消息数据无效</div>;
+  }
+
+  return (
+    <Card
+      title={nickname}
+      style={{ marginTop: 10, maxWidth: '100%', backgroundColor: '#f9f9f9' }}
+      size="small"
+      bordered={true}
+    >
+      <List
+        itemLayout="vertical"
+        dataSource={messages}
+        renderItem={(item: any) => {
+          // 处理node类型数据
+          if (item.type === 'node' && item.data) {
+            const nodeContent = item.data.content || [];
+            return (
+              <List.Item>
+                {item.data.nickname && (
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{item.data.nickname}</div>
+                )}
+                {nodeContent.map((contentItem: any, index: number) => {
+                  if (contentItem.type === 'text' && contentItem.data && contentItem.data.text) {
+                    return (
+                      <div key={index} style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>
+                        {contentItem.data.text}
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </List.Item>
+            );
+          }
+          // 处理直接的文本数据
+          else if (item.type === 'text' && item.data && item.data.text) {
+            return (
+              <List.Item>
+                <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{item.data.text}</div>
+              </List.Item>
+            );
+          }
+          return null;
+        }}
+        split={true}
+      />
+    </Card>
+  );
+};
+
+const renderMedia = (url: string, type?: string, nodeData?: any) => {
+  // 如果是node类型，使用专门的渲染函数
+  if (type === 'node' && nodeData) {
+    return renderForwardedMessages(nodeData);
+  }
+
   const typeMap = {
     image: <Image src={url} style={{ maxWidth: '150px', cursor: 'pointer' }} />,
     video: <video src={url} controls style={{ maxWidth: '300px' }} />,
     record: <audio src={url} controls style={{ width: '200px' }} />,
-    node: <div>[转发消息，暂不支持]</div>,
+    node: nodeData ? renderForwardedMessages(nodeData) : <div>转发消息数据无效</div>,
     // music: renderMusicCard(url),
     music: <div>[音乐卡片，暂不支持]</div>,
     //文本不渲染
@@ -103,9 +193,10 @@ interface BubbleRenderProps {
   type?: string;
   loading?: boolean;
   replyTo?: { id: number; content?: string };
+  nodeData?: any; // 添加node类型数据
 }
 
-const BubbleRender: React.FC<BubbleRenderProps> = ({ content, url, type, loading, replyTo }) => {
+const BubbleRender: React.FC<BubbleRenderProps> = ({ content, url, type, loading, replyTo, nodeData }) => {
   const { initialState, setInitialState } = useModel('@@initialState');
   const isDark = initialState?.settings?.isDark;
   // if (type == 'music') {
@@ -138,7 +229,7 @@ const BubbleRender: React.FC<BubbleRenderProps> = ({ content, url, type, loading
         </div>
       ) : (url && type != 'text') ? (
         <div>
-          {renderMedia(url, type)}
+          {renderMedia(url, type, nodeData)}
         </div>
       ) : ('')
       }

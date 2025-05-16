@@ -1,5 +1,8 @@
 //这个是本地预览的时候伪装返回的API
 
+const testToken = 'vu8iOCZiJDYCokogboo6S3UXop6YaT5Z5jLp1e4PDiU='
+
+
 import { Request, Response } from 'express';
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -110,7 +113,7 @@ export default {
     if (password === 'f6074ac37e2f8825367d9ae118a523abf16924a86414242ae921466db1e84583' && account === 'eridanus') {
       res.send({
         message: "Success",
-        auth_token: "114514"
+        auth_token: testToken
       });
       access = 'admin';
       return;
