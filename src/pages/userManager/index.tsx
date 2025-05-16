@@ -9,14 +9,16 @@ import {
   ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Drawer, Input, message,Modal } from 'antd';
+import { Button, Drawer, Card, message, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 // import type { TableListPagination } from './data';
 import { addUser, delUser, modUser, getUserList } from '@/services/ant-design-pro/api';
+import { useModel } from '@umijs/max';
 
-
+// const { initialState, setInitialState } = useModel('@@initialState');
+// const isDark = initialState?.settings?.isDark;
 //添加用户
 const handleAdd = async (fields: API.UserItem) => {
   try {
@@ -33,11 +35,10 @@ const handleAdd = async (fields: API.UserItem) => {
   }
 };
 
-
 //更新用户信息
 const handleMod = async (fields: API.UserItem) => {
   try {
-    const result = await modUser({ ...fields, });
+    const result = await modUser({ ...fields });
     if (result.message) {
       message.success(result.message);
     } else {
@@ -75,9 +76,11 @@ const TableList: React.FC = () => {
   /** 分布更新窗口的弹窗 */
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType>(null);
   const [currentRow, setCurrentRow] = useState<API.UserItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.UserItem[]>([]);
+
+  // 表格变化由ProTable的request属性自动处理
 
   const columns: ProColumns<API.UserItem>[] = [
     {
@@ -160,23 +163,24 @@ const TableList: React.FC = () => {
       render: (_, entity) => {
         return (
           <>
-          <a
-            onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-            }}
-          >
-            详细信息
-          </a>
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          <a
-            onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-            }}
-          >
-            编辑
-          </a>
+            <a
+              onClick={() => {
+                setCurrentRow(entity);
+                setShowDetail(true);
+              }}
+            >
+              详细信息
+            </a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a
+              onClick={() => {
+                message.warning('功能开发中，敬请期待');
+                // setCurrentRow(entity);
+                // setShowDetail(true);
+              }}
+            >
+              编辑
+            </a>
           </>
         );
       },
@@ -195,42 +199,56 @@ const TableList: React.FC = () => {
   ];
 
   return (
-    <>
+    <Card>
       {/* <ProTable< API.UserItem, TableListPagination> */}
-      <ProTable< API.UserItem >
+      <ProTable<API.UserItem>
         headerTitle="用户管理"
         actionRef={actionRef}
         rowKey="user_id"
         search={{
-          labelWidth: 120,
+          labelWidth: 100,
         }}
         toolBarRender={() => [
           <Button
             type="primary"
             key="primary"
             onClick={() => {
-              handleModalVisible(true);
+              message.warning('功能开发中，敬请期待');
+              // actionRef.current?.reloadAndRest?.();
+              // handleModalVisible(true);
             }}
           >
             <PlusOutlined /> 新建
           </Button>,
         ]}
-        request={getUserList}
-        // request={async (params, sort, filter) => {
-        //   const { current, pageSize, ...restParams } = params;
-        //   const result = await getUserList({
-        //     current,
-        //     pageSize,
-        //     ...restParams,
-        //     ...sort,
-        //   });
-        //   return {
-        //     data: result.data || [],
-        //     success: true,
-        //     total: result.total || 0,
-        //   };
-        // }}
+        request={async (params, sort, filter) => {
+          const { current, pageSize, ...restParams } = params;
+          // 构建排序参数
+          let sortBy = '';
+          let sortOrder = '';
+          if (sort) {
+            // 只取第一个排序字段（ProTable默认只支持单字段排序）
+            const sortKeys = Object.keys(sort);
+            if (sortKeys.length > 0) {
+              sortBy = sortKeys[0];
+              sortOrder = sort[sortBy] === 'ascend' ? 'asc' : 'desc';
+            }
+          }
+
+          const result = await getUserList({
+            current,
+            pageSize,
+            ...restParams,
+            ...filter,
+            sortBy,
+            sortOrder,
+          });
+
+          return result;
+        }}
         columns={columns}
+        pagination={{ position: ['topLeft', 'bottomRight'] }}
+        // sticky={true}
         rowSelection={{
           onChange: (_, selectedRows) => {
             setSelectedRows(selectedRows);
@@ -254,16 +272,24 @@ const TableList: React.FC = () => {
           }
         >
           <Button
-            onClick={
-              async () => {
-                message.warning("功能开发中，敬请期待");
-                // await handleDel(selectedRowsState);
-                // setSelectedRows([]);
-                actionRef.current?.reloadAndRest?.();
-              }
-            }
-          >批量删除</Button>
-          <Button type="primary" onClick={() => message.warning("功能开发中，敬请期待")}>批量修改</Button>
+            onClick={async () => {
+              message.warning('功能开发中，敬请期待');
+              // await handleDel(selectedRowsState);
+              // setSelectedRows([]);
+              actionRef.current?.reloadAndRest?.();
+            }}
+          >
+            批量删除
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              message.warning('功能开发中，敬请期待');
+              actionRef.current?.reloadAndRest?.();
+            }}
+          >
+            批量修改
+          </Button>
         </FooterToolbar>
       )}
       <ModalForm
@@ -303,16 +329,8 @@ const TableList: React.FC = () => {
           name="nickname"
           label="昵称"
         />
-        <ProFormText
-          width="md"
-          name="city"
-          label="城市"
-        />
-        <ProFormText
-          width="md"
-          name="permission"
-          label="权限等级"
-        />
+        <ProFormText width="md" name="city" label="城市" />
+        <ProFormText width="md" name="permission" label="权限等级" />
       </ModalForm>
 
       {/* <UpdateForm
@@ -338,7 +356,6 @@ const TableList: React.FC = () => {
         values={currentRow || {}}
       /> */}
 
-
       {/* 详细信息 */}
       {currentRow?.user_id && (
         <Modal
@@ -354,9 +371,8 @@ const TableList: React.FC = () => {
           }}
           footer={null}
           // centered
-          >
-
-          <ProDescriptions< API.UserItem>
+        >
+          <ProDescriptions<API.UserItem>
             column={2}
             request={async () => ({
               data: currentRow || {},
@@ -366,9 +382,9 @@ const TableList: React.FC = () => {
             }}
             columns={columns as ProDescriptionsItemProps<API.UserItem>[]}
           />
-
-        </Modal>)}
-    </>
+        </Modal>
+      )}
+    </Card>
   );
 };
 

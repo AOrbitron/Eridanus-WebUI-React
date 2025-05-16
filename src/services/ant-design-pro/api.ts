@@ -2,11 +2,11 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-const requestURL = '';
+// const requestURL = '';
 
 //本地调试用
 // const requestURL = 'http://192.168.195.41:5007';
-// const requestURL = 'http://localhost:5007';
+const requestURL = 'http://localhost:5007';
 
 //获取当前webui用户信息
 export async function getCurrentUser() {
@@ -86,7 +86,7 @@ export async function delUser(body: any, options?: { [key: string]: any }) {
 
 /** 获取用户列表 GET /api/usermgr/userlist */
 export async function getUserList(params?: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<API.UserList[]>(`${requestURL}/api/usermgr/userlist`, {
+  return request<any>(`${requestURL}/api/usermgr/userlist`, {
     method: 'GET',
     params,
     ...(options || {}),
