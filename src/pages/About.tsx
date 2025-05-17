@@ -4,7 +4,6 @@ import React from 'react';
 
 const About: React.FC = () => {
   return (
-    <PageContainer>
       <Card
         style={{
           display: 'flex',
@@ -50,7 +49,6 @@ const About: React.FC = () => {
           <a href="https://eridanus-doc.netlify.app/" target="_blank" style={{ marginLeft: '20px' }}>Eridanus 文档</a><br />
         </div>
       </Card>
-    </PageContainer>
   );
 };
 

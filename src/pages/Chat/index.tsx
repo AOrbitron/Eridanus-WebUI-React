@@ -41,11 +41,11 @@ const Chat: React.FC = () => {
       setInitialLoading(true);
       try {
         // 从IndexedDB加载历史消息
-        const savedMessages = await loadMessages();
-        if (savedMessages && savedMessages.length > 0) {
-          setMessages(savedMessages);
-          messagesRef.current = savedMessages;
-        }
+        // const savedMessages = await loadMessages();
+        // if (savedMessages && savedMessages.length > 0) {
+          // setMessages(savedMessages);
+          // messagesRef.current = savedMessages;
+        // }
       } catch (error) {
         console.error('加载历史消息失败:', error);
       } finally {

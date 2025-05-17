@@ -2,7 +2,6 @@ import {
   InboxOutlined,
   HddOutlined,
   DesktopOutlined,
-  RobotOutlined,
   UserAddOutlined,
   UsergroupAddOutlined,
   UserSwitchOutlined,
@@ -11,7 +10,9 @@ import { Card, Col, Progress, Row, Statistic, Tooltip } from 'antd';
 import React from 'react';
 
 const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }) => {
-
+  const calcGB = (bytes: number) => {
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2);
+  };
   // 计算内存和磁盘使用百分比
   const memoryPercent = systemInfo
     ? Math.round((systemInfo.usedMemory / systemInfo.totalMemory) * 100)
@@ -31,16 +32,12 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
               prefix={<DesktopOutlined />}
               suffix="%"
             />
-            <Progress
-              percent={systemInfo?.cpuUsage || 0}
-              showInfo={false}
-              strokeWidth={6}
-            />
+            <Progress percent={systemInfo?.cpuUsage || 0} showInfo={false} strokeWidth={6} />
           </Col>
           <Col xl={8} lg={8} md={8} sm={24} xs={24}>
             <Statistic
               title="内存"
-              value={systemInfo ? `${systemInfo.usedMemory}/${systemInfo.totalMemory}` : '-'}
+              value={systemInfo ? `${calcGB(systemInfo.usedMemory)}/${calcGB(systemInfo.totalMemory)}` : '-'}
               prefix={<InboxOutlined />}
               suffix="GB"
             />
@@ -49,7 +46,7 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
           <Col xl={8} lg={8} md={8} sm={24} xs={24}>
             <Statistic
               title="磁盘"
-              value={systemInfo ? `${systemInfo.usedDisk}/${systemInfo.totalDisk}` : '-'}
+              value={systemInfo ? `${calcGB(systemInfo.usedDisk)}/${calcGB(systemInfo.totalDisk)}` : '-'}
               prefix={<HddOutlined />}
               suffix="GB"
             />
@@ -61,9 +58,9 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
         <Row gutter={24}>
           <Col xl={8} lg={8} md={8} sm={8} xs={8}>
             <Statistic
-            title="用户总数"
-            value={botInfo?.totalUser || '-'}
-            prefix={<UserSwitchOutlined />}
+              title="用户总数"
+              value={botInfo?.totalUsers || '-'}
+              prefix={<UserSwitchOutlined />}
             />
           </Col>
           <Col xl={8} lg={8} md={8} sm={8} xs={8}>

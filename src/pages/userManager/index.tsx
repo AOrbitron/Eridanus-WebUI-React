@@ -202,25 +202,25 @@ const TableList: React.FC = () => {
     <Card>
       {/* <ProTable< API.UserItem, TableListPagination> */}
       <ProTable<API.UserItem>
-        headerTitle="用户管理"
+        // headerTitle="用户管理"
         actionRef={actionRef}
         rowKey="user_id"
-        search={{
-          labelWidth: 100,
-        }}
-        toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              message.warning('功能开发中，敬请期待');
-              // actionRef.current?.reloadAndRest?.();
-              // handleModalVisible(true);
-            }}
-          >
-            <PlusOutlined /> 新建
-          </Button>,
-        ]}
+        // search={{
+        //   labelWidth: 100,
+        // }}
+        // toolBarRender={() => [
+        //   <Button
+        //     type="primary"
+        //     key="primary"
+        //     onClick={() => {
+        //       message.warning('功能开发中，敬请期待');
+        //       // actionRef.current?.reloadAndRest?.();
+        //       // handleModalVisible(true);
+        //     }}
+        //   >
+        //     <PlusOutlined /> 新建
+        //   </Button>,
+        // ]}
         request={async (params, sort, filter) => {
           const { current, pageSize, ...restParams } = params;
           // 构建排序参数

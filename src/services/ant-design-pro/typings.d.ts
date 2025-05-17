@@ -14,7 +14,7 @@ declare namespace API {
 //机器人信息
   type botInfo = {
     botName: string; // 机器人名称
-    totalUser: number; // 用户总数
+    totalUsers: number; // 用户总数
     totalFriends: number; // 好友总数
     totalGroups: number; // 群总数
   };

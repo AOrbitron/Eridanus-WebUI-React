@@ -54,65 +54,13 @@ const RankingCard: React.FC<RankingProps> = ({ loading, ranks }) => {
                 <List.Item.Meta
                   avatar={<Avatar style={getRankingItemStyle(index)}>{index + 1}</Avatar>}
                   title={`用户 ${item.userId}`}
-                  description={`签到: ${item.days} 天`}
+                  description={`累计签到: ${item.days} 天`}
                 />
               </List.Item>
             )}
           />
         </Col>
       </Row>
-
-      {/* <Tabs
-        size="small"
-        items={[
-          {
-            key: 'token',
-            label: (
-              <span>
-                <TrophyOutlined />
-                &nbsp;&nbsp;Token消耗排行
-              </span>
-            ),
-            children: (
-              <List
-                dataSource={ranks?.tokenRank || []}
-                renderItem={(item, index) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar style={getRankingItemStyle(index)}>{index + 1}</Avatar>}
-                      title={`用户 ${item.userId}`}
-                      description={`Token: ${item.token}`}
-                    />
-                  </List.Item>
-                )}
-              />
-            ),
-          },
-          {
-            key: 'signIn',
-            label: (
-              <span>
-                <CalendarOutlined />
-                签到排行
-              </span>
-            ),
-            children: (
-              <List
-                dataSource={ranks?.signInRank || []}
-                renderItem={(item, index) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar style={getRankingItemStyle(index)}>{index + 1}</Avatar>}
-                      title={`用户 ${item.userId}`}
-                      description={`连续签到: ${item.days} 天`}
-                    />
-                  </List.Item>
-                )}
-              />
-            ),
-          },
-        ]}
-      /> */}
     </Card>
   );
 };

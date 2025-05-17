@@ -2,11 +2,11 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-// const requestURL = '';
+const requestURL = '';
 
 //本地调试用
 // const requestURL = 'http://192.168.195.41:5007';
-const requestURL = 'http://192.168.195.128:5007';
+// const requestURL = 'http://192.168.195.128:5007';
 
 //获取当前webui用户信息
 export async function getCurrentUser() {
