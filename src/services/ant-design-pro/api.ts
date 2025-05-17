@@ -86,7 +86,7 @@ export async function delUser(body: any, options?: { [key: string]: any }) {
 
 /** 获取用户列表 GET /api/usermgr/userlist */
 export async function getUserList(params?: { [key: string]: any }, options?: { [key: string]: any }) {
-  return request<API.UserList>(`${requestURL}/api/usermgr/userlist`, {
+  return request<API.UserList>(`${requestURL}/api/usermgr/userList`, {
     method: 'GET',
     params,
     ...(options || {}),

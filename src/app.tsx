@@ -114,6 +114,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           document.cookie = '';
           location.pathname === '/dashboard'? null : message.info('请先登录');
           history.push(loginPath);
+          window.location.reload();
         }
       });
       // 如果没有登录，重定向到 login

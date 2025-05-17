@@ -23,16 +23,16 @@ declare namespace API {
     //复用到API跟页面渲染
     loading?: boolean;
     systemInfo: systemInfo;
-    botInfo: botInfo;
+    botInfo?: botInfo;
     ranks?: {
       tokenRank: Array<{
         //token排行榜前10
-        userId: number;
+        user_id: number;
         ai_token_record: number;
       }>;
       signInRank: Array<{
         //签到排行榜前10
-        userId: number;
+        user_id: number;
         days: number;
       }>;
     };

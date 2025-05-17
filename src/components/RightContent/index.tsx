@@ -100,7 +100,6 @@ export const LogOut = () => {
       const logoutResult = await userLogout();
       if (logoutResult.message) {
         message.success(logoutResult.message);
-        return;
       }
       if (logoutResult.error) {
         message.error(logoutResult.error);

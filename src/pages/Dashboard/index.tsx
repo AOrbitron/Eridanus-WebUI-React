@@ -13,6 +13,8 @@ const Dashboard: FC<any> = () => {
   const dataRef = useRef<any>(null);
   // 使用useState管理loading状态
   const [loading, setLoading] = useState<boolean>(true);
+  // 使用useState存储systemInfo数据以触发更新
+  const [systemInfoState, setSystemInfoState] = useState<any>(null);
 
   // 在组件挂载时获取数据
   useEffect(() => {
@@ -25,6 +27,7 @@ const Dashboard: FC<any> = () => {
           return;
         }
         dataRef.current = result;
+        setSystemInfoState(result.systemInfo);
       } catch (error) {
         message.error('网络错误');
       } finally {
@@ -33,6 +36,22 @@ const Dashboard: FC<any> = () => {
     };
 
     fetchData();
+
+    const intervalId = setInterval(async () => {
+      try {
+        const result = await getBasicInfo({ systemInfo: 1 });
+        if (result.error) {
+          message.error(result.error);
+          return;
+        }
+        dataRef.current = { ...dataRef.current, systemInfo: result.systemInfo };
+        setSystemInfoState(result.systemInfo);
+      } catch (error) {
+        message.error('网络错误');
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -41,7 +60,7 @@ const Dashboard: FC<any> = () => {
           <Col xl={24} lg={24} md={24} sm={24} xs={24}>
             <BasicInfoCard
               loading={loading}
-              systemInfo={dataRef.current?.systemInfo}
+              systemInfo={systemInfoState}
               botInfo={dataRef.current?.botInfo}
             />
           </Col>
