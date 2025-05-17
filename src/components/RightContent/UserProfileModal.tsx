@@ -41,7 +41,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
 
   return (
     <Modal
-      title="修改用户信息"
+      title="修改登录信息"
       open={visible}
       onCancel={onClose}
       footer={null}

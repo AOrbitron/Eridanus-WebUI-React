@@ -71,7 +71,7 @@ export const UserProfile = () => {
 
   return (
     <>
-      <Tooltip title="修改用户信息">
+      <Tooltip title="修改登录信息">
         <div
           style={BottonStyle}
           onClick={() => setModalVisible(true)}
@@ -99,10 +99,11 @@ export const LogOut = () => {
     try {
       const logoutResult = await userLogout();
       if (logoutResult.message) {
-        message.success("退出登录成功");
+        message.success(logoutResult.message);
+        return;
       }
       if (logoutResult.error) {
-        message.error("退出登录失败，token已过期");
+        message.error(logoutResult.error);
         return;
       }
     } catch (error) {

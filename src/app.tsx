@@ -143,6 +143,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
                   paddingLG: 10,
                   boxShadowTertiary: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)',
                 },
+                Statistic: {
+                  titleFontSize: 15,    // 标题文字大小
+                  contentFontSize: 20,  // 内容文字大小
+                },
               },
             }}
           >
