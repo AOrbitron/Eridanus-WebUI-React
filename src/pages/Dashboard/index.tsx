@@ -5,8 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import BasicInfoCard from './components/BasicInfoCard';
 import RankingCard from './components/RankingCard';
 import { getBasicInfo } from '@/services/ant-design-pro/api';
-
-
+import QueueAnim from 'rc-queue-anim';
 
 const Dashboard: FC<any> = () => {
   // 使用useRef存储数据
@@ -56,20 +55,22 @@ const Dashboard: FC<any> = () => {
 
   return (
     <GridContent>
-        <Row gutter={24}>
-          <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-            <BasicInfoCard
-              loading={loading}
-              systemInfo={systemInfoState}
-              botInfo={dataRef.current?.botInfo}
-            />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xl={24} lg={24} md={24} sm={24} xs={24}>
-            <RankingCard loading={loading} ranks={dataRef.current?.ranks} />
-          </Col>
-        </Row>
+    <QueueAnim type={'bottom'} delay={100}>
+      <Row gutter={24} key="a">
+        <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+          <BasicInfoCard
+            loading={loading}
+            systemInfo={systemInfoState}
+            botInfo={dataRef.current?.botInfo}
+          />
+        </Col>
+      </Row>
+      <Row gutter={24} key="b">
+        <Col xl={24} lg={24} md={24} sm={24} xs={24}>
+          <RankingCard loading={loading} ranks={dataRef.current?.ranks} />
+        </Col>
+      </Row>
+      </QueueAnim>
     </GridContent>
   );
 };

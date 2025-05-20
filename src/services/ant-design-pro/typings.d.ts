@@ -22,7 +22,7 @@ declare namespace API {
   type BasicInfo = {
     //复用到API跟页面渲染
     loading?: boolean;
-    systemInfo: systemInfo;
+    systemInfo?: systemInfo;
     botInfo?: botInfo;
     ranks?: {
       tokenRank: Array<{

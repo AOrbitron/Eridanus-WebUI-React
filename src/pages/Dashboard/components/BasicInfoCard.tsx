@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { Card, Col, Progress, Row, Statistic, Tooltip } from 'antd';
 import React from 'react';
+import QueueAnim from 'rc-queue-anim';
 
 const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }) => {
   const calcGB = (bytes: number) => {
@@ -25,7 +26,7 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
     <>
       <Card loading={loading} title="系统信息" style={{ marginBottom: 12 }}>
         <Row gutter={24}>
-          <Col xl={8} lg={8} md={8} sm={24} xs={24}>
+          <Col xl={8} lg={8} md={8} sm={24} xs={24} key="0">
             <Statistic
               title="CPU使用率"
               value={systemInfo?.cpuUsage || 0}
@@ -34,7 +35,7 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
             />
             <Progress percent={systemInfo?.cpuUsage || 0} showInfo={false} strokeWidth={6} />
           </Col>
-          <Col xl={8} lg={8} md={8} sm={24} xs={24}>
+          <Col xl={8} lg={8} md={8} sm={24} xs={24} key="1">
             <Statistic
               title="内存"
               value={systemInfo ? `${calcGB(systemInfo.usedMemory)}/${calcGB(systemInfo.totalMemory)}` : '-'}
@@ -43,7 +44,7 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
             />
             <Progress percent={memoryPercent} showInfo={true} strokeWidth={6} />
           </Col>
-          <Col xl={8} lg={8} md={8} sm={24} xs={24}>
+          <Col xl={8} lg={8} md={8} sm={24} xs={24} key="2">
             <Statistic
               title="磁盘"
               value={systemInfo ? `${calcGB(systemInfo.usedDisk)}/${calcGB(systemInfo.totalDisk)}` : '-'}
@@ -54,7 +55,7 @@ const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }
           </Col>
         </Row>
       </Card>
-      <Card loading={loading} title="机器人信息" style={{ marginBottom: 12 }}>
+      <Card loading={loading} title="机器人信息" style={{ marginBottom: 12 }} key="b">
         <Row gutter={24}>
           <Col xl={8} lg={8} md={8} sm={8} xs={8}>
             <Statistic

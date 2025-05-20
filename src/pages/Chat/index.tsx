@@ -6,7 +6,7 @@ import { Attachments, Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
 import { saveMessages, loadMessages, ChatMessage } from '@/utils/indexedDB';
-
+import QueueAnim from 'rc-queue-anim';
 const wsURL = `/api/ws`;
 // const requestURL = `http://192.168.195.41:5007`;
 const requestURL = ``;
@@ -433,9 +433,10 @@ const Chat: React.FC = () => {
 
   return (
     <Spin spinning={loading} tip='websocket连接中...' size='large'>
+    <QueueAnim delay={100} type={'bottom'}>
       <Card style={{
         height: 'calc(100vh - 82px)',
-      }}>
+      }} key='a'>
         <div ref={chatContainRef} style={{
           width: '100%',
           height: 'calc(100vh - 82px)',
@@ -545,6 +546,7 @@ const Chat: React.FC = () => {
           {/* <Button onClick={handleLogMessages} style={{ marginTop: '10px' }}>打印消息到控制台</Button> */}
         </div>
       </Card>
+    </QueueAnim>
     </Spin >
 
   );

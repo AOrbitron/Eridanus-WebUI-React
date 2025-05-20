@@ -1,9 +1,11 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Card } from 'antd';
+import QueueAnim from 'rc-queue-anim';
 import React from 'react';
 
 const About: React.FC = () => {
   return (
+    <QueueAnim delay={100} type={'bottom'}>
       <Card
         style={{
           display: 'flex',
@@ -13,6 +15,7 @@ const About: React.FC = () => {
           gap: 20,
           overflowX: 'auto',
         }}
+        key={0}
       >
         <div style={{ display: 'block', textAlign: 'center', margin: '10px 0' }}>
           <img src="/eridanus.svg" style={{ display: 'block', margin: 'auto', maxWidth: '300px' }} />
@@ -49,6 +52,7 @@ const About: React.FC = () => {
           <a href="https://eridanus-doc.netlify.app/" target="_blank" style={{ marginLeft: '20px' }}>Eridanus 文档</a><br />
         </div>
       </Card>
+      </QueueAnim>
   );
 };
 

@@ -16,7 +16,7 @@ import UpdateForm from './components/UpdateForm';
 // import type { TableListPagination } from './data';
 import { addUser, delUser, modUser, getUserList } from '@/services/ant-design-pro/api';
 import { useModel } from '@umijs/max';
-
+import QueueAnim from 'rc-queue-anim';
 // const { initialState, setInitialState } = useModel('@@initialState');
 // const isDark = initialState?.settings?.isDark;
 //添加用户
@@ -199,141 +199,142 @@ const TableList: React.FC = () => {
   ];
 
   return (
-    <Card>
-      {/* <ProTable< API.UserItem, TableListPagination> */}
-      <ProTable<API.UserItem>
-        // headerTitle="用户管理"
-        actionRef={actionRef}
-        rowKey="user_id"
-        // search={{
-        //   labelWidth: 100,
-        // }}
-        // toolBarRender={() => [
-        //   <Button
-        //     type="primary"
-        //     key="primary"
-        //     onClick={() => {
-        //       message.warning('功能开发中，敬请期待');
-        //       // actionRef.current?.reloadAndRest?.();
-        //       // handleModalVisible(true);
-        //     }}
-        //   >
-        //     <PlusOutlined /> 新建
-        //   </Button>,
-        // ]}
-        request={async (params, sort, filter) => {
-          const { current, pageSize, ...restParams } = params;
-          // 构建排序参数
-          let sortBy = '';
-          let sortOrder = '';
-          if (sort) {
-            // 只取第一个排序字段（ProTable默认只支持单字段排序）
-            const sortKeys = Object.keys(sort);
-            if (sortKeys.length > 0) {
-              sortBy = sortKeys[0];
-              sortOrder = sort[sortBy] === 'ascend' ? 'asc' : 'desc';
+    <QueueAnim delay={100} type={'bottom'}>
+      <Card key="0">
+        {/* <ProTable< API.UserItem, TableListPagination> */}
+        <ProTable<API.UserItem>
+          // headerTitle="用户管理"
+          actionRef={actionRef}
+          rowKey="user_id"
+          // search={{
+          //   labelWidth: 100,
+          // }}
+          // toolBarRender={() => [
+          //   <Button
+          //     type="primary"
+          //     key="primary"
+          //     onClick={() => {
+          //       message.warning('功能开发中，敬请期待');
+          //       // actionRef.current?.reloadAndRest?.();
+          //       // handleModalVisible(true);
+          //     }}
+          //   >
+          //     <PlusOutlined /> 新建
+          //   </Button>,
+          // ]}
+          request={async (params, sort, filter) => {
+            const { current, pageSize, ...restParams } = params;
+            // 构建排序参数
+            let sortBy = '';
+            let sortOrder = '';
+            if (sort) {
+              // 只取第一个排序字段（ProTable默认只支持单字段排序）
+              const sortKeys = Object.keys(sort);
+              if (sortKeys.length > 0) {
+                sortBy = sortKeys[0];
+                sortOrder = sort[sortBy] === 'ascend' ? 'asc' : 'desc';
+              }
             }
-          }
 
-          const result = await getUserList({
-            current,
-            pageSize,
-            ...restParams,
-            ...filter,
-            sortBy,
-            sortOrder,
-          });
+            const result = await getUserList({
+              current,
+              pageSize,
+              ...restParams,
+              ...filter,
+              sortBy,
+              sortOrder,
+            });
 
-          return result;
-        }}
-        columns={columns}
-        pagination={{ position: ['topLeft', 'bottomRight'] }}
-        // sticky={true}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
-      />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              已选择{' '}
-              <a
-                style={{
-                  fontWeight: 600,
-                }}
-              >
-                {selectedRowsState.length}
-              </a>{' '}
-              项 &nbsp;&nbsp;
-            </div>
-          }
+            return result;
+          }}
+          columns={columns}
+          pagination={{ position: ['topLeft', 'bottomRight'] }}
+          // sticky={true}
+          rowSelection={{
+            onChange: (_, selectedRows) => {
+              setSelectedRows(selectedRows);
+            },
+          }}
+        />
+        {selectedRowsState?.length > 0 && (
+          <FooterToolbar
+            extra={
+              <div>
+                已选择{' '}
+                <a
+                  style={{
+                    fontWeight: 600,
+                  }}
+                >
+                  {selectedRowsState.length}
+                </a>{' '}
+                项 &nbsp;&nbsp;
+              </div>
+            }
+          >
+            <Button
+              onClick={async () => {
+                message.warning('功能开发中，敬请期待');
+                // await handleDel(selectedRowsState);
+                // setSelectedRows([]);
+                actionRef.current?.reloadAndRest?.();
+              }}
+            >
+              批量删除
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                message.warning('功能开发中，敬请期待');
+                actionRef.current?.reloadAndRest?.();
+              }}
+            >
+              批量修改
+            </Button>
+          </FooterToolbar>
+        )}
+        <ModalForm
+          title="新建用户"
+          // width="400px"
+          open={createModalVisible}
+          onOpenChange={handleModalVisible}
+          onFinish={async (value) => {
+            const success = await handleAdd(value as API.UserItem);
+            if (success) {
+              handleModalVisible(false);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }}
         >
-          <Button
-            onClick={async () => {
-              message.warning('功能开发中，敬请期待');
-              // await handleDel(selectedRowsState);
-              // setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            批量删除
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              message.warning('功能开发中，敬请期待');
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            批量修改
-          </Button>
-        </FooterToolbar>
-      )}
-      <ModalForm
-        title="新建用户"
-        // width="400px"
-        open={createModalVisible}
-        onOpenChange={handleModalVisible}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as API.UserItem);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '用户ID为必填项',
-            },
-          ]}
-          width="md"
-          name="user_id"
-          label="用户ID"
-        />
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '昵称为必填项',
-            },
-          ]}
-          width="md"
-          name="nickname"
-          label="昵称"
-        />
-        <ProFormText width="md" name="city" label="城市" />
-        <ProFormText width="md" name="permission" label="权限等级" />
-      </ModalForm>
+          <ProFormText
+            rules={[
+              {
+                required: true,
+                message: '用户ID为必填项',
+              },
+            ]}
+            width="md"
+            name="user_id"
+            label="用户ID"
+          />
+          <ProFormText
+            rules={[
+              {
+                required: true,
+                message: '昵称为必填项',
+              },
+            ]}
+            width="md"
+            name="nickname"
+            label="昵称"
+          />
+          <ProFormText width="md" name="city" label="城市" />
+          <ProFormText width="md" name="permission" label="权限等级" />
+        </ModalForm>
 
-      {/* <UpdateForm
+        {/* <UpdateForm
         onSubmit={async (value) => {
           // 合并表单值和当前行数据
           const updatedUser = { ...currentRow, ...value };
@@ -356,35 +357,36 @@ const TableList: React.FC = () => {
         values={currentRow || {}}
       /> */}
 
-      {/* 详细信息 */}
-      {currentRow?.user_id && (
-        <Modal
-          width={800}
-          open={showDetail}
-          title={`${currentRow?.user_id}  的详细信息`}
-          onCancel={() => {
-            setShowDetail(false);
-            // 确保动画显示完全
-            setTimeout(() => {
-              setCurrentRow(undefined);
-            }, 300);
-          }}
-          footer={null}
-          // centered
-        >
-          <ProDescriptions<API.UserItem>
-            column={2}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.user_id,
+        {/* 详细信息 */}
+        {currentRow?.user_id && (
+          <Modal
+            width={800}
+            open={showDetail}
+            title={`${currentRow?.user_id}  的详细信息`}
+            onCancel={() => {
+              setShowDetail(false);
+              // 确保动画显示完全
+              setTimeout(() => {
+                setCurrentRow(undefined);
+              }, 300);
             }}
-            columns={columns as ProDescriptionsItemProps<API.UserItem>[]}
-          />
-        </Modal>
-      )}
-    </Card>
+            footer={null}
+            // centered
+          >
+            <ProDescriptions<API.UserItem>
+              column={2}
+              request={async () => ({
+                data: currentRow || {},
+              })}
+              params={{
+                id: currentRow?.user_id,
+              }}
+              columns={columns as ProDescriptionsItemProps<API.UserItem>[]}
+            />
+          </Modal>
+        )}
+      </Card>
+    </QueueAnim>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, Menu, Select, Space, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
-
+import QueueAnim from 'rc-queue-anim';
 // const requestURL = 'http://192.168.195.41:5007';
 const requestURL = '';
 
@@ -280,8 +280,9 @@ const YamlEditor: React.FC = () => {
   };
 
   return (
-    <Spin spinning={loading} size='large'>
-      <Card style={{ padding: 0 }}>
+    // <Spin spinning={loading} size='large'>
+    <QueueAnim type={'bottom'} delay={100}>
+      <Card style={{ padding: 0 }} loading={loading} key="0">
         <div className="yaml-editor">
           {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
           <Affix offsetTop={60}>
@@ -336,7 +337,7 @@ const YamlEditor: React.FC = () => {
       `}</style>
         </div>
       </Card>
-    </Spin>
+    </QueueAnim>
   );
 };
 
