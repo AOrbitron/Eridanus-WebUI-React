@@ -167,9 +167,9 @@ const Chat: React.FC = () => {
       let contentParts: string[] = [];
       // 标记是否有为媒体文件
       let isMedia = false;
-      let fileUrl;
-      let msgType;
-      let nodeData; // 存储node类型的数据
+      let fileUrl:any;
+      let msgType:any;
+      let nodeData:any; // 存储node类型的数据
 
       // 处理所有消息，合并内容到一个气泡里面
       for (const msg of messageList) {
@@ -222,7 +222,7 @@ const Chat: React.FC = () => {
               updateServerContent(id, updatedContent);
             }, 500); // 延迟加载，确保UI先显示加载状态
 
-            return; // 提前返回，避免重复添加消息
+            // return; // 提前返回，避免重复添加消息
           }
 
           // 处理网易云音乐
@@ -237,8 +237,7 @@ const Chat: React.FC = () => {
               const updatedContent = contentParts.join('\n').replace('[加载中...]', '');
               updateServerContent(id, updatedContent);
             }, 500);
-
-            return; // 提前返回，避免重复添加消息
+            // return; // 提前返回，避免重复添加消息
           }
         }
       }
@@ -394,7 +393,7 @@ const Chat: React.FC = () => {
       padding: '8px',
       borderRadius: '10px',
       height: 'auto',
-      marginBottom: '56px',
+      marginBottom: '60px',
       overflowY: 'auto',
     },
     message: {
@@ -433,13 +432,13 @@ const Chat: React.FC = () => {
 
   return (
     <Spin spinning={loading} tip='websocket连接中...' size='large'>
-    <QueueAnim delay={100} type={'bottom'}>
+    {/* <QueueAnim delay={100} type={'bottom'}> */}
       <Card style={{
-        height: 'calc(100vh - 82px)',
-      }} key='a'>
+        height: 'calc(100vh - 100px)',
+      }} key='aaaaa'>
         <div ref={chatContainRef} style={{
           width: '100%',
-          height: 'calc(100vh - 82px)',
+          height: 'calc(100vh - 100px)',
           display: 'flex',
           flexDirection: 'column'
         }}>
@@ -481,6 +480,7 @@ const Chat: React.FC = () => {
               setInputValue(v);
             }}
             onSubmit={(v) => {
+              setInputValue('');
               handleSend(v);
             }}
             prefix={
@@ -546,7 +546,7 @@ const Chat: React.FC = () => {
           {/* <Button onClick={handleLogMessages} style={{ marginTop: '10px' }}>打印消息到控制台</Button> */}
         </div>
       </Card>
-    </QueueAnim>
+    {/* </QueueAnim> */}
     </Spin >
 
   );

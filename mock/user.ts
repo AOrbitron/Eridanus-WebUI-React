@@ -1,6 +1,6 @@
 //这个是本地预览的时候伪装返回的API
 
-const testToken = 'vu8iOCZiJDYCokogboo6S3UXop6YaT5Z5jLp1e4PDiU='
+const testToken = '114514'
 
 
 import { Request, Response } from 'express';

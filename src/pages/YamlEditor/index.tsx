@@ -281,7 +281,7 @@ const YamlEditor: React.FC = () => {
 
   return (
     // <Spin spinning={loading} size='large'>
-    <QueueAnim type={'bottom'} delay={100}>
+    // <QueueAnim type={'bottom'} delay={100}>
       <Card style={{ padding: 0 }} loading={loading} key="0">
         <div className="yaml-editor">
           {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
@@ -337,7 +337,7 @@ const YamlEditor: React.FC = () => {
       `}</style>
         </div>
       </Card>
-    </QueueAnim>
+    // </QueueAnim>
   );
 };
 
