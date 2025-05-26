@@ -211,16 +211,16 @@ const Chat: React.FC = () => {
           // 处理文件URL
           if (fileUrl) {
             // 先添加带加载状态的消息
-            addServerMediaLoadingWithContent(id, contentParts.join('\n'), '', msgType, replyInfo, nodeData);
+            addServerMediaWithContent(id, contentParts.join('\n\n'), `/api/chat/file?path=${fileUrl}`, msgType, replyInfo, nodeData);
 
             // 异步加载媒体文件
-            setTimeout(() => {
-              const processedUrl = `/api/chat/file?path=${fileUrl}`;
-              updateServerMedia(id, processedUrl, msgType, nodeData);
-              // 更新内容，移除加载中的占位符
-              const updatedContent = contentParts.join('\n').replace('[加载中...]', '');
-              updateServerContent(id, updatedContent);
-            }, 500); // 延迟加载，确保UI先显示加载状态
+            // setTimeout(() => {
+            //   const processedUrl = `/api/chat/file?path=${fileUrl}`;
+            //   updateServerMedia(id, processedUrl, msgType, nodeData);
+            //   // 更新内容，移除加载中的占位符
+            //   const updatedContent = contentParts.join('\n').replace('[加载中...]', '');
+            //   updateServerContent(id, updatedContent);
+            // }, 500); // 延迟加载，确保UI先显示加载状态
 
             // return; // 提前返回，避免重复添加消息
           }
@@ -229,14 +229,14 @@ const Chat: React.FC = () => {
           if (msg.data && msg.data.type === '163') {
             const musicUrl = `https://music.163.com/song/media/outer/url?id=${msg.data.id}.mp3`;
             // 先添加带加载状态的消息
-            addServerMediaLoadingWithContent(id, contentParts.join('\n'), '', 'music', replyInfo);
+            addServerMediaLoadingWithContent(id, contentParts.join('\n'), musicUrl, 'music', replyInfo);
 
             // 异步加载音乐
-            setTimeout(() => {
-              updateServerMedia(id, musicUrl, 'music');
-              const updatedContent = contentParts.join('\n').replace('[加载中...]', '');
-              updateServerContent(id, updatedContent);
-            }, 500);
+            // setTimeout(() => {
+            //   updateServerMedia(id, musicUrl, 'music');
+            //   const updatedContent = contentParts.join('\n').replace('[加载中...]', '');
+            //   updateServerContent(id, updatedContent);
+            // }, 500);
             // return; // 提前返回，避免重复添加消息
           }
         }

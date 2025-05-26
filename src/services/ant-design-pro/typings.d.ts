@@ -74,6 +74,7 @@ declare namespace API {
   type LoginParams = {
     account?: string;
     password?: string;
+    autoLogin?: boolean; // 是否自动登录
   };
 
   //登出参数

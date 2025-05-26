@@ -110,6 +110,8 @@ export const LogOut = () => {
       return;
     }
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('saved_account');
+    localStorage.removeItem('saved_password');
     document.cookie = "auth_token=;";
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
