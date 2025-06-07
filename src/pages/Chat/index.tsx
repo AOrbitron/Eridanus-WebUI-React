@@ -178,12 +178,20 @@ const Chat: React.FC = () => {
       //   console.warn('消息格式错误:', messageList);
       //   return;
       // }
-      const replyContent = findMessageContent(data.message.params.message[0].data.id);
+      const replyMesssageId = data.message.params.message[0].data.id;
+      const replyContent = replyMesssageId ? findMessageContent(replyMesssageId) : undefined;
+      // console.log(replyContent);
       setMessages((prev) => [
         ...prev,
-        { role: 'start',replyContent:replyContent , message_id: data.message_id, message: data.message },
+        {
+          role: 'start',
+          replyContent: replyContent,
+          message_id: data.message_id,
+          message: data.message,
+        },
       ]);
     } catch (e) {
+      console.warn(e);
       // addServerMessage(1, '解析服务器消息失败: ' + e);
       // addServerMessage(1, '[消息格式无效]');
     }

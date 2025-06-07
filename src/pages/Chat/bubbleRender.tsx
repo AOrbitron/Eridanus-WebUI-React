@@ -246,10 +246,11 @@ const renderText = (content: string) => {
 };
 
 const BubbleRender: React.FC<API.ChatMessage> = ({ role, replyContent, message_id, message }) => {
-  console.log(replyContent);
+  // console.log(message);
   const { initialState, setInitialState } = useModel('@@initialState');
   const isDark = initialState?.settings?.isDark;
   const messageAction = message.action;
+  // console.log(messageAction);
   const forwardMessages = message.params?.messages;
   const messagesList = message.params?.message;
   // console.info(messageAction);
