@@ -11,7 +11,7 @@ declare namespace API {
     totalDisk: number; // 磁盘(当前分区)总容量
     usedDisk: number; // 磁盘(当前分区)已用容量
   };
-//机器人信息
+  //机器人信息
   type botInfo = {
     botName: string; // 机器人名称
     totalUsers: number; // 用户总数
@@ -128,5 +128,15 @@ declare namespace API {
     success: boolean;
     pageSize: number;
     current: number;
+  };
+
+  type ChatMessage = {
+    role: 'end' | 'start';
+    message_id: number;
+    message: {
+      action?: string;
+      params: any;
+      echo?: string;
+    };
   };
 }

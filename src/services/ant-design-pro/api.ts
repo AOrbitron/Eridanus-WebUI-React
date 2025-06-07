@@ -2,10 +2,10 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-const requestURL = '';
+// const requestURL = '';
 
 //本地调试用
-// const requestURL = 'http://192.168.195.41:5007';
+const requestURL = 'http://192.168.195.41:5007';
 // const requestURL = 'http://192.168.195.128:5007';
 
 //获取当前webui用户信息
@@ -25,17 +25,6 @@ export async function updateProfile(body: API.UpdateProfileParams) {
     data: body,
   });
 }
-
-//文件转b64接口（日后考虑通过send_staicfile发送）
-// export async function file2b64(body: string) {
-//   return request<API.file2b64Result>(`${requestURL}/api/file2base64`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     data: body,
-//   });
-// }
 
 /** 退出登录接口 POST /api/logout */
 export async function userLogout(options?: { [key: string]: any }) {
@@ -100,3 +89,4 @@ export async function getUserList(params?: { [key: string]: any }, options?: { [
       ...(options || {}),
     });
 }
+

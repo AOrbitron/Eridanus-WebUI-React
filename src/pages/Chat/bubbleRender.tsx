@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useModel } from '@umijs/max';
 import { Space, Spin, Image, Card, Typography, List, Divider } from 'antd';
 import axios from 'axios';
-
+import markdownit from 'markdown-it';
+const md = markdownit({ html: true, breaks: true });
 // 渲染网易云音乐卡片(好像没有意义)
 const renderMusicCard = (url: string) => {
   const { Text, Title } = Typography;
@@ -36,7 +37,7 @@ const renderMusicCard = (url: string) => {
           setSongInfo({
             name: song.name,
             artists: artistNames,
-            picUrl: song.album.picUrl
+            picUrl: song.album.picUrl,
           });
         } else {
           setError(true);
@@ -65,7 +66,9 @@ const renderMusicCard = (url: string) => {
             preview={false}
           />
           <div style={{ marginLeft: 12, flex: 1 }}>
-            <Title level={5} style={{ margin: 0 }}>{songInfo.name}</Title>
+            <Title level={5} style={{ margin: 0 }}>
+              {songInfo.name}
+            </Title>
             <Text type="secondary">{songInfo.artists}</Text>
             <audio src={url} controls style={{ width: '100%', marginTop: 8 }} />
           </div>
@@ -103,7 +106,7 @@ const renderForwardedMessages = (nodeData: any) => {
   }
   // 处理data.content格式的数据
   else if (nodeData.data && nodeData.data.content) {
-    messages = [{data: {content: nodeData.data.content}}];
+    messages = [{ data: { content: nodeData.data.content } }];
     if (nodeData.data.nickname) {
       nickname = nodeData.data.nickname;
     }
@@ -134,7 +137,9 @@ const renderForwardedMessages = (nodeData: any) => {
             return (
               <List.Item>
                 {item.data.nickname && (
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{item.data.nickname}</div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                    {item.data.nickname}
+                  </div>
                 )}
                 {nodeContent.map((contentItem: any, index: number) => {
                   if (contentItem.type === 'text' && contentItem.data && contentItem.data.text) {
@@ -165,7 +170,32 @@ const renderForwardedMessages = (nodeData: any) => {
   );
 };
 
-const renderMedia = (url: string, type?: string, nodeData?: any) => {
+//渲染视频
+const renderVideo = (url: string) => {
+  return <video src={url} controls style={{ maxWidth: '300px' }} />;
+};
+
+//渲染图片
+const renderImage = (url: string) => {
+  const [loading, setLoading] = useState(true);
+  return (
+    <Spin spinning={loading} tip="图片加载中...">
+      <Image
+        src={url}
+        onLoad={() => setLoading(false)}
+        style={{ maxWidth: '150px', cursor: 'pointer' }}
+      />
+    </Spin>
+  );
+};
+
+//渲染语音
+const renderRecord = (url: string) => {
+  return <audio src={url} controls style={{ width: '200px' }} />;
+};
+
+//渲染文件卡片
+const renderFile = (url: string) => {
   // 如果是node类型，使用专门的渲染函数
   if (type === 'node' && nodeData) {
     return renderForwardedMessages(nodeData);
@@ -179,7 +209,7 @@ const renderMedia = (url: string, type?: string, nodeData?: any) => {
     // music: renderMusicCard(url),
     music: <div>[音乐卡片，暂不支持]</div>,
     //文本不渲染
-    text: null
+    text: null,
     // file: <a href={url} target="_blank" rel="noopener noreferrer">下载文件</a>
   };
   // 注意！可能存在性能问题，怎么输入框onchange，这个函数就会执行一遍？
@@ -187,54 +217,45 @@ const renderMedia = (url: string, type?: string, nodeData?: any) => {
   return typeMap[type as keyof typeof typeMap] || <div>不支持的媒体类型</div>;
 };
 
-interface BubbleRenderProps {
-  content?: string;
-  url?: string;
-  type?: string;
-  loading?: boolean;
-  replyTo?: { id: number; content?: string };
-  nodeData?: any; // 添加node类型数据
-}
-
-const BubbleRender: React.FC<BubbleRenderProps> = ({ content, url, type, loading, replyTo, nodeData }) => {
+const renderText = (content: string) => {
+  return (
+    <Typography>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: used in demo */}
+      <div
+        dangerouslySetInnerHTML={{ __html: md.render(content) }}
+      />
+    </Typography>
+  );
+};
+const BubbleRender: React.FC<API.ChatMessage> = ({ role, message_id, message }) => {
   const { initialState, setInitialState } = useModel('@@initialState');
   const isDark = initialState?.settings?.isDark;
-  // if (type == 'music') {
-  //   url = `https://music.163.com/song/media/outer/url?id=${url}.mp3`;
-
-  // } else {
-  //   url = `/api/chat/file?path=${url}`;
-  // }
-  return (
-    <div>
-      {/* 回复内容 */}
-      {replyTo?.content ? (
-        <div style={{ padding: '5px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginBottom: '8px', fontSize: '12px', color: '#666' }}>
-          <div style={{ borderLeft: '2px solid #1890ff', paddingLeft: '8px' }}>
-            {replyTo.content.length > 50 ? `${replyTo.content.substring(0, 50)}...` : replyTo.content}
-          </div>
-        </div>
-      ) : null}
-
-      {/* 文本内容 */}
-      {content ? (`${content}`) : ('')}
-
-      {/* 媒体内容，loding状态决定要渲染加载动画还是内容 */}
-      {loading ? (
-        <div style={{ padding: '10px', textAlign: 'center' }}>
-          <Space>
-            <Spin size="small" />
-            <span>加载中...</span>
-          </Space>
-        </div>
-      ) : (url && type != 'text') ? (
-        <div>
-          {renderMedia(url, type, nodeData)}
-        </div>
-      ) : ('')
+  const forwardMessages = message.params?.messages;
+  const messagesList = message.params?.message;
+  const replyTo = '114514';
+  if (messagesList) {
+    const renderedMessages = messagesList.map((msg: any, index: number) => {
+      console.info(msg);
+      //优先处理文本类型
+      if(msg.type == 'text'){
+        return renderText(msg.data.text);
       }
-    </div>
-  );
+      //处理其余多媒体信息
+      //URL丢给后端处理，先把要发送的文件剪切到聊天文件夹里面，再发送ws消息（todo）
+      switch (msg.type) {
+        case 'music':
+          return renderMusicCard(msg.data.url);
+        case 'image':
+          return renderImage(msg.data.url);
+        case 'video':
+          return renderVideo(msg.data.url);
+        default:
+          return null;
+      }
+    });
+    return <div>{renderedMessages}</div>;
+  }
+  return 'nothing';
 };
 
 export default BubbleRender;

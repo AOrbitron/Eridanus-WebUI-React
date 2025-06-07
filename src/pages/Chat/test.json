@@ -1,0 +1,91 @@
+[
+  {
+    "self_id": 1000000,
+    "user_id": 111111111,
+    "time": 1749228276,
+    "message_id": 1749228276,
+    "real_id": 1253451396,
+    "message_seq": 1253451396,
+    "message_type": "group",
+    "sender": {
+      "user_id": 111111111,
+      "nickname": "主人",
+      "card": "",
+      "role": "member",
+      "title": ""
+    },
+    "raw_message": "",
+    "font": 14,
+    "sub_type": "normal",
+    "message": {
+      "action": "send_group_msg",
+      "params": {
+        "group_id": 879886836,
+        "message": [
+          {
+            "type": "reply",
+            "data": {
+              "id": 1749228223912
+            }
+          },
+          {
+            "type": "image",
+            "data": {
+              "file": "file://C:/Users/HomeServer2/Desktop/Eridanus_rebuild/Eridanus/data/pictures/cache/1iqnjMz.png"
+            }
+          }
+        ]
+      },
+      "echo": "0f2fd9f0-6dd5-4dfc-9d86-07f65101d929"
+    },
+    "message_format": "array",
+    "post_type": "message",
+    "group_id": 879886836
+  },
+  {
+    "self_id": 1000000,
+    "user_id": 111111111,
+    "time": 1749228451,
+    "message_id": 1749228451,
+    "real_id": 1253451396,
+    "message_seq": 1253451396,
+    "message_type": "group",
+    "sender": {
+      "user_id": 111111111,
+      "nickname": "主人",
+      "card": "",
+      "role": "member",
+      "title": ""
+    },
+    "raw_message": "",
+    "font": 14,
+    "sub_type": "normal",
+    "message": {
+      "action": "send_group_msg",
+      "params": {
+        "group_id": 879886836,
+        "messages": [
+          {
+            "type": "node",
+            "data": {
+              "user_id": "",
+              "nickname": "",
+              "content": [
+                {
+                  "type": "text",
+                  "data": {
+                    "text": "baidu搜索结果:\n标题: 五郎(游戏《原神》及其衍生... - 百度百科\n链接: http://www.baidu.com/link?url=8_2eUwGjDe41osVw3xPRIX3C4Mo1-8k5w4Jvm1pFL3vwPyr0_3Qd6QJIYhkFnEzyvVSoS6gQdDsaLTDUAnBFgKCvQeGN1kHXi-2JMIv3nv3\n内容: 五郎 (游戏《原神》及其衍生... - 百度百科  登场作品：原神 配音：杨昕燃(汉语)、畠中祐(日语)、科里·易(英语)、李晓(韩语) 简介： 五郎 （Gorou），男，米哈游出品的游戏《 原神 》及其衍生作品中的角色，由杨昕燃、畠中祐、科里·易、李晓配音。五... 详情  角色形象 角色生活 角色经历 主题音乐 百度百科\n--------------------\n标题: 无标题\n链接: /s?wd=%E5%8E%9F%E7%A5%9E%E4%BA%94%E9%83%8E%E5%80%BC%E5%BE%97%E5%9F%B9%E5%85%BB%E5%90%97%3F&usm=5&ie=utf-8&rsv_pq=c06980c90097950d&oq=%E4%BA%94%E9%83%8E%20%E5%8E%9F%E7%A5%9E&rsv_t=c18cc3vXj3lLkSY%2FiqDPAsc2bzr4SlLKDLHZu5YGEQvVURHwT3FgKJyiIc0&rsf=101636803&rsv_dl=0_prs_28608_1\n内容: 大家还在搜 原神五郎值得培养吗? 原神五郎图片 原神五郎身份介绍 原神五郎技能介绍 原神五郎的身子 原神里五郎的身世 原神五郎是什么品种 原神五郎生日 原神五郎武器 原神五郎和八重神子\n--------------------\n标题: 五郎 原神- 精选笔记\n链接: http://www.baidu.com/link?url=OUw-N7oRQsSz-xiSIugdHtuA2IcezV-LM2mcBythuObaI89RLyjITNrwR1BsS2POGRkU_u5AYGF9qo8-g08Wwnt5yiSZnnaxGongvR96owxN9OOu13J63e7xD0hxwWNrJJHKJPcCIkD9YFve_grSGa\n内容: 五郎 原神 - 精选笔记 五郎增伤辅助全攻略:从命座到武器选择 奥斯汀喵喵小李队 02:53 原神MMD:五郎的《Booo!》 好看视频 8赞 要尝尝我做的拉面吗 #原神# #原神五郎#  P站画师:飛沫かもめ 一橙不变 01:57 原神爆料:2.3五郎人物详细介绍,这角色绑定的是荒泷一斗 哔哩哔哩 查看更多笔记 >\n--------------------\n标题: 五郎 原神- 游戏攻略问答\n链接: http://www.baidu.com/link?url=LpGutCjjMULG-4ADPX-7bnd9otAsclIc9hKcSYCMn8T1lG0iLH_x2JYx9_4DyIIiLTrgmAdrf5NuajjmFc1noiM6_qC0ORDzqSU9CdAoBigbDZ_5UsPZYHOH_nri56siF3efOgXkw-e6UaGF084Doerr68LWpENXJaj6YkIIkxJBgpQB74TQ2WARRX2ZIKiB\n内容: 五郎 原神 - 游戏攻略问答 原神五郎 好用吗？ 1.他是【纯岩队的核心挂件】，如果玩纯岩队，比如女仆/荒泷一斗 岩主/阿贝多 钟离， 五郎 还是很值得培养的。如果不打算玩纯岩队，那么就没有一点培养价值，毕竟元素战技的属性加成，要队伍是岩属性角色才能触发。2.和班尼特这种泛用性高的辅助不太一样， 五郎 在岩队强度有T0，完全不可代替。但放在其他队中强度为T3，属于没啥用的仓管，技能没buff没伤害。练不练 五郎 ，主要看你玩不玩岩队。 猥琐丶ing 奇书创作者 1.8万人看过 原神五郎 怎么样？ 在游戏“原神”中，五郎是一位弓箭手，五郎的元素战技，可以增加角色的防御力，以及提供抗打断、岩元素的伤害加成。结合五郎的技能和命之座可以看出是岩系增伤辅助角色。五郎是值得玩家拥有和收藏的。 6357人看过 原神五郎 好抽吗？ 原神五郎好抽。在原神游戏中，五郎是稀有度为四星的岩系角色，在稀有度方面，并不算太稀有，玩家还是很容易抽到，所以好抽。 114人看过 查看相关问题 > 百度游戏-乐玩 \n--------------------\n标题: 五郎-原神WIKI_BWIKI_哔哩哔哩\n链接: http://www.baidu.com/link?url=AWboMTLtrqmyVgxktvhhP_mMvasLeavtvMVcA7MTT_xM12OYspuCJeYL-dOrVgkC9maZu65vyeb-3KH45RyR1q\n内容: 五郎 - 原神 WIKI_BWIKI_哔哩哔哩 2025年5月20日 五郎 是海祇岛军的大将,在军队中威望极高,深受部下们爱戴。 眼狩令期间,五郎多次带领海祇岛军与幕府军作战,即使条件艰难,也成功守住了防线。 将士们称他为「常胜的尖耳将军」,这一称号在幕府方面也广为流传。 私下里,五郎却没什么架子,待人真挚直率,是士兵们公认的知心大哥。 哔哩哔哩游戏\n--------------------\n标题: 原神MMD:五郎的《Booo!》,舞蹈,宅舞,好看视频\n链接: http://www.baidu.com/link?url=v9rOwdwqdI20ft0QRcewjm4_ts5wPWIpJa5lCW4ka0Di9FLgRP0Zs2mNNO3auI9lTWllhFoilKFQDkLPo3K1iOM5j5lDLp68hFGA-7h17um\n内容: 原神 MMD: 五郎 的《Booo!》,舞蹈,宅舞,好看视频  视频 时长 02:53 原神 MMD: 五郎 的《Booo!》 次元壁 42万粉丝 · 5274个视频 关注 接下来播放自动播放 00:33 男子楼道裸露下体偷进房间藏女生床下,女生吓到尖叫:他还对我笑 观象视频 41万次播放 · 285次点赞 00:50 “最美通缉犯”出狱后直播当网红?自称改邪归正,账号被无限期禁言 观象视频 3.4万次播放 · 200次点赞 01... haokan.baidu.com/v?pd=wi...\n--------------------\n标题: 五郎增伤辅助全攻略:从命座到武器选择\n链接: http://www.baidu.com/link?url=aZWgx_MbPqLX91_NQf8u9s5lsEZQbqlrJRw893qiSTiAWf4EBrFJVS-pTa8qZUaJy_1s2ZHkaizZtK69SJMlMWYZLBuDTF-7uOOJaO8V3Ryau8QN2HylPlKi_Wyz4inl\n内容: 五郎 增伤辅助全攻略:从命座到武器选择 2024年12月29日 嘿,大家好!今天我们来聊聊《 原神 》里的 五郎 ,这位岩元素弓箭手可是岩系队伍的专属辅助哦!对于那些以自身防御力为输出的岩系角色,比如一斗、阿贝多、诺艾尔来说,五郎简直是他们的绑定辅助。不过,五郎的伤害输出比较有限,所以建议大家不要把他当做主C来培养,当副C也有点困难。🔥... 奥斯汀喵喵小李队\n--------------------\n"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "echo": "a2cec069-9f21-4a29-a2b8-3e5d72d7adf3"
+    },
+    "message_format": "array",
+    "post_type": "message",
+    "group_id": 879886836
+  }
+]

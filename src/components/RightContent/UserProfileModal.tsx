@@ -26,6 +26,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
       onClose();
       document.cookie = 'auth_token=';
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('saved_account');
+      localStorage.removeItem('saved_password');
       history.push('/user/login');
       message.success(submitResult.message);
       // setTimeout(()=>{location.reload()},1000);
@@ -63,7 +65,21 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
         <Form.Item
           label="新密码（留空保持不变）"
           name="newPassword"
-          rules={[{ required: false }]}
+          rules={[
+            { required: false },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                message.info(value);
+                //如果新密码为空，确认密码也为空；或者新密码为空，确认密码不为空；或者新密码和确认密码相同
+                if ((!getFieldValue('confirmPassword') && !value) || (getFieldValue('confirmPassword') && !value) || getFieldValue('confirmPassword') === value) {
+                  setMatchPswd(true);
+                  return Promise.resolve();
+                }
+                setMatchPswd(false);
+                return Promise.reject(new Error('两次输入的密码不一致'));
+              },
+            }),
+          ]}
         >
           <Input.Password placeholder="请输入新密码" />
         </Form.Item>
@@ -76,7 +92,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
             { required: false },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || !getFieldValue('newPassword') || getFieldValue('newPassword') === value) {
+                message.info(value);
+                //如果新密码为空，确认密码也为空；或者新密码为空，确认密码不为空；或者新密码和确认密码相同
+                if ((!getFieldValue('newPassword') && !value) || (!getFieldValue('newPassword') && value) || getFieldValue('newPassword') === value) {
                   setMatchPswd(true);
                   return Promise.resolve();
                 }
