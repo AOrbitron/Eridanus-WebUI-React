@@ -5,10 +5,14 @@ import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from 
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
+import { Helmet } from 'react-helmet';
+import { last } from 'lodash';
 const wsURL = `/api/ws`;
 const requestURL = `http://192.168.195.41:5007`;
 // const requestURL = ``;
 const Chat: React.FC = () => {
+  const listRef = React.useRef<GetRef<typeof Bubble.List>>(null);
+
   const { initialState, setInitialState } = useModel('@@initialState');
   //深色模式flag，给对话框背景用
   const isDark = initialState?.settings?.isDark;
@@ -165,32 +169,33 @@ const Chat: React.FC = () => {
       const data = JSON.parse(rawData);
       //status啥的消息，不需要处理
       if (!data.message?.params) {
-        // console.warn('收到无效消息:', data);
+        console.warn('收到无效消息:', data);
         return;
       }
 
-      const messageList = data.message.params.message;
-      if (!Array.isArray(messageList)) {
-        console.warn('消息格式错误:', messageList);
-        return;
-      }
+      // const messageList = data.message.params.message;
+      // if (!Array.isArray(messageList)) {
+      //   console.warn('消息格式错误:', messageList);
+      //   return;
+      // }
+      const replyContent = findMessageContent(data.message.params.message[0].data.id);
       setMessages((prev) => [
         ...prev,
-        { role: 'start', message_id: data.message_id, message: data.message },
+        { role: 'start',replyContent:replyContent , message_id: data.message_id, message: data.message },
       ]);
     } catch (e) {
-      addServerMessage(1, '解析服务器消息失败: ' + e);
-      addServerMessage(1, '[消息格式无效]');
+      // addServerMessage(1, '解析服务器消息失败: ' + e);
+      // addServerMessage(1, '[消息格式无效]');
     }
   };
 
   // 查找回复对应的消息内容
   const findMessageContent = (messageId: number): string => {
     // 使用messagesRef.current获取最新的消息数组，而不是使用可能过时的messages状态
-    // console.log('查找消息，当前消息数组长度:', messagesRef.current.length);
     const message = messagesRef.current.find((msg) => msg.message_id == messageId);
-    console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
+    // console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
     const replyContent = message?.message.params.message.at(-1);
+    // console.log('回复的消息内容:', replyContent);
     if (replyContent.type == 'text') return replyContent.data.text;
     else if (replyContent.type) {
       // 根据消息类型返回对应的名称
@@ -208,13 +213,16 @@ const Chat: React.FC = () => {
   };
 
   const addUserMessage = (content: string, id: number) => {
-    console.log(`用户消息id:${id},内容:${content}`);
+    // console.log(`用户消息id:${id},内容:${content}`);
     setMessages((prev) => [
       ...prev,
       {
         role: 'end',
         message_id: id,
-        message: { params: { message: [{ type: 'text', data: { text: content } }] } },
+        message: {
+          action: 'send_group_msg',
+          params: { message: [{ type: 'text', data: { text: content } }] },
+        },
       },
     ]);
   };
@@ -237,6 +245,8 @@ const Chat: React.FC = () => {
       //时间戳作为消息唯一id
       const id = Date.now();
       addUserMessage(content, id);
+      //滚动到底部
+      listRef.current?.scrollTo({ key: messages.length - 1, block: 'nearest' });
       ws.send(JSON.stringify({ type: 'text', id: id, isat: isAt, data: { text: content } }));
       setInputValue('');
       setTimeout(() => {}, 10);
@@ -264,10 +274,10 @@ const Chat: React.FC = () => {
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      padding: '8px',
+      // padding: '8px',
       borderRadius: '12px',
       height: 'auto',
-      marginBottom: '100px',
+      marginBottom: '115px',
       overflowY: 'auto',
     },
     message: {
@@ -321,7 +331,7 @@ const Chat: React.FC = () => {
           }}
         >
           <div style={styles.chatContainer} ref={chatContainerRef}>
-            {messages.map((msg, index) => (
+            {/* {messages.map((msg, index) => (
               //antd-x bubble样式
               <Bubble
                 key={index}
@@ -329,14 +339,29 @@ const Chat: React.FC = () => {
                 shape="corner"
                 style={styles.message}
                 messageRender={() => (
-                  <BubbleRender
-                  role={msg.role}
-                  message={msg.message}
-                  message_id={msg.message_id}
-                  />
+                  <BubbleRender role={msg.role} message={msg.message} message_id={msg.message_id} />
                 )}
               />
-            ))}
+            ))} */}
+
+            <Bubble.List
+              ref={listRef}
+              items={messages.map((msg, index) => {
+                return {
+                  key: index,
+                  placement: msg.role,
+                  shape: 'corner',
+                  content: (
+                    <BubbleRender
+                      role={msg.role}
+                      replyContent={msg.replyContent}
+                      message={msg.message}
+                      message_id={msg.message_id}
+                    />
+                  ),
+                };
+              })}
+            />
           </div>
 
           <Sender
@@ -399,6 +424,9 @@ const Chat: React.FC = () => {
           />
         </div>
       </Card>
+      <Helmet>
+        <meta name="referrer" content="no-referrer" />
+      </Helmet>
     </Spin>
   );
 };

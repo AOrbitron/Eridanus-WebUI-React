@@ -132,6 +132,7 @@ declare namespace API {
 
   type ChatMessage = {
     role: 'end' | 'start';
+    replyContent?: string;
     message_id: number;
     message: {
       action?: string;
