@@ -8,8 +8,8 @@ import BubbleRender from './bubbleRender';
 import { Helmet } from 'react-helmet';
 import { last } from 'lodash';
 const wsURL = `/api/ws`;
-const requestURL = `http://192.168.195.41:5007`;
-// const requestURL = ``;
+// const requestURL = `http://192.168.195.41:5007`;
+const requestURL = ``;
 const Chat: React.FC = () => {
   const listRef = React.useRef<GetRef<typeof Bubble.List>>(null);
 

@@ -5,8 +5,8 @@ import axios from 'axios';
 import markdownit from 'markdown-it';
 const md = markdownit({ html: true, breaks: true });
 
-const requestURL = 'http://192.168.195.41:5007';
-
+// const requestURL = 'http://192.168.195.41:5007';
+const requestURL = '';
 // 渲染音乐卡片(好像没有意义)
 const renderMusicCard = (url: string) => {
   const { Text, Title } = Typography;
