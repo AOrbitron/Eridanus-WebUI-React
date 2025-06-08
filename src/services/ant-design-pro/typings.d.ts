@@ -132,12 +132,28 @@ declare namespace API {
 
   type ChatMessage = {
     role: 'end' | 'start';
-    replyContent?: string;
+    replyContent?: string | null;
     message_id: number;
     message: {
       action?: string;
       params: any;
       echo?: string;
     };
+  };
+  type ForwardedChatMessage = {
+    data: {
+      content: {
+        user_id: number;
+        nickname: string;
+        content: any;
+      };
+    };
+  };
+  type MusicInfo = {
+    desc?: string;
+    title?: string;
+    preview?: string;
+    musicUrl?: string;
+    jumpUrl?: string;
   };
 }

@@ -2,11 +2,9 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-const requestURL = '';
-
-//本地调试用
 // const requestURL = 'http://192.168.195.41:5007';
-// const requestURL = 'http://192.168.195.128:5007';
+
+const requestURL = '';
 
 //获取当前webui用户信息
 export async function getCurrentUser() {
@@ -74,7 +72,10 @@ export async function delUser(body: any, options?: { [key: string]: any }) {
 }
 
 /** 获取用户列表 GET /api/usermgr/userlist */
-export async function getUserList(params?: { [key: string]: any }, options?: { [key: string]: any }) {
+export async function getUserList(
+  params?: { [key: string]: any },
+  options?: { [key: string]: any },
+) {
   return request<API.UserList>(`${requestURL}/api/usermgr/userList`, {
     method: 'GET',
     params,
@@ -82,11 +83,21 @@ export async function getUserList(params?: { [key: string]: any }, options?: { [
   });
 }
 
-  export async function getBasicInfo(params?: { [key: string]: any }, options?: { [key: string]: any }) {
-    return request<API.BasicInfo>(`${requestURL}/api/dashboard/basicInfo`, {
-      method: 'GET',
-      params,
-      ...(options || {}),
-    });
+export async function getBasicInfo(
+  params?: { [key: string]: any },
+  options?: { [key: string]: any },
+) {
+  return request<API.BasicInfo>(`${requestURL}/api/dashboard/basicInfo`, {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
 }
 
+export async function getMusicInfo(body: { type: string; id?: string | number },options?: { [key: string]: any },) {
+  return request<API.MusicInfo>(`${requestURL}/api/chat/music`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}

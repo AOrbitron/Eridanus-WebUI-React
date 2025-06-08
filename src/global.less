@@ -73,3 +73,54 @@ article {
     margin-bottom: 1px !important;
   }
 }
+
+/* 图片预览相关样式 */
+.preview-mask-true {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  color: #fff !important;
+}
+
+.preview-mask-false {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  color: #000 !important;
+}
+
+/* 确保图片预览弹窗在深色模式下有正确的背景色 */
+.ant-image-preview-root {
+  .ant-image-preview-mask {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  .ant-image-preview-wrap {
+    background-color: transparent !important;
+  }
+}
+
+/* 自定义图片遮罩层样式 */
+.image-mask-true, .image-mask-false {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.image-mask-true {
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.image-mask-false {
+  background: rgba(255, 255, 255, 0.5);
+  color: #000;
+}
+
+.image-container:hover .image-mask-true,
+.image-container:hover .image-mask-false {
+  opacity: 1;
+}

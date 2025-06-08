@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card } from 'antd';
+import { Card, Image } from 'antd';
 import QueueAnim from 'rc-queue-anim';
 import React from 'react';
 

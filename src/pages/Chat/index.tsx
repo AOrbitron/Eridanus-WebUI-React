@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, message, Spin, Card, Divider, Flex, Switch } from 'antd';
+import { Button, message, Spin, Card, Image, Flex, Switch } from 'antd';
 // import type { BubbleProps } from '@ant-design/x';
 import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
 import { Helmet } from 'react-helmet';
-import { last } from 'lodash';
 const wsURL = `/api/ws`;
-// const requestURL = `http://192.168.195.41:5007`;
-const requestURL = ``;
+
+// const requestURL = 'http://192.168.195.41:5007';
+
+const requestURL = '';
 const Chat: React.FC = () => {
   const listRef = React.useRef<GetRef<typeof Bubble.List>>(null);
 
@@ -37,12 +38,12 @@ const Chat: React.FC = () => {
 
   /*
 重构计划：
-1. 将遍历单条消息的列表，合并文字和显示媒体的部分去除，传给bubbleRender渲染；
-2. bubbleRender遍历单条消息列表的所有元素，独立渲染message_components，最后组合为一个bubble；
-3. 音乐卡片显示封面和跳转地址；
+1. 将遍历单条消息的列表，合并文字和显示媒体的部分去除，传给bubbleRender渲染；（done）
+2. bubbleRender遍历单条消息列表的所有元素，独立渲染message_components，最后组合为一个bubble；（done）
+3. 音乐卡片显示封面和跳转地址；（done，跳转感觉没必要）
 4. 图片显示存入列表，便于图片浏览器翻页查看；
 5. video、file、audio、image类型添加下载按钮；
-6. 为发消息添加@/不@的选项；
+6. 为发消息添加@/不@的选项；（done）
 7. 上传文件；
 8. 历史聊天记录功能；
 9. file做简单的分类，显示对应的logo；
@@ -54,12 +55,12 @@ const Chat: React.FC = () => {
   //输入的值
   const [inputValue, setInputValue] = useState<string>('');
 
-  const handleLogMessages = () => {
-    console.log('Current messages:', messages);
-    messages.forEach((msg, index) => {
-      console.log(`Message ${index}:`, msg);
-    });
-  };
+  // const handleLogMessages = () => {
+  //   console.log('Current messages:', messages);
+  //   messages.forEach((msg, index) => {
+  //     console.log(`Message ${index}:`, msg);
+  //   });
+  // };
 
   useEffect(() => {
     // 加载历史消息并连接WebSocket
@@ -168,7 +169,7 @@ const Chat: React.FC = () => {
     try {
       const data = JSON.parse(rawData);
       //status啥的消息，不需要处理
-      if (!data.message?.params) {
+      if (!data.message) {
         console.warn('收到无效消息:', data);
         return;
       }
@@ -178,9 +179,15 @@ const Chat: React.FC = () => {
       //   console.warn('消息格式错误:', messageList);
       //   return;
       // }
-      const replyMesssageId = data.message.params.message[0].data.id;
-      const replyContent = replyMesssageId ? findMessageContent(replyMesssageId) : undefined;
-      // console.log(replyContent);
+      let replyContent: any;
+      try {
+        replyContent = findMessageContent(data.message.params.message[0].data.id);
+      } catch (e) {
+        replyContent = null;
+      }
+      // const replyMesssageId = data.message.params.message[0].data.id;
+      // const replyContent = replyMesssageId ? findMessageContent(replyMesssageId) : null;
+      // console.log(data.message);
       setMessages((prev) => [
         ...prev,
         {
@@ -234,10 +241,6 @@ const Chat: React.FC = () => {
       },
     ]);
   };
-
-  // const addServerMessage = (id: number, content: string) => {
-  //   setMessages((prev) => [...prev, { role: 'start', content, id, type: 'text' }]);
-  // };
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -323,7 +326,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <Spin spinning={false} tip="WebSocket连接中..." size="large">
+    <Spin spinning={loading} tip="WebSocket连接中..." size="large">
       <Card
         style={{
           height: 'calc(100vh - 100px)',
@@ -339,19 +342,6 @@ const Chat: React.FC = () => {
           }}
         >
           <div style={styles.chatContainer} ref={chatContainerRef}>
-            {/* {messages.map((msg, index) => (
-              //antd-x bubble样式
-              <Bubble
-                key={index}
-                placement={msg.role}
-                shape="corner"
-                style={styles.message}
-                messageRender={() => (
-                  <BubbleRender role={msg.role} message={msg.message} message_id={msg.message_id} />
-                )}
-              />
-            ))} */}
-
             <Bubble.List
               ref={listRef}
               items={messages.map((msg, index) => {
@@ -432,10 +422,12 @@ const Chat: React.FC = () => {
           />
         </div>
       </Card>
+
       <Helmet>
+        {/* 禁用referrer，避免跨域拒绝响应 */}
         <meta name="referrer" content="no-referrer" />
       </Helmet>
-    </Spin>
+      </Spin>
   );
 };
 

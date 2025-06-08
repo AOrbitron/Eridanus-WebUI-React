@@ -1,175 +1,140 @@
 import React, { useState, useEffect } from 'react';
-import { useModel } from '@umijs/max';
-import { Space, Spin, Image, Card, Typography, List, Divider } from 'antd';
-import axios from 'axios';
-import markdownit from 'markdown-it';
+// import { useModel } from '@umijs/max';
+import { Space, Spin, Image, Card, Typography, List, Modal, message, Button } from 'antd';
+// Fix for markdown-it import error
+// import markdownit from 'markdown-it';
+const markdownit = require('markdown-it');
 const md = markdownit({ html: true, breaks: true });
-
-// const requestURL = 'http://192.168.195.41:5007';
+import { getMusicInfo } from '@/services/ant-design-pro/api';
+import { Bubble } from '@ant-design/x';
 const requestURL = '';
-// 渲染音乐卡片(好像没有意义)
-const renderMusicCard = (url: string) => {
-  const { Text, Title } = Typography;
-  const [songInfo, setSongInfo] = useState<{
-    name: string;
-    artists: string;
-    picUrl: string;
-  }>({ name: '加载中...', artists: '', picUrl: '' });
+// 本地调试用
+// const requestURL = 'http://192.168.195.41:5007';
+
+//渲染音乐卡片
+const renderMusicCard = (
+  type: string,
+  id?: string | number,
+  audio?: string,
+  image?: string,
+  title?: string,
+) => {
+  const [musicInfo, setMusicInfo] = useState<API.MusicInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSongInfo = async () => {
+    const fetchMusicInfo = async () => {
       try {
-        // 从URL中提取歌曲ID
-        const songId = url.split('id=')[1]?.split('.')[0];
-        if (!songId) {
-          setError(true);
-          return;
-        }
-
-        // 获取歌曲详情
-        const response = await axios.get(`https://music.163.com/api/song/detail?ids=[${songId}]`);
-        const songData = response.data;
-
-        if (songData.code === 200 && songData.songs && songData.songs.length > 0) {
-          const song = songData.songs[0];
-          // 获取所有艺术家名称并用逗号连接
-          const artistNames = song.artists.map((artist: any) => artist.name).join(', ');
-
-          setSongInfo({
-            name: song.name,
-            artists: artistNames,
-            picUrl: song.album.picUrl,
-          });
+        //custom类型的消息不进行解析，直接提取
+        if (type == 'custom') {
+          setMusicInfo({ desc: '', musicUrl: audio, title: title, preview: image });
         } else {
-          setError(true);
+          //调用接口
+          const data = await getMusicInfo({ type, id });
+          if (data) {
+            setMusicInfo(data);
+            // console.info(data);
+          } else {
+            setError('未获取到音乐信息');
+          }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('获取音乐信息失败:', err);
-        setError(true);
+        setError(err.message || '获取音乐信息失败');
+        message.error('获取音乐信息失败');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSongInfo();
-  }, [url]);
-  return 'WebUI点歌功能开发中，敬请期待';
-  // 音频播放器和音乐卡片
-  // return (
-  //   <Card style={{ width: 300, marginTop: 10 }} loading={loading}>
-  //     {!loading && !error ? (
-  //       <div style={{ display: 'flex', alignItems: 'center' }}>
-  //         <Image
-  //           src={songInfo.picUrl}
-  //           width={64}
-  //           height={64}
-  //           style={{ borderRadius: '4px' }}
-  //           preview={false}
-  //         />
-  //         <div style={{ marginLeft: 12, flex: 1 }}>
-  //           <Title level={5} style={{ margin: 0 }}>
-  //             {songInfo.name}
-  //           </Title>
-  //           <Text type="secondary">{songInfo.artists}</Text>
-  //           <audio src={url} controls style={{ width: '100%', marginTop: 8 }} />
-  //         </div>
-  //       </div>
-  //     ) : error ? (
-  //       <div>
-  //         <Text type="danger">无法加载音乐信息</Text>
-  //         <audio src={url} controls style={{ width: '100%', marginTop: 8 }} />
-  //       </div>
-  //     ) : null}
-  //   </Card>
-  // );
-};
+    fetchMusicInfo();
+  }, [type, id]);
 
-// 渲染转发消息
-const renderForwardedMessages = (nodeData: any) => {
-  const { Text, Title } = Typography;
-
-  // 检查nodeData结构，支持多种可能的数据结构
-  if (!nodeData) {
-    return <div>转发消息数据无效</div>;
+  if (loading) {
+    return <Spin></Spin>;
   }
 
-  // 处理消息格式
-  let messages = [];
-  let nickname = '转发消息';
-
-  // 处理message.params.messages格式的数据
-  if (nodeData.message && nodeData.message.params && nodeData.message.params.messages) {
-    messages = nodeData.message.params.messages;
-    // 使用第一个消息的昵称作为卡片标题
-    if (messages.length > 0 && messages[0].data && messages[0].data.nickname) {
-      nickname = messages[0].data.nickname;
-    }
-  }
-  // 处理data.content格式的数据
-  else if (nodeData.data && nodeData.data.content) {
-    messages = [{ data: { content: nodeData.data.content } }];
-    if (nodeData.data.nickname) {
-      nickname = nodeData.data.nickname;
-    }
-  }
-  // 如果是直接的node数组
-  else if (Array.isArray(nodeData)) {
-    messages = nodeData;
+  if (error) {
+    return <Typography>{error}</Typography>;
   }
 
-  if (messages.length === 0) {
-    return <div>转发消息数据无效</div>;
+  if (!musicInfo) {
+    return <Typography>没有找到音乐信息</Typography>;
   }
 
   return (
-    <Card
-      title={nickname}
-      style={{ marginTop: 10, maxWidth: '100%', backgroundColor: '#f9f9f9' }}
-      size="small"
-      bordered={true}
-    >
-      <List
-        itemLayout="vertical"
-        dataSource={messages}
-        renderItem={(item: any) => {
-          // 处理node类型数据
-          if (item.type === 'node' && item.data) {
-            const nodeContent = item.data.content || [];
-            return (
-              <List.Item>
-                {item.data.nickname && (
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                    {item.data.nickname}
-                  </div>
-                )}
-                {nodeContent.map((contentItem: any, index: number) => {
-                  if (contentItem.type === 'text' && contentItem.data && contentItem.data.text) {
-                    return (
-                      <div key={index} style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>
-                        {contentItem.data.text}
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </List.Item>
-            );
-          }
-          // 处理直接的文本数据
-          else if (item.type === 'text' && item.data && item.data.text) {
-            return (
-              <List.Item>
-                <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{item.data.text}</div>
-              </List.Item>
-            );
-          }
-          return null;
+    <Typography style={{ width: 400, maxWidth: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Image
+          //AI怎么知道的神秘随机图片小网站
+          src={musicInfo.preview || 'https://picsum.photos/128/128'}
+          // width={114}
+          height={110}
+          style={{ borderRadius: '6px' }}
+        />
+        <div style={{ marginLeft: 12, flex: 1 }}>
+          <Typography.Title level={5} style={{ margin: 0 }}>
+            {musicInfo.title || '未知标题'}
+          </Typography.Title>
+          <Typography.Text type="secondary">{musicInfo.desc || '无描述'}</Typography.Text>
+          <audio src={musicInfo.musicUrl || ''} controls style={{ width: '100%', marginTop: 4 }} />
+        </div>
+      </div>
+    </Typography>
+  );
+};
+
+// // 渲染音乐卡片(有意义力！抓到接口了)
+// const renderMusicCard = (type: string, id: string | number) => {
+//   return MusicCard(type,id);
+// };
+
+// 渲染转发消息
+const renderForwardedMessages = (nodeData: any) => {
+  // const { Text, Title } = Typography;
+  // const [messages, setMessages] = useState<API.ForwardedChatMessage[]>([]);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // const showModal = () => {
+  //   setIsModalOpen(true);
+  // };
+
+  // const handleCancel = () => {
+  //   setIsModalOpen(false);
+  // };
+  return (
+    <>
+      {/* <Button type="primary" onClick={showModal}>
+        查看转发消息
+      </Button>
+      <Modal title="转发消息" open={isModalOpen} onCancel={handleCancel} footer={null}> */}
+      <div
+        style={{
+          padding: '5px',
+          backgroundColor: 'transparent',
+          borderRadius: '4px',
+          marginBottom: '8px',
+          fontSize: '16px',
         }}
-        split={true}
+      >
+        <div style={{ borderLeft: '2px solid #1890ff', paddingLeft: '8px' }}>
+          转发信息
+        </div>
+      </div>
+      <Bubble.List
+        items={nodeData.map((msg: any, index: number) => {
+          console.log(msg.data.content);
+          return {
+            key: index,
+            placement: 'start',
+            shape: 'corner',
+            content: renderMessages(msg.data.content, 'start', null),
+          };
+        })}
       />
-    </Card>
+      {/* </Modal> */}
+    </>
   );
 };
 
@@ -181,25 +146,31 @@ const renderVideo = (url: string) => {
 //渲染图片
 const renderImage = (url: string) => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+
+
+  // 完全重写Image组件的实现方式，使用更直接的方法处理预览
   return (
-    <Spin spinning={loading}>
-      <Image
-        src={url}
-        onLoad={() => setLoading(false)}
-        style={{ maxWidth: '150px', cursor: 'pointer' }}
-      />
-    </Spin>
+    <div>
+      <Spin spinning={loading}>
+        <div style={{ position: 'relative' }}>
+          <Image
+            src={url}
+            onLoad={() => setLoading(false)}
+            style={{ maxWidth: '300px', cursor: 'pointer' }}
+          />
+        </div>
+      </Spin>
+    </div>
   );
 };
 
 //渲染语音
 const renderRecord = (url: string) => {
-  return <audio src={url} controls style={{ width: '200px' }} />;
+  return <audio src={url} controls style={{ width: '300px' }} />;
 };
 
 //渲染回复
-const renderReply = (content?: string) => {
+const renderReply = (content?: string | null) => {
   return content ? (
     <div
       style={{
@@ -227,7 +198,7 @@ const renderFile = (url: string, name: string) => {
 };
 
 //渲染文本
-const renderText = (content: string) => {
+const renderText = (content: string, role: string) => {
   //先用正则处理一下存在的链接，转换为md格式，便于渲染(todo)
 
   // let replacetext = content;
@@ -236,55 +207,86 @@ const renderText = (content: string) => {
   //   '<a href="$&" target="_blank">$&</a>',
   // );
   // console.info(content);
-  //bug:返回的文本不能包含--------，否则会导致渲染文本过大（todo）
+  //bug:返回的文本不能包含--------，否则会导致渲染文本字号过大（todo）
   return (
     <Typography>
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: used in demo */}
-      <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
+      {role == 'start' ? (
+        <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
+      ) : (
+        <div>{content}</div>
+      )}
     </Typography>
   );
 };
 
+//渲染消息列表函数，独立出来便于复用
+const renderMessages = (messagesList: any[], role: string, replyContent: string | null) => {
+  return messagesList.map((msg: any, index: number) => {
+    // 优先处理文本类型
+    if (msg.type == 'text') {
+      return renderText(msg.data.text, role);
+    }
+    // 处理其余多媒体信息
+    const url = `${requestURL}/api/chat/file?path=${msg.data.file}`;
+    // URL丢给后端处理，先把要发送的文件移动到聊天文件夹里面，再发送ws消息（todo）
+    switch (msg.type) {
+      case 'music':
+        return renderMusicCard(
+          msg.data.type,
+          msg.data?.id,
+          msg.data?.audio,
+          msg.data?.image,
+          msg.data?.title,
+        );
+      case 'image':
+        return renderImage(url);
+      case 'video':
+        return renderVideo(url);
+      case 'record':
+        return renderRecord(url);
+      case 'reply':
+        return renderReply(replyContent);
+      case 'at':
+        return '@你';
+      default:
+        return `[暂不支持的消息类型:${msg.type}]`;
+    }
+  });
+};
+
 const BubbleRender: React.FC<API.ChatMessage> = ({ role, replyContent, message_id, message }) => {
   // console.log(message);
-  const { initialState, setInitialState } = useModel('@@initialState');
-  const isDark = initialState?.settings?.isDark;
+  // const { initialState, setInitialState } = useModel('@@initialState');
+  // const isDark = initialState?.settings?.isDark;
   const messageAction = message.action;
   // console.log(messageAction);
-  const forwardMessages = message.params?.messages;
+  //转发消息列表，一个node
+  const forwardedMessages = message.params?.messages;
+  //普通消息列表，单个bubble
   const messagesList = message.params?.message;
   // console.info(messageAction);
   switch (messageAction) {
+    //群聊信息发送事件
     case 'send_group_msg':
-      if (messagesList) {
-        const renderedMessages = messagesList.map((msg: any, index: number) => {
-          // console.info(msg);
-          //优先处理文本类型
-          if (msg.type == 'text') {
-            return renderText(msg.data.text);
-          }
-          //处理其余多媒体信息
-          const url = `${requestURL}/api/chat/file?path=${msg.data.file}`;
-          //URL丢给后端处理，先把要发送的文件剪切到聊天文件夹里面，再发送ws消息（todo）
-          switch (msg.type) {
-            case 'music':
-              return renderMusicCard(url);
-            case 'image':
-              return renderImage(url);
-            case 'video':
-              return renderVideo(url);
-            case 'reply':
-              return renderReply(replyContent);
-            default:
-              return '[暂不支持的消息类型]';
-          }
-        });
+      if (forwardedMessages) {
+        // console.info('转发消息：', JSON.stringify(forwardedMessages, null, 2));
+        const renderedMessages = renderForwardedMessages(forwardedMessages);
         return <div>{renderedMessages}</div>;
       }
+      //普通消息
+      if (messagesList) {
+        const renderedMessages = renderMessages(messagesList, role, replyContent || null);
+        return <div>{renderedMessages}</div>;
+      }
+    //转发消息
+    //上传群文件事件
     case 'upload_group_file':
       // console.info(message.params);
       const url = `${requestURL}/api/chat/file?path=${message.params.file}`;
       return renderFile(url, message.params.name);
+    //消息撤回事件
+    case 'delete_msg':
+      return '[消息撤回事件]';
     // default:
     //   return renderText(messagesList[0].data.text);
   }
