@@ -267,13 +267,14 @@ const BubbleRender: React.FC<API.ChatMessage> = ({ role, replyContent, message_i
   // console.info(messageAction);
   switch (messageAction) {
     //群聊信息发送事件
-    case 'send_group_msg':
+    case 'send_group_forward_msg':
       if (forwardedMessages) {
         // console.info('转发消息：', JSON.stringify(forwardedMessages, null, 2));
         const renderedMessages = renderForwardedMessages(forwardedMessages);
         return <div>{renderedMessages}</div>;
       }
       //普通消息
+      case 'send_group_msg':
       if (messagesList) {
         const renderedMessages = renderMessages(messagesList, role, replyContent || null);
         return <div>{renderedMessages}</div>;
