@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { Component } from 'react';
 
 export default [
   {
@@ -7,13 +7,27 @@ export default [
   },
   { path: '/dashboard', name: '总览', icon: 'compass', component: './Dashboard' },
   { path: '/chat', name: '聊天', icon: 'comment', component: './Chat' },
-  // { name: '聊天测试', icon: 'comment', path: '/chat-1', component: './chatDemo' },
-  { path: '/setconfig', name: '修改配置文件', icon: 'form', component: './YamlEditor' },
+  { path: '/configEditor', name: '修改配置文件', icon: 'form', component: './YamlEditor' },
   {
-    path: '/usermanager',
+    path: '/userManager',
     name: '用户管理',
     icon: 'crown',
     component: './userManager',
+  },
+  {
+    path: '/pluginsMarket',
+    name: '插件市场',
+    icon: 'appstoreAdd',
+    component: './TBD',
+    hideInMenu:true
+  },
+  {
+    path: '/webuiSettings',
+    name: 'WebUI设置',
+    icon: 'setting',
+    component: './testPage',
+    hideInMenu:true
+
   },
   // {
   //   path: '/setup', name: '配置服务端', icon: 'setting', component: './TBD',

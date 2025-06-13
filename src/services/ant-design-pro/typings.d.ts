@@ -138,8 +138,9 @@ declare namespace API {
       action?: string;
       params: any;
       echo?: string;
-    };
+    } | any;
   };
+
   type ForwardedChatMessage = {
     data: {
       content: {
@@ -149,6 +150,7 @@ declare namespace API {
       };
     };
   };
+
   type MusicInfo = {
     desc?: string;
     title?: string;

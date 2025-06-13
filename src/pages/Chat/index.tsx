@@ -1,17 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, message, Spin, Card, Image, Flex, Switch } from 'antd';
+import { Button, message, Spin, Card, Modal, Flex, Switch, UploadProps, Upload } from 'antd';
 // import type { BubbleProps } from '@ant-design/x';
-import { CloudUploadOutlined, LinkOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  CloudUploadOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import { Attachments, Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
-import { Helmet } from 'react-helmet';
+import { delChatHistory, getChatHistory } from '@/services/ant-design-pro/api';
+import { isArray, set } from 'lodash';
 const wsURL = `/api/ws`;
 
 // const requestURL = 'http://192.168.195.41:5007';
-
+// const requestURL = 'http://192.168.195.128:5007';
 const requestURL = '';
 const Chat: React.FC = () => {
+
+  const [sendMsgBtn, setSendMsgBtn] = useState(false);
+
+  const [uploadFileBtn, setUploadFileBtn] = useState(false);
+
+  const [delAllLoading, setDelAllLoading] = useState(false);
+
+  const [delAllModal, setDelAllModal] = useState(false);
+
   const listRef = React.useRef<GetRef<typeof Bubble.List>>(null);
 
   const { initialState, setInitialState } = useModel('@@initialState');
@@ -26,11 +39,9 @@ const Chat: React.FC = () => {
 
   const [ws, setWs] = useState<WebSocket | null>(null);
 
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   const [isAt, setIsAt] = React.useState<boolean>(true);
-
-  const [initialLoading, setInitialLoading] = React.useState<boolean>(true);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -45,8 +56,8 @@ const Chat: React.FC = () => {
 5. video、file、audio、image类型添加下载按钮；
 6. 为发消息添加@/不@的选项；（done）
 7. 上传文件；
-8. 历史聊天记录功能；
-9. file做简单的分类，显示对应的logo；
+8. 历史聊天记录功能；（done）
+9. file做简单的分类，显示对应的logo；(done)
 10. 聊天记录清除；
 11. 聊天文件管理；
 … …
@@ -55,36 +66,12 @@ const Chat: React.FC = () => {
   //输入的值
   const [inputValue, setInputValue] = useState<string>('');
 
-  // const handleLogMessages = () => {
-  //   console.log('Current messages:', messages);
-  //   messages.forEach((msg, index) => {
-  //     console.log(`Message ${index}:`, msg);
-  //   });
-  // };
+  const props: UploadProps = {
+
+  };
 
   useEffect(() => {
-    // 加载历史消息并连接WebSocket
-    const initialize = async () => {
-      setInitialLoading(true);
-      try {
-        // 从IndexedDB加载历史消息
-        // const savedMessages = await loadMessages();
-        // if (savedMessages && savedMessages.length > 0) {
-        // setMessages(savedMessages);
-        // messagesRef.current = savedMessages;
-        // }
-      } catch (error) {
-        console.error('加载历史消息失败:', error);
-      } finally {
-        setInitialLoading(false);
-        // 连接WebSocket
-        setLoading(true);
-        connectWebSocket();
-      }
-    };
-
     initialize();
-
     return () => {
       if (ws) {
         ws.close();
@@ -98,6 +85,56 @@ const Chat: React.FC = () => {
     // 更新messagesRef以保持最新状态
     messagesRef.current = messages;
   }, [messages]);
+
+  // 加载历史消息并连接WebSocket
+  const initialize = async () => {
+    try {
+      const data = await getChatHistory({ start: 0, end: 999999 });
+      // 先批量解析所有消息
+      const parsedList: API.ChatMessage[] = [];
+      for (let i = data.data.length - 1; i >= 0; i--) {
+        const subArray = data.data[i];
+        if (Array.isArray(subArray) && subArray.length === 1) {
+          const parsedJson = JSON.parse(subArray[0]);
+          // 用已解析的 parsedList 查找 replyContent
+          const replyContent =
+            parsedJson.message?.params?.message?.[0]?.data?.id
+              ? findMessageContentFromList(parsedList, parsedJson.message.params.message[0].data.id)
+              : null;
+          parsedJson.replyContent = replyContent;
+          parsedList.push(parsedJson);
+        }
+      }
+      setMessages(parsedList);
+      messagesRef.current = parsedList;
+    } catch (e) {
+      message.error(`历史消息加载失败: ${e}`);
+    } finally {
+      // 连接WebSocket
+      connectWebSocket();
+    }
+  };
+
+  // 用于批量查找历史消息的工具函数
+  const findMessageContentFromList = (list: API.ChatMessage[], messageId: number): string => {
+    const message = list.find((msg) => msg.message_id == messageId);
+    const replyContent = message?.role == 'start'
+      ? message?.message.params.message.at(-1)
+      : message?.message.at(-1);
+    if (replyContent?.type == 'text') return replyContent.data.text;
+    else if (replyContent?.type) {
+      const typeMap: Record<string, string> = {
+        image: '图片',
+        node: '转发消息',
+        music: '音乐',
+        audio: '语音',
+        video: '视频',
+        file: '文件',
+      };
+      return `[${typeMap[replyContent.type]}]`;
+    }
+    return '原消息不可用';
+  };
 
   const connectWebSocket = () => {
     const newWs = new WebSocket(
@@ -128,40 +165,7 @@ const Chat: React.FC = () => {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    for (const file of files) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        console.log('文件读取完成 (handleFileUpload)');
-        const base64Data = e.target?.result as string;
-        const mimeType = file.type;
-        const fileType = file.type.split('/')[0];
-
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          const message = {
-            type: fileType,
-            data: {
-              file: base64Data,
-              mime: mimeType,
-            },
-          };
-          ws.send(JSON.stringify([message]));
-          addUserMessage(`[${file.name}]`, Date.now());
-        } else {
-          message.error('WebSocket 连接未就绪');
-        }
-      };
-
-      reader.onerror = (error) => {
-        console.error('文件读取错误 (handleFileUpload):', error);
-        message.error('文件读取失败');
-      };
-
-      console.log('开始读取文件:', file.name);
-      reader.readAsDataURL(file);
-    }
+    return null;
   };
 
   //处理发来的消息
@@ -173,30 +177,23 @@ const Chat: React.FC = () => {
         console.warn('收到无效消息:', data);
         return;
       }
-
-      // const messageList = data.message.params.message;
-      // if (!Array.isArray(messageList)) {
-      //   console.warn('消息格式错误:', messageList);
-      //   return;
-      // }
-      let replyContent: any;
-      try {
-        replyContent = findMessageContent(data.message.params.message[0].data.id);
-      } catch (e) {
-        replyContent = null;
-      }
-      // const replyMesssageId = data.message.params.message[0].data.id;
-      // const replyContent = replyMesssageId ? findMessageContent(replyMesssageId) : null;
-      // console.log(data.message);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'start',
-          replyContent: replyContent,
-          message_id: data.message_id,
-          message: data.message,
-        },
-      ]);
+      //如果有message_id，说明是回复消息
+      const replyContent =
+        data.message?.params?.message?.[0]?.data?.id
+          ? findMessageContent(data.message.params.message[0].data.id)
+          : null;
+      const newMsg: API.ChatMessage = {
+        role: isArray(data?.message) ? "end" : "start",
+        replyContent: replyContent,
+        message_id: data.message_id,
+        message: data.message,
+      };
+      setMessages((prev) => {
+        if (prev.some(msg => msg.message_id === newMsg.message_id)) {
+          return prev;
+        }
+        return [...prev, newMsg];
+      });
     } catch (e) {
       console.warn(e);
       // addServerMessage(1, '解析服务器消息失败: ' + e);
@@ -209,10 +206,10 @@ const Chat: React.FC = () => {
     // 使用messagesRef.current获取最新的消息数组，而不是使用可能过时的messages状态
     const message = messagesRef.current.find((msg) => msg.message_id == messageId);
     // console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
-    const replyContent = message?.message.params.message.at(-1);
+    const replyContent = message?.role == 'start' ? message?.message.params.message.at(-1) : message?.message.at(-1);
     // console.log('回复的消息内容:', replyContent);
-    if (replyContent.type == 'text') return replyContent.data.text;
-    else if (replyContent.type) {
+    if (replyContent?.type == 'text') return replyContent.data.text;
+    else if (replyContent?.type) {
       // 根据消息类型返回对应的名称
       const typeMap: Record<string, string> = {
         image: '[图片]',
@@ -227,19 +224,18 @@ const Chat: React.FC = () => {
     return '原消息不可用';
   };
 
-  const addUserMessage = (content: string, id: number) => {
-    // console.log(`用户消息id:${id},内容:${content}`);
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: 'end',
-        message_id: id,
-        message: {
-          action: 'send_group_msg',
-          params: { message: [{ type: 'text', data: { text: content } }] },
-        },
-      },
-    ]);
+  const addUserMessage = (content: any, id: number) => {
+    const newMsg: API.ChatMessage = {
+      role: "end",
+      message_id: id,
+      message: content,
+    };
+    setMessages((prev) => {
+      if (prev.some(msg => msg.message_id === newMsg.message_id)) {
+        return prev;
+      }
+      return [...prev, newMsg];
+    });
   };
 
   const scrollToBottom = () => {
@@ -249,23 +245,44 @@ const Chat: React.FC = () => {
   };
 
   //待增加文件上传消息
-  const handleSend = (content: string) => {
+  const handleSendMsg = (content: string,type: string) => {
     if (!content.trim()) return;
 
     if (ws && ws.readyState === WebSocket.OPEN) {
+      setSendMsgBtn(true);
       //时间戳作为消息唯一id
       const id = Date.now();
-      addUserMessage(content, id);
+      //构建消息数组
+      const msg: any = [{ msg_id: id }, { type: type, data: type == 'text' ? { text: content } : { file: content } }];
+      //如果是@，添加at消息
+      if (isAt) {
+        msg.splice(1, 0, { type: 'at', data: { qq: '1000000', name: 'Eridanus' } });
+      }
+      addUserMessage(msg, id);
+      ws.send(JSON.stringify(msg));
       //滚动到底部
       listRef.current?.scrollTo({ key: messages.length - 1, block: 'nearest' });
-      ws.send(JSON.stringify({ type: 'text', id: id, isat: isAt, data: { text: content } }));
       setInputValue('');
-      setTimeout(() => {}, 10);
+      setTimeout(() => {
+        setSendMsgBtn(false);
+      }, 500);
     } else {
       message.error('WebSocket 未连接');
     }
   };
 
+  const handleDeleteHistory = async () => {
+    setDelAllLoading(true);
+    const result = await delChatHistory(null);
+    if (result?.message) {
+      setMessages([]);
+      message.success(result.message);
+    } else {
+      message.error(result?.error);
+    }
+    setDelAllLoading(false);
+    setDelAllModal(false);
+  };
   // 定义样式对象
   const styles = {
     container: {
@@ -325,6 +342,30 @@ const Chat: React.FC = () => {
     },
   };
 
+  const safeFileName = (name: string) => {
+    // 只保留常见安全字符，其他全部转为下划线
+    return name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  };
+
+  const [uploadMsgBox, contextHolder] = message.useMessage();
+  const uploadMessage = (progress: number, isDone: boolean, isSuccess: boolean, name: string) => {
+    const safeName = safeFileName(name);
+    if (progress < 100) {
+      uploadMsgBox.open({
+        key: safeName,
+        type: 'loading',
+        content: `正在上传: ${progress}%`,
+        duration: 0
+      });
+    } else if (isDone) {
+      uploadMsgBox.open({
+        key: safeName,
+        type: isSuccess ? 'success' : 'error',
+        content: isSuccess ? `${name} 上传成功` : `${name} 上传失败`,
+        duration: 2,
+      });
+    }
+  };
   return (
     <Spin spinning={loading} tip="WebSocket连接中..." size="large">
       <Card
@@ -332,6 +373,7 @@ const Chat: React.FC = () => {
           height: 'calc(100vh - 100px)',
         }}
       >
+        {contextHolder}
         <div
           ref={chatContainRef}
           style={{
@@ -349,6 +391,12 @@ const Chat: React.FC = () => {
                   key: index,
                   placement: msg.role,
                   shape: 'corner',
+                  // 为啥没用呢？
+                  // styles: {
+                  //   content:{
+                  //     fontSize:'100px',
+                  //   }
+                  // },
                   content: (
                     <BubbleRender
                       role={msg.role}
@@ -373,12 +421,69 @@ const Chat: React.FC = () => {
             }}
             onSubmit={(v) => {
               setInputValue('');
-              handleSend(v);
+              handleSendMsg(v,'text');
             }}
-            footer={() => {
+            actions={false}
+            footer={({ components }) => {
+              const { SendButton } = components;
               return (
                 <Flex justify="space-between" align="center">
                   <Flex gap="small" align="center">
+                    <Upload
+                      accept='image/*'
+                      pastable={true}
+                      name='file'
+                      action={`${requestURL}/api/chat/uploadFile`}
+                      // beforeUpload={() => false}
+                      onChange={(info) => {
+                        setUploadFileBtn(true);
+                        const name = info.file.name;
+                        if (info.file.status == 'uploading') {
+                          uploadMessage(Math.floor(info.event?.percent ?? 0), false, false, name);
+                        }
+                        if (info.file.status === 'done') {
+                          console.log(info.file.response);
+                          const response = info.file.response;
+                          if (response?.files[0]?.error) {
+                            uploadMessage(100, true, false, name);
+                            setUploadFileBtn(false);
+                          } else {
+                            handleSendMsg(response?.files[0]?.path,'image')
+                            uploadMessage(100, true, true, name);
+                            setUploadFileBtn(false);
+                          }
+                        } else if (info.file.status === 'error') {
+                          uploadMessage(100, true, false, name);
+                          setUploadFileBtn(false);
+                        }
+                      }}
+                      //antd x的Attachment组件拖拽上传有bug，暂时注释掉
+                      // getDropContainer={() => chatContainRef.current}
+                      maxCount={1}
+                      multiple={false}
+                      showUploadList={false}
+                      // placeholder={{
+                      //   icon: <CloudUploadOutlined />,
+                      //   title: '松开上传',
+                      //   description: '当前仅支持图片',
+                      // }}
+                    >
+                      <Button disabled={uploadFileBtn} type="text" icon={<CloudUploadOutlined />} />
+                    </Upload>
+                    <Button
+                      type="text"
+                      onClick={() => setDelAllModal(true)}
+                      icon={<DeleteOutlined />}
+                    />
+                    <Modal
+                      title="提示"
+                      open={delAllModal}
+                      onOk={() => handleDeleteHistory()}
+                      confirmLoading={delAllLoading}
+                      onCancel={() => setDelAllModal(false)}
+                    >
+                      <p>确认清空聊天记录吗？聊天文件不会被删除。</p>
+                    </Modal>
                     @机器人
                     <Switch
                       size="small"
@@ -388,46 +493,17 @@ const Chat: React.FC = () => {
                       }}
                     />
                   </Flex>
+                  <Flex align="center">
+                    <SendButton type="primary" loading={sendMsgBtn} disabled={false} />
+                  </Flex>
                 </Flex>
               );
             }}
-            prefix={
-              <>
-                <Attachments
-                  beforeUpload={() => false}
-                  onChange={(info) => {
-                    if (!info.file.originFileObj) {
-                      console.error('文件对象不存在');
-                      message.error('文件上传失败：无法获取文件');
-                      return;
-                    }
-
-                    const file = info.file.originFileObj;
-                    console.log('文件上传:', file.name, file.type);
-                  }}
-                  getDropContainer={() => chatContainRef.current}
-                  maxCount={5}
-                  multiple={true}
-                  showUploadList={false}
-                  placeholder={{
-                    icon: <CloudUploadOutlined />,
-                    title: '松开上传',
-                    description: '当前仅支持图片',
-                  }}
-                >
-                  <Button type="text" icon={<CloudUploadOutlined />} />
-                </Attachments>
-              </>
-            }
+          // prefix={<></>}
           />
         </div>
       </Card>
-
-      <Helmet>
-        {/* 禁用referrer，避免跨域拒绝响应 */}
-        <meta name="referrer" content="no-referrer" />
-      </Helmet>
-      </Spin>
+    </Spin>
   );
 };
 

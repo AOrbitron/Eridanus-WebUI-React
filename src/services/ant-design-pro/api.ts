@@ -2,8 +2,9 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
+// const requestURL = 'http://192.168.195.128:5007';
 // const requestURL = 'http://192.168.195.41:5007';
-
+// const requestURL = 'http://localhost:5007';
 const requestURL = '';
 
 //获取当前webui用户信息
@@ -83,6 +84,7 @@ export async function getUserList(
   });
 }
 
+/** 获取服务器基本信息 GET /api/dashboard/basicInfo */
 export async function getBasicInfo(
   params?: { [key: string]: any },
   options?: { [key: string]: any },
@@ -100,4 +102,18 @@ export async function getMusicInfo(body: { type: string; id?: string | number },
     data: body,
     ...(options || {}),
   });
+}
+
+export async function getChatHistory(params?: { [key: string]: any },options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/chat/get_history`, {
+    method: 'GET',
+    params,
+    ...(options || {}),
+  });
+}
+  export async function delChatHistory(body:any) {
+    return request<any>(`${requestURL}/api/chat/del_history`, {
+      method: 'POST',
+      data: body,
+    });
 }

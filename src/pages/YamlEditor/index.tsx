@@ -149,17 +149,28 @@ const YamlEditor: React.FC = () => {
         <div className="array-container">
           {value.map((item, index) => (
             <div key={index} className="array-item">
-              <TextArea
-                value={item}
-                onChange={(e) => {
-                  const newValue = [...value];
-                  newValue[index] = e.target.value;
-                  updateData(path, newValue);
-                }}
-                autoSize={{ minRows: 1, maxRows: 5 }}
-              // size="small"
-              />
-
+              {typeof item === 'object' ? (
+                <div className="nested-object" style={{ flex: 1 }}>
+                  {Object.entries(item).map(([objKey, objValue]) => (
+                    <div key={objKey} className="object-item">
+                      <strong>{objKey}:</strong>
+                      <div style={{ marginLeft: '10px' }}>
+                        {renderYamlValue(objValue, `${path}[${index}].${objKey}`)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <TextArea
+                  value={item}
+                  onChange={(e) => {
+                    const newValue = [...value];
+                    newValue[index] = e.target.value;
+                    updateData(path, newValue);
+                  }}
+                  autoSize={{ minRows: 1, maxRows: 5 }}
+                />
+              )}
 
               <Popconfirm
                 title="确认删除吗？"
@@ -174,8 +185,6 @@ const YamlEditor: React.FC = () => {
                 <Button
                   danger
                   icon={<DeleteOutlined />}
-                // onClick={ }
-                // size="small"
                 />
               </Popconfirm>
             </div>
@@ -184,9 +193,9 @@ const YamlEditor: React.FC = () => {
             type="dashed"
             icon={<PlusOutlined />}
             onClick={() => {
-              updateData(path, [...value, '']);
+              const newItem = typeof value[0] === 'object' ? {} : '';
+              updateData(path, [...value, newItem]);
             }}
-          // size="small"
           >
             添加项
           </Button>

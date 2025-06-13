@@ -10,6 +10,7 @@ import { errorConfig } from './requestErrorConfig';
 import { getCurrentUser } from '@/services/ant-design-pro/api';
 import React, { Children } from 'react';
 import { ConfigProvider, theme, message } from 'antd';
+import { Helmet } from 'react-helmet';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -112,7 +113,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           // 清除token
           localStorage.removeItem('auth_token');
           document.cookie = '';
-          location.pathname === '/dashboard'? null : message.info('请先登录');
+          location.pathname === '/dashboard' ? null : message.info('请先登录');
           history.push(loginPath);
           window.location.reload();
         }
@@ -153,6 +154,12 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
           >
             {children}
           </ConfigProvider>
+          <Helmet>
+            {/* 禁用referrer，避免跨域拒绝响应 */}
+            <meta name="referrer" content="no-referrer" />
+            {/* 引入CDN，减少加载时间 */}
+            <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/dplayer/1.26.0/DPlayer.min.js" type="application/javascript"></script>
+          </Helmet>
         </>
       );
     },

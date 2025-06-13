@@ -113,6 +113,10 @@ export default defineConfig({
    */
   headScripts: [
     // 解决首次加载时白屏的问题
+    // {
+    //   src: 'https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/??dplayer/1.26.0/DPlayer.min.js,aplayer/1.10.1/APlayer.min.js',
+    //   async: false,
+    // },
     {
       src: '/scripts/loading.js',
       async: true,
