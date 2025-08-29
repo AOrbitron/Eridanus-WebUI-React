@@ -157,5 +157,6 @@ declare namespace API {
     preview?: string;
     musicUrl?: string;
     jumpUrl?: string;
+    error?: string;
   };
 }

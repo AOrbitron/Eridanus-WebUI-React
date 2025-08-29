@@ -76,6 +76,8 @@ const TableList: React.FC = () => {
   /** 分布更新窗口的弹窗 */
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
+  /** 编辑窗口的弹窗 */
+  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
   const actionRef = useRef<ActionType>(null);
   const [currentRow, setCurrentRow] = useState<API.UserItem>();
   const [selectedRowsState, setSelectedRows] = useState<API.UserItem[]>([]);
@@ -174,9 +176,8 @@ const TableList: React.FC = () => {
             &nbsp;&nbsp;&nbsp;&nbsp;
             <a
               onClick={() => {
-                message.warning('功能开发中，敬请期待');
-                // setCurrentRow(entity);
-                // setShowDetail(true);
+                setCurrentRow(entity);
+                setEditModalVisible(true);
               }}
             >
               编辑
@@ -307,6 +308,11 @@ const TableList: React.FC = () => {
               }
             }
           }}
+          layout="horizontal"
+          grid={true}
+          rowProps={{
+            gutter: 16
+          }}
         >
           <ProFormText
             rules={[
@@ -315,7 +321,7 @@ const TableList: React.FC = () => {
                 message: '用户ID为必填项',
               },
             ]}
-            width="md"
+            colProps={{ span: 12 }}
             name="user_id"
             label="用户ID"
           />
@@ -326,12 +332,12 @@ const TableList: React.FC = () => {
                 message: '昵称为必填项',
               },
             ]}
-            width="md"
+            colProps={{ span: 12 }}
             name="nickname"
             label="昵称"
           />
-          <ProFormText width="md" name="city" label="城市" />
-          <ProFormText width="md" name="permission" label="权限等级" />
+          <ProFormText colProps={{ span: 12 }} name="city" label="城市" />
+          <ProFormText colProps={{ span: 12 }} name="permission" label="权限等级" />
         </ModalForm>
 
         {/* <UpdateForm
@@ -371,7 +377,7 @@ const TableList: React.FC = () => {
               }, 300);
             }}
             footer={null}
-            // centered
+          // centered
           >
             <ProDescriptions<API.UserItem>
               column={2}
@@ -384,6 +390,79 @@ const TableList: React.FC = () => {
               columns={columns as ProDescriptionsItemProps<API.UserItem>[]}
             />
           </Modal>
+        )}
+        {/* 编辑用户信息 */}
+        {currentRow?.user_id && (
+          <ModalForm
+            key={currentRow.user_id}
+            width={800}
+            open={editModalVisible}
+            title={`编辑 ${currentRow?.user_id} 的信息`}
+            onOpenChange={setEditModalVisible}
+            onFinish={async (value) => {
+              // 合并表单值和当前行数据
+              const updatedUser = { ...currentRow, ...value };
+              const success = await handleMod(updatedUser);
+
+              if (success) {
+                setEditModalVisible(false);
+                setCurrentRow(undefined);
+
+                if (actionRef.current) {
+                  actionRef.current.reload();
+                }
+              }
+            }}
+            initialValues={currentRow}
+            grid={true}
+            rowProps={{
+              gutter: 16
+            }}
+            layout="horizontal"
+          >
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="nickname"
+              label="昵称"
+            />
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="card"
+              label="卡片"
+            />
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="sex"
+              label="性别"
+            />
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="age"
+              label="年龄"
+            />
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="city"
+              label="城市"
+            />
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="permission"
+              label="权限等级"
+            />
+
+            <ProFormText
+              colProps={{ span: 12 }}
+              name="ai_token_record"
+              label="token统计"
+            />
+
+            <ProFormTextArea
+              // width="100%"
+              name="user_portrait"
+              label="用户画像"
+            />
+          </ModalForm>
         )}
       </Card>
     </QueueAnim>

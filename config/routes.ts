@@ -7,12 +7,18 @@ export default [
   },
   { path: '/dashboard', name: '总览', icon: 'compass', component: './Dashboard' },
   { path: '/chat', name: '聊天', icon: 'comment', component: './Chat' },
-  { path: '/configEditor', name: '修改配置文件', icon: 'form', component: './YamlEditor' },
+  { path: '/configEditor', name: '修改配置文件', icon: 'form', component: './YamlEditor', routes: [{ path: '/configEditor/:fileName', component: './YamlEditor' }] },
   {
     path: '/userManager',
     name: '用户管理',
     icon: 'crown',
     component: './userManager',
+  },
+    {
+    path: '/diagnosis',
+    name: '运行日志',
+    icon: 'Bug',
+    component: './Diagnosis',
   },
   {
     path: '/pluginsMarket',
@@ -27,7 +33,12 @@ export default [
     icon: 'setting',
     component: './testPage',
     hideInMenu:true
-
+  },
+    {
+    path: '/tools',
+    name: '小工具',
+    icon: 'tool',
+    component: './Tools',
   },
   // {
   //   path: '/setup', name: '配置服务端', icon: 'setting', component: './TBD',

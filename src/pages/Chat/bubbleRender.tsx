@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // import { useModel } from '@umijs/max';
-import { Skeleton, Spin, Image, Card, Typography, List, Modal, message, Button } from 'antd';
+import { Space, Spin, Image } from 'antd';
 // Fix for markdown-it import error
 // import markdownit from 'markdown-it';
 const markdownit = require('markdown-it');
@@ -32,20 +32,34 @@ const renderMusicCard = (
         //custom类型的消息不进行解析，直接提取
         if (type == 'custom') {
           setMusicInfo({ desc: '', musicUrl: audio, title: title, preview: image });
+          window.dispatchEvent(new CustomEvent('add-to-playlist', {
+            detail: {
+              name: title || '未知标题',
+              artist: '',
+              url: audio || '',
+              cover: image || 'https://picsum.photos/128/128',
+            }
+          }));
         } else {
           //调用接口
           const data = await getMusicInfo({ type, id });
-          if (data) {
-            setMusicInfo(data);
-            // console.info(data);
-          } else {
-            setError('未获取到音乐信息');
+          if (data.error) {
+            throw new Error(data.error);
           }
+          setMusicInfo(data);
+          // console.info(data);
+          // 将音乐信息添加到全局播放列表
+          window.dispatchEvent(new CustomEvent('add-to-playlist', {
+            detail: {
+              name: data.title || '未知标题',
+              artist: data.desc || '无描述',
+              url: data.musicUrl || '',
+              cover: data.preview || 'https://picsum.photos/128/128',
+            }
+          }));
         }
       } catch (err: any) {
-        console.error('获取音乐信息失败:', err);
-        setError(err.message || '获取音乐信息失败');
-        message.error('获取音乐信息失败');
+        setError(err || '获取音乐信息失败');
       } finally {
         setLoading(false);
       }
@@ -54,51 +68,41 @@ const renderMusicCard = (
     fetchMusicInfo();
   }, [type, id]);
 
-  // if (loading) {
-  //   return <Typography style={{ width: 400, maxWidth: '100%' }}><Spin></Spin></Typography>;
-  // }
-
-  if (error) {
-    return <Typography>{error}</Typography>;
+  // 显示success文字而不是音乐卡片
+  if (loading) {
+    return <Spin style={{
+      width: 100,
+      height: 150,
+      maxWidth: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+    />;
   }
 
-  // if (!musicInfo) {
-  //   return <Typography>没有找到音乐信息</Typography>;
-  // }
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <Typography style={{ width: 400, maxWidth: '100%' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Skeleton active loading={loading} style={{ width: '70%' }}>
-          <Image
-            //AI怎么知道的神秘随机图片小网站
-            src={musicInfo?.preview || 'https://picsum.photos/128/128'}
-            // width={114}
-            height={110}
-            style={{ borderRadius: '6px' }}
-          />
-          <div style={{ marginLeft: 12, flex: 1 }}>
-            <Typography.Title level={5} style={{ margin: 0 }}>
-              {musicInfo?.title || '未知标题'}
-            </Typography.Title>
-            <Typography.Text type="secondary">{musicInfo?.desc || '无描述'}</Typography.Text>
-            <audio src={musicInfo?.musicUrl || ''} controls style={{ width: '100%', marginTop: 4 }} />
-          </div>
-        </Skeleton>
-      </div>
-    </Typography>
+    <Space direction='vertical' style={{ alignItems: 'center', rowGap: 0, width: 100 }}>
+      <Space>
+        <Image
+          src={musicInfo?.preview || 'https://picsum.photos/128/128'}
+          width={100}
+          // height={90}
+          style={{ borderRadius: '5px' }}
+        />
+      </Space>
+      <Space style={{ fontSize: '16px',fontWeight:'bold' }}>
+        {musicInfo?.title || '未知标题'}
+      </Space>
+      <Space style={{ fontSize: '12px' }}>
+        {musicInfo?.desc || '无描述'}
+      </Space>
+    </Space>
   );
-
-  // return (
-  //   <APlayer
-  //   audio={{
-  //     name: musicInfo.title || '未知标题',
-  //     artist: musicInfo.desc || '无描述',
-  //     url: musicInfo.musicUrl || '',
-  //     cover: musicInfo.preview || 'https://picsum.photos/128/128',
-  //   }}
-  // />
-  // );
 };
 
 // 渲染转发消息
@@ -171,7 +175,7 @@ const renderImage = (url: string) => {
   const [loading, setLoading] = useState(true);
 
   return (
-    <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer' ,marginTop: '5px'}}>
+    <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}>
       <Spin spinning={loading}>
         <Image
           src={url}
@@ -232,13 +236,13 @@ const renderText = (content: string, role: string) => {
   // console.info(content);
   //bug:返回的文本不能包含--------，否则会导致渲染文本字号过大（done）
   return (
-    <Typography>
+    <div>
       {role == 'start' ? (
         <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
       ) : (
         <div>{content}</div>
       )}
-    </Typography>
+    </div>
   );
 };
 
@@ -321,7 +325,7 @@ const BubbleRender: React.FC<API.ChatMessage> = ({ role, replyContent, message_i
       // case 'delete_msg':
       //   return '[消息撤回事件]';
       default:
-        return <i style={{fontSize: '12px'}}>{`未处理事件：${messageAction}`}</i>;
+        return <i style={{ fontSize: '12px' }}>{`未处理事件：${messageAction}`}</i>;
     }
   }
 };

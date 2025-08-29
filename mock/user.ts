@@ -37,13 +37,9 @@ export default {
     }
     res.send({
       files: [
-        "dev_test.yaml",
-        "dev_test.yaml",
-        "dev_test.yaml",
-        "dev_test.yaml",
-        "dev_test.yaml",
-        "dev_test.yaml",
-        "dev_test.yaml",
+        "dev_test3.yaml",
+        "dev_test2.yaml",
+        "dev_test1.yaml",
       ]
     });
   },
@@ -98,6 +94,29 @@ export default {
     }
   },
 
+    'GET /api/diagnosis': (req: Request, res: Response) => {
+    if (!getAccess()) {
+      res.send({ error: "Unauthorized" });
+      return;
+    }
+    res.send({
+      "files": [
+        "log1.txt",
+        "log2.txt",
+        "log3.txt",
+      ]
+    });
+  },
+
+    'POST /api/diagnosis': (req: Request, res: Response) => {
+    if (!getAccess()) {
+      res.send({ error: "Unauthorized" });
+      return;
+    }
+        const { fileName } = req.body;
+    res.send("2025-08-07 23:07:42,408 - Eridanus - INFO - asmr.one 无更新\n2025-08-07 23:12:01,316 - Eridanus - INFO - 开始检查 B 站动态更新\n2025-08-07 23:12:01,604 - Eridanus - INFO - 发现新的动态 群号：[913122269] 关注id: 295040217 最新动态id: 1087297101582303235\n2025-08-07 23:12:01,610 - Eridanus - INFO - not opus\n2025-08-07 23:12:01,750 - Eridanus - ERROR - 传入的 opus_id 不正确, 尝试使用其他方式解析\n2025-08-07 23:12:01,863 - Eridanus - INFO - is opus\n2025-08-07 23:12:14,918 - Eridanus - INFO - 清理链接解析过期缓存\n2025-08-07 23:12:14,920 - Eridanus - INFO - 清理链接解析过期缓存完成");
+  },
+
   'GET /api/dashboard/basicInfo': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.send({
@@ -144,7 +163,7 @@ export default {
     })
   },
 
-  'GET /api/load/dev_test.yaml': async (req: Request, res: Response) => {
+  'GET /api/load/dev_test3.yaml': async (req: Request, res: Response) => {
     await waitTime(200);
     if (!getAccess()) {
       res.send({

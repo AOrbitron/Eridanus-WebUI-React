@@ -28,7 +28,7 @@ const Dashboard: FC<any> = () => {
         dataRef.current = result;
         setSystemInfoState(result.systemInfo);
       } catch (error) {
-        message.error('网络错误');
+        // message.error('网络错误');
       } finally {
         setLoading(false);
       }

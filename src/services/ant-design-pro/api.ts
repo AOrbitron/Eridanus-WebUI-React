@@ -45,27 +45,27 @@ export async function userLogin(body: API.LoginParams, options?: { [key: string]
   });
 }
 
-/** 添加用户 POST /api/usermgr/adduser */
+/** 添加用户 POST /api/usermgr/addUser */
 export async function addUser(body: API.UserItem, options?: { [key: string]: any }) {
-  return request<API.CommonResult>(`${requestURL}/api/usermgr/adduser`, {
+  return request<API.CommonResult>(`${requestURL}/api/usermgr/addUser`, {
     method: 'POST',
     data: body,
     ...(options || {}),
   });
 }
 
-/** 修改用户信息 POST /api/usermgr/moduser */
+/** 修改用户信息 POST /api/usermgr/modUser */
 export async function modUser(body: API.UserItem, options?: { [key: string]: any }) {
-  return request<API.CommonResult>(`${requestURL}/api/usermgr/moduser`, {
+  return request<API.CommonResult>(`${requestURL}/api/usermgr/modUser`, {
     method: 'POST',
     data: body,
     ...(options || {}),
   });
 }
 
-/** 删除用户 POST /api/usermgr/deluser */
+/** 删除用户 POST /api/usermgr/delUser */
 export async function delUser(body: any, options?: { [key: string]: any }) {
-  return request<API.CommonResult>(`${requestURL}/api/usermgr/deluser`, {
+  return request<API.CommonResult>(`${requestURL}/api/usermgr/delUser`, {
     method: 'POST',
     data: body,
     ...(options || {}),
@@ -116,4 +116,91 @@ export async function getChatHistory(params?: { [key: string]: any },options?: {
       method: 'POST',
       data: body,
     });
+}
+
+/** 获取日志文件列表 GET /api/diagnosis */
+export async function getLogFiles(options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/diagnosis`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 获取日志内容 POST /api/diagnosis */
+export async function getLogContent(body: { file: string }, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/diagnosis`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取YAML文件列表 GET /api/files */
+export async function getYamlFiles(options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/files`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 加载YAML文件 GET /api/load/:fileName */
+export async function loadYamlFile(fileName: string, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/load/${fileName}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 保存YAML文件 POST /api/save/:fileName */
+export async function saveYamlFile(fileName: string, body: any, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/save/${fileName}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 搜索YAML键名 POST /api/search_yaml */
+export async function searchYamlKeys(keyword: string, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/search_yaml`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: { search: keyword },
+    ...(options || {}),
+  });
+}
+
+/** 重启服务端 GET /api/tools/restart */
+export async function restartServer(options?: { [key: string]: any }) {
+  return request<API.CommonResult>(`${requestURL}/api/tools/restart`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 导出配置文件 GET /api/tools/export_yaml */
+export async function exportConfig(options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/tools/export_yaml`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 上传文件 POST /api/chat/uploadFile */
+export async function uploadFiles(body: FormData, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/chat/uploadFile`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 导入配置文件 POST /api/tools/import_yaml */
+export async function importConfig(fileName: string, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/tools/import_yaml`, {
+    method: 'POST',
+    data: { file: fileName },
+    ...(options || {}),
+  });
 }

@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, message, Spin, Card, Modal, Flex, Switch, UploadProps, Upload } from 'antd';
-// import type { BubbleProps } from '@ant-design/x';
 import {
   CloudUploadOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import { Attachments, Bubble, Sender } from '@ant-design/x';
+import { Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
 import { delChatHistory, getChatHistory } from '@/services/ant-design-pro/api';
-import { isArray, set } from 'lodash';
+import { isArray } from 'lodash';
 const wsURL = `/api/ws`;
 
 // const requestURL = 'http://192.168.195.41:5007';
 // const requestURL = 'http://192.168.195.128:5007';
+// const requestURL = 'http://[::1]:5007';
 const requestURL = '';
 const Chat: React.FC = () => {
 
@@ -143,7 +143,7 @@ const Chat: React.FC = () => {
 
     newWs.onopen = () => {
       setLoading(false);
-      message.success('WebSocket 已连接！');
+      // message.success('WebSocket 已连接！');
     };
 
     newWs.onmessage = (event) => {
@@ -245,7 +245,7 @@ const Chat: React.FC = () => {
   };
 
   //待增加文件上传消息
-  const handleSendMsg = (content: string,type: string) => {
+  const handleSendMsg = (content: string, type: string) => {
     if (!content.trim()) return;
 
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -399,6 +399,7 @@ const Chat: React.FC = () => {
                   // },
                   content: (
                     <BubbleRender
+                      key={index}
                       role={msg.role}
                       replyContent={msg.replyContent}
                       message={msg.message}
@@ -421,7 +422,7 @@ const Chat: React.FC = () => {
             }}
             onSubmit={(v) => {
               setInputValue('');
-              handleSendMsg(v,'text');
+              handleSendMsg(v, 'text');
             }}
             actions={false}
             footer={({ components }) => {
@@ -448,7 +449,7 @@ const Chat: React.FC = () => {
                             uploadMessage(100, true, false, name);
                             setUploadFileBtn(false);
                           } else {
-                            handleSendMsg(response?.files[0]?.path,'image')
+                            handleSendMsg(response?.files[0]?.path, 'image')
                             uploadMessage(100, true, true, name);
                             setUploadFileBtn(false);
                           }
@@ -462,11 +463,11 @@ const Chat: React.FC = () => {
                       maxCount={1}
                       multiple={false}
                       showUploadList={false}
-                      // placeholder={{
-                      //   icon: <CloudUploadOutlined />,
-                      //   title: '松开上传',
-                      //   description: '当前仅支持图片',
-                      // }}
+                    // placeholder={{
+                    //   icon: <CloudUploadOutlined />,
+                    //   title: '松开上传',
+                    //   description: '当前仅支持图片',
+                    // }}
                     >
                       <Button disabled={uploadFileBtn} type="text" icon={<CloudUploadOutlined />} />
                     </Upload>

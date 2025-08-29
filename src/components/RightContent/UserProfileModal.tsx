@@ -43,7 +43,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
 
   return (
     <Modal
-      title="修改登录信息"
+      title="修改WebUI登录信息"
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -69,7 +69,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
             { required: false },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                message.info(value);
+                // message.info(value);
                 //如果新密码为空，确认密码也为空；或者新密码为空，确认密码不为空；或者新密码和确认密码相同
                 if ((!getFieldValue('confirmPassword') && !value) || (getFieldValue('confirmPassword') && !value) || getFieldValue('confirmPassword') === value) {
                   setMatchPswd(true);
@@ -92,7 +92,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
             { required: false },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                message.info(value);
+                // message.info(value);
                 //如果新密码为空，确认密码也为空；或者新密码为空，确认密码不为空；或者新密码和确认密码相同
                 if ((!getFieldValue('newPassword') && !value) || (!getFieldValue('newPassword') && value) || getFieldValue('newPassword') === value) {
                   setMatchPswd(true);
