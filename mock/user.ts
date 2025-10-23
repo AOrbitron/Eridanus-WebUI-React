@@ -94,7 +94,7 @@ export default {
     }
   },
 
-    'GET /api/diagnosis': (req: Request, res: Response) => {
+  'GET /api/diagnosis': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.send({ error: "Unauthorized" });
       return;
@@ -108,12 +108,12 @@ export default {
     });
   },
 
-    'POST /api/diagnosis': (req: Request, res: Response) => {
+  'POST /api/diagnosis': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.send({ error: "Unauthorized" });
       return;
     }
-        const { fileName } = req.body;
+    const { fileName } = req.body;
     res.send("2025-08-07 23:07:42,408 - Eridanus - INFO - asmr.one 无更新\n2025-08-07 23:12:01,316 - Eridanus - INFO - 开始检查 B 站动态更新\n2025-08-07 23:12:01,604 - Eridanus - INFO - 发现新的动态 群号：[913122269] 关注id: 295040217 最新动态id: 1087297101582303235\n2025-08-07 23:12:01,610 - Eridanus - INFO - not opus\n2025-08-07 23:12:01,750 - Eridanus - ERROR - 传入的 opus_id 不正确, 尝试使用其他方式解析\n2025-08-07 23:12:01,863 - Eridanus - INFO - is opus\n2025-08-07 23:12:14,918 - Eridanus - INFO - 清理链接解析过期缓存\n2025-08-07 23:12:14,920 - Eridanus - INFO - 清理链接解析过期缓存完成");
   },
 
@@ -125,42 +125,69 @@ export default {
       return;
     }
     res.send({
-        "systemInfo": {
-            "cpuUsage": Number(random(20, 80, true).toFixed(1)),
-            "totalMemory": 17179869184,
-            "usedMemory": random(8589934592, 10179869184),
-            "totalDisk": 549755813888,
-            "usedDisk": 322122547200
-        },
-        "botInfo": {
-            "totalUsers": 16384,
-            "totalFriends": 1024,
-            "totalGroups": 2048
-        },
-        "ranks": {
-            "tokenRank": [
-                {
-                    "user_id": 12345,
-                    "ai_token_record": 66666,
-                },
-                {
-                  "user_id": 13534,
-                  "ai_token_record": 666,
-              },
+      "systemInfo": {
+        "cpuUsage": Number(random(20, 80, true).toFixed(1)),
+        "totalMemory": 17179869184,
+        "usedMemory": random(8589934592, 10179869184),
+        "totalDisk": 549755813888,
+        "usedDisk": 322122547200
+      },
+      "botInfo": {
+        "totalUsers": 16384,
+        "totalFriends": 1024,
+        "totalGroups": 2048
+      },
+      "ranks": {
+        "tokenRank": [
+          {
+            "user_id": 12345,
+            "ai_token_record": 66666,
+          },
+          {
+            "user_id": 13534,
+            "ai_token_record": 666,
+          },
 
-            ],
-            "signInRank": [
-                {
-                    "userId": 567,
-                    "days": 3
-                },
-                {
-                    "userId": 87,
-                    "days": 1
-                },
-            ]
-        }
+        ],
+        "signInRank": [
+          {
+            "userId": 567,
+            "days": 3
+          },
+          {
+            "userId": 87,
+            "days": 1
+          },
+        ]
+      }
     })
+  },
+
+  'GET /api/menu/list': (req: Request, res: Response) => {
+    if (!getAccess()) {
+      res.send({
+        error: 'Unauthorized',
+      });
+      return;
+    }
+    res.send({
+      "page1": {
+        "序号1": {
+          "类型": "文本",
+          "内容文本": ["[title]蕾忍宗[/title]\n  随机忍术   [des]功能支持函数调用,可通过ai对话触发。[/des]\n  查询忍术{忍术名} [des]如 查询忍术握握手[/des]"],
+        },
+        "序号2": {
+          "类型": "文本",
+          "内容文本": ["[title]AI对话[/title]\n  @触发/前缀触发/智能判断\n  /clear\n  /clearall\n  /clear group  [des]清除指定群聊的聊天记录[/des]\n  /查人设    [des]返回所有可用人设[/des]\n  /切人设 {角色文件名} [des]/切人设 派蒙.txt[/des]\n  /全切人设 {角色文件名}  [des]/全切人设 派蒙.txt  管理员命令[/des]\n  可通过llm函数调用的方式使用bot的绝大多数功能，需bot管理员自行配置支持函数调用的模型。"],
+        },
+      },
+      "page2": {
+        "序号2": {
+          "类型": "文本",
+          "内容文本": ["[title]伪造聊天记录[/title]\n  伪造消息 QQ号 内容\n  伪造帮助  [des]查看帮助信息[/des]"],
+        },
+      },
+    });
   },
 
   'GET /api/load/dev_test3.yaml': async (req: Request, res: Response) => {

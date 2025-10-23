@@ -215,7 +215,7 @@ const YamlEditor: React.FC = () => {
           value={value}
           style={{ width: '100%' }}
           onChange={(value) => {
-            //清空输入框的时候同时，value也会马上被清空，导致报错，所以这里需要先判断value是否为null或者undefined，如果是则不更新内容
+            //清空输入框的同时，value也会马上被清空，导致报错，所以这里需要先判断value是否为null或者undefined，如果是则不更新内容
             value === null || value === undefined ? null : updateData(path, value);
           }}
         // formatter={(value) => )} // 格式化：移除所有非数字字符
@@ -380,19 +380,30 @@ const YamlEditor: React.FC = () => {
                         // 正则表达式匹配注释中的URL，并将其转换为可点击的链接
                         __html: comment.replace(
                           /((?:https?:\/\/)?(?:(?:[a-z0-9]?(?:[a-z0-9\-]{1,61}[a-z0-9])?\.[^\.|\s])+[a-z\.]*[a-z]+|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})(?::\d{1,5})*[a-z0-9.,_\/~#&=;%+?\-\\(\\)]*)/gi,
-                          '<a href="$&" target="_blank">$&</a>'
+                          '<a href="$&" target="_blank" style="word-break: break-all;">$&</a>'
                         )
                       }}
                     />
                   )}
                 </div>
-                {typeof value === 'object' && !Array.isArray(value) ? (
-                  <div className="nested-object">
-                    {renderYamlEditor(value, comments, order, currentPath)}
-                  </div>
+                {(path === "help_menu" && key === "content") ? (
+                  <Button
+                    type='primary'
+                    onClick={() => {
+                      history.push('/menuEditor')
+                    }}>
+                    前往菜单编辑器修改
+                  </Button>
                 ) : (
-                  renderYamlValue(value, currentPath)
-                )}
+                  typeof value === 'object' && !Array.isArray(value) ? (
+                    <div className="nested-object">
+                      {renderYamlEditor(value, comments, order, currentPath)}
+                    </div>
+                  ) : (
+                    renderYamlValue(value, currentPath)
+                  )
+                )
+                }
               </Card>
             </List.Item>
           );
@@ -525,6 +536,8 @@ const YamlEditor: React.FC = () => {
                     handleLoadYamlFile(value);
                     // 更新URL参数
                     history.push(`/configEditor/${value}`);
+                    //滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   suffixIcon={<DownOutlined />}
                   options={fileList.map((file) => ({

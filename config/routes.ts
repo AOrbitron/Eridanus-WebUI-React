@@ -9,12 +9,18 @@ export default [
   { path: '/chat', name: '聊天', icon: 'comment', component: './Chat' },
   { path: '/configEditor', name: '修改配置文件', icon: 'form', component: './YamlEditor', routes: [{ path: '/configEditor/:fileName', component: './YamlEditor' }] },
   {
+    path: '/menuEditor',
+    name: '菜单编辑器',
+    icon: 'Profile',
+    component: './menuEditor',
+  },
+  {
     path: '/userManager',
     name: '用户管理',
     icon: 'crown',
     component: './userManager',
   },
-    {
+  {
     path: '/diagnosis',
     name: '运行日志',
     icon: 'Bug',
@@ -25,16 +31,16 @@ export default [
     name: '插件市场',
     icon: 'appstoreAdd',
     component: './TBD',
-    hideInMenu:true
+    hideInMenu: true
   },
   {
     path: '/webuiSettings',
     name: 'WebUI设置',
     icon: 'setting',
     component: './testPage',
-    hideInMenu:true
+    hideInMenu: true
   },
-    {
+  {
     path: '/tools',
     name: '小工具',
     icon: 'tool',

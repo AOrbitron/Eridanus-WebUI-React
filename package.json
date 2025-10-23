@@ -55,7 +55,7 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "ant-design-pro": "file:",
-    "antd": "^5.27.0",
+    "antd": "^5.27.6",
     "antd-style": "^3.7.1",
     "aplayer-react": "^1.6.0",
     "classnames": "^2.5.1",
