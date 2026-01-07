@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 // import { useModel } from '@umijs/max';
 import { Space, Spin, Image } from 'antd';
-// Fix for markdown-it import error
-// import markdownit from 'markdown-it';
-const markdownit = require('markdown-it');
-const md = markdownit({ html: true, breaks: true });
+// import VerticalAlignBottomOutlined from '@ant-design/icons/VerticalAlignBottomOutlined';
+import { XMarkdown } from '@ant-design/x-markdown';
+// const md = markdownit({ html: true, breaks: true });
 import { getMusicInfo } from '@/services/ant-design-pro/api';
-import { Bubble, Attachments } from '@ant-design/x';
+import { Bubble, FileCard } from '@ant-design/x';
 import { APlayer } from 'aplayer-react';
 import 'aplayer-react/dist/index.css';
 import { isArray } from 'lodash';
-const requestURL = '';
-// 本地调试用
-// const requestURL = 'http://192.168.195.41:5007';
-// const requestURL = 'http://localhost:5007';
+import { requestURL } from '@/services/ant-design-pro/api';
+import { VerticalAlignBottomOutlined } from '@ant-design/icons';
+
 //渲染音乐卡片
 const renderMusicCard = (
   type: string,
@@ -95,7 +93,7 @@ const renderMusicCard = (
           style={{ borderRadius: '5px' }}
         />
       </Space>
-      <Space style={{ fontSize: '16px',fontWeight:'bold' }}>
+      <Space style={{ fontSize: '16px', fontWeight: 'bold' }}>
         {musicInfo?.title || '未知标题'}
       </Space>
       <Space style={{ fontSize: '12px' }}>
@@ -126,16 +124,17 @@ const renderForwardedMessages = (nodeData: any) => {
       <Modal title="转发消息" open={isModalOpen} onCancel={handleCancel} footer={null}> */}
       <div
         style={{
-          padding: '5px',
+          // padding: '5px',
           backgroundColor: 'transparent',
           borderRadius: '4px',
-          marginBottom: '8px',
+          // marginBottom: '8px',
           fontSize: '16px',
         }}
       >
         <div style={{ borderLeft: '2px solid #1890ff', paddingLeft: '8px' }}>转发消息</div>
       </div>
       <Bubble.List
+        // style={{ width: '100%' }}
         items={nodeData.map((msg: any, index: number) => {
           // console.log(msg.data.content);
           return {
@@ -174,19 +173,24 @@ const renderVideo = (url: string) => {
 const renderImage = (url: string) => {
   const [loading, setLoading] = useState(true);
   // if (url.startsWith('http') || url.startsWith('base64')) {
-    if (url.startsWith('base64')) {
-      url = 'data:image/png;base64,' + url.split('base64://')[1];
-    }
-    return (
-      <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}>
-        <Spin spinning={loading}>
-          <Image
-            src={url}
-            onLoad={() => setLoading(false)}
-          />
-        </Spin>
-      </div>
-    );
+  if (url.startsWith('base64')) {
+    url = 'data:image/png;base64,' + url.split('base64://')[1];
+  }
+  return (
+    <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}>
+      <Spin spinning={loading}>
+        <Image
+          src={url}
+          onLoad={() => setLoading(false)}
+        />
+      </Spin>
+      {/* <FileCard
+        name={url}
+        src={url}
+        // mask={<VerticalAlignBottomOutlined />}
+      /> */}
+    </div>
+  );
   // }
   // return null;  
 };
@@ -217,14 +221,12 @@ const renderReply = (content?: string | null) => {
 
 //渲染文件卡片
 const renderFile = (url: string, name: string) => {
-  const fileInfo = {
-    uid: '1',
-    name: name,
-    url: url,
-  };
   return (
     <a style={{ color: 'inherit' }} href={url} target="_blank" download={name}>
-      <Attachments.FileCard item={fileInfo} />
+      <FileCard
+        name={name}
+        mask={<VerticalAlignBottomOutlined />}
+      />
     </a>
   );
 };
@@ -243,7 +245,8 @@ const renderText = (content: string, role: string) => {
   return (
     <div>
       {role == 'start' ? (
-        <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
+        // <div dangerouslySetInnerHTML={{ __html: md.render(content) }} />
+        <XMarkdown content={content.replace(/\n/g, '\n\n')} />
       ) : (
         <div>{content}</div>
       )}

@@ -50,6 +50,7 @@
     "@ant-design/pro-chat": "^1.15.3",
     "@ant-design/pro-components": "^2.8.10",
     "@ant-design/x": "^2.1.3",
+    "@ant-design/x-markdown": "^2.1.3",
     "@umijs/renderer-react": "^4.6.20",
     "@umijs/route-utils": "^4.0.3",
     "@xterm/addon-fit": "^0.11.0",
