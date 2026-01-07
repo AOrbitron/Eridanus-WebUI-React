@@ -163,7 +163,7 @@ export default {
     })
   },
 
-  'GET /api/menu/list': (req: Request, res: Response) => {
+  'GET /api/menu/load': (req: Request, res: Response) => {
     if (!getAccess()) {
       res.send({
         error: 'Unauthorized',
@@ -190,7 +190,7 @@ export default {
     });
   },
 
-  'GET /api/load/dev_test3.yaml': async (req: Request, res: Response) => {
+  'GET /api/load/:filename': async (req: Request, res: Response) => {
     await waitTime(200);
     if (!getAccess()) {
       res.send({

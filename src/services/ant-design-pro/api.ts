@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 // const requestURL = 'http://192.168.195.128:5007';
-// const requestURL = 'http://192.168.195.41:5007';
+// export const requestURL = 'http://192.168.195.41:5007';
 // export const requestURL = 'http://localhost:5007';
 export const requestURL = '';
 

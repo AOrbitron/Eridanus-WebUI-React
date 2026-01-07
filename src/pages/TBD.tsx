@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Card } from 'antd';
 import React from 'react';
-import QueueAnim from 'rc-queue-anim';
+import QueueAnim from '@/components/QueueAnim';
 const TBD: React.FC = () => {
   return (
     <PageContainer>

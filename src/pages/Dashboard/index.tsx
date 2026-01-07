@@ -1,11 +1,11 @@
-import { GridContent } from '@ant-design/pro-components';
+// import { GridContent } from '@ant-design/pro-components';
 import { Col, message, Row } from 'antd';
 import type { FC } from 'react';
 import { useRef, useEffect, useState } from 'react';
 import BasicInfoCard from './components/BasicInfoCard';
 import RankingCard from './components/RankingCard';
 import { getBasicInfo } from '@/services/ant-design-pro/api';
-import QueueAnim from 'rc-queue-anim';
+import QueueAnim from '@/components/QueueAnim';
 
 const Dashboard: FC<any> = () => {
   // 使用useRef存储数据
@@ -54,7 +54,7 @@ const Dashboard: FC<any> = () => {
   }, []);
 
   return (
-    <GridContent>
+    // <GridContent>
     <QueueAnim type={'bottom'} delay={100}>
       <Row gutter={24} key="a">
         <Col xl={24} lg={24} md={24} sm={24} xs={24}>
@@ -71,7 +71,7 @@ const Dashboard: FC<any> = () => {
         </Col>
       </Row>
       </QueueAnim>
-    </GridContent>
+    // </GridContent>
   );
 };
 

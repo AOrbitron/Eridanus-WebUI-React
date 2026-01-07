@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import { Card, Col, Progress, Row, Statistic, Tooltip } from 'antd';
 import React from 'react';
-import QueueAnim from 'rc-queue-anim';
+import QueueAnim from '@/components/QueueAnim';
 
 const BasicInfoCard: React.FC<API.BasicInfo> = ({ loading, systemInfo, botInfo }) => {
   const calcGB = (bytes: number) => {

@@ -173,17 +173,22 @@ const renderVideo = (url: string) => {
 //渲染图片
 const renderImage = (url: string) => {
   const [loading, setLoading] = useState(true);
-
-  return (
-    <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}>
-      <Spin spinning={loading}>
-        <Image
-          src={url}
-          onLoad={() => setLoading(false)}
-        />
-      </Spin>
-    </div>
-  );
+  // if (url.startsWith('http') || url.startsWith('base64')) {
+    if (url.startsWith('base64')) {
+      url = 'data:image/png;base64,' + url.split('base64://')[1];
+    }
+    return (
+      <div style={{ width: '200px', maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}>
+        <Spin spinning={loading}>
+          <Image
+            src={url}
+            onLoad={() => setLoading(false)}
+          />
+        </Spin>
+      </div>
+    );
+  // }
+  // return null;  
 };
 
 //渲染语音

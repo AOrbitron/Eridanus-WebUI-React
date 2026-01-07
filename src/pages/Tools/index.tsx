@@ -1,7 +1,7 @@
 import { Button, Card, message, Upload, Modal, Flex } from 'antd';
 import type { FC } from 'react';
 import { useState } from 'react';
-import QueueAnim from 'rc-queue-anim';
+import QueueAnim from '@/components/QueueAnim';
 import { UploadOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { RcFile } from 'antd/es/upload';
 import { restartServer, exportConfig, importConfig, uploadFiles } from '@/services/ant-design-pro/api';

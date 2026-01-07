@@ -16,7 +16,7 @@ import UpdateForm from './components/UpdateForm';
 // import type { TableListPagination } from './data';
 import { addUser, delUser, modUser, getUserList } from '@/services/ant-design-pro/api';
 import { useModel } from '@umijs/max';
-import QueueAnim from 'rc-queue-anim';
+import QueueAnim from '@/components/QueueAnim';
 // const { initialState, setInitialState } = useModel('@@initialState');
 // const isDark = initialState?.settings?.isDark;
 //添加用户

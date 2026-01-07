@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, message, Spin, Card, Modal, Flex, Switch, UploadProps, Upload } from 'antd';
+import { Button, message, Spin, Card, Modal, Flex, Switch, UploadProps, Upload, GetRef } from 'antd';
 import {
   CloudUploadOutlined,
   DeleteOutlined,
@@ -37,6 +37,8 @@ const Chat: React.FC = () => {
   // 使用useRef存储最新的messages，解决异步状态更新问题
   const messagesRef = useRef<API.ChatMessage[]>([]);
 
+  const senderRef = useRef<GetRef<typeof Sender>>(null);
+
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -60,11 +62,8 @@ const Chat: React.FC = () => {
 9. file做简单的分类，显示对应的logo；(done)
 10. 聊天记录清除；
 11. 聊天文件管理；
-… …
+12. … …
 */
-
-  //输入的值
-  const [inputValue, setInputValue] = useState<string>('');
 
   const props: UploadProps = {
 
@@ -262,7 +261,6 @@ const Chat: React.FC = () => {
       ws.send(JSON.stringify(msg));
       //滚动到底部
       listRef.current?.scrollTo({ key: messages.length - 1, block: 'nearest' });
-      setInputValue('');
       setTimeout(() => {
         setSendMsgBtn(false);
       }, 500);
@@ -412,21 +410,17 @@ const Chat: React.FC = () => {
           </div>
 
           <Sender
+            ref={senderRef}
+            loading={sendMsgBtn}
             placeholder="请输入..."
             style={styles.bottomTools}
-            value={inputValue}
             //自动调节输入框大小
             autoSize={{ maxRows: 8 }}
-            onChange={(v) => {
-              setInputValue(v);
-            }}
             onSubmit={(v) => {
-              setInputValue('');
               handleSendMsg(v, 'text');
+              senderRef.current?.clear?.();
             }}
-            actions={false}
-            footer={({ components }) => {
-              const { SendButton } = components;
+            footer={(actionNode) => {
               return (
                 <Flex justify="space-between" align="center">
                   <Flex gap="small" align="center">
@@ -495,11 +489,13 @@ const Chat: React.FC = () => {
                     />
                   </Flex>
                   <Flex align="center">
-                    <SendButton type="primary" loading={sendMsgBtn} disabled={false} />
+                    {actionNode}
                   </Flex>
                 </Flex>
               );
-            }}
+            }
+            }
+            suffix={false}
           // prefix={<></>}
           />
         </div>
