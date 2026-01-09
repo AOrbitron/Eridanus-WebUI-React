@@ -5,8 +5,10 @@ import moment from 'moment';
 import { getLogFiles, getLogContent } from '@/services/ant-design-pro/api';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
+// 引入xterm的css样式，否则终端无法正常显示
 import '@xterm/xterm/css/xterm.css';
 import { useModel } from '@umijs/max';
+import QueueAnim from '@/components/QueueAnim';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -380,7 +382,7 @@ const Diagnosis: React.FC = () => {
   };
 
   return (
-    <div>
+      <QueueAnim type={'bottom'} delay={100}>
         <Card key="0">
           <Space direction="vertical" style={{ width: '100%', marginTop: '20px' }}>
             <Space wrap>
@@ -466,7 +468,7 @@ const Diagnosis: React.FC = () => {
             </Spin>
           </Space>
         </Card>
-    </div>
+      </QueueAnim>
   );
 };
 

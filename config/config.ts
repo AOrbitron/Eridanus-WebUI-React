@@ -122,6 +122,10 @@ export default defineConfig({
       async: true,
     },
   ],
+  extraBabelIncludes: [
+    '@xterm/xterm',
+    '@xterm/addon-fit',
+  ],
   //================ pro 插件配置 =================
   presets: ['umi-presets-pro'],
   /**

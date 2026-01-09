@@ -4,7 +4,7 @@ const testToken = '114514'
 
 
 import { Request, Response } from 'express';
-import { random } from 'lodash';
+import random from 'lodash/random';
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
     setTimeout(() => {

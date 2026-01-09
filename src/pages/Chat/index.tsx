@@ -8,13 +8,10 @@ import { Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
 import { requestURL, delChatHistory, getChatHistory } from '@/services/ant-design-pro/api';
-import { isArray } from 'lodash';
+import isArray from 'lodash/isArray';
+import QueueAnim from '@/components/QueueAnim';
 const wsURL = `/api/ws`;
 
-// const requestURL = 'http://192.168.195.41:5007';
-// const requestURL = 'http://192.168.195.128:5007';
-// const requestURL = 'http://[::1]:5007';
-// const requestURL = '';
 const Chat: React.FC = () => {
 
   const [sendMsgBtn, setSendMsgBtn] = useState(false);
@@ -290,20 +287,13 @@ const Chat: React.FC = () => {
       alignItems: 'center',
       overflow: 'hidden',
     },
-    chatCard: {
-      width: '100%',
-      height: 'calc(100vh-100px)',
-      display: 'flex',
-      flexDirection: 'column',
-    },
     chatContainer: {
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      // padding: '8px',
-      borderRadius: '12px',
-      height: 'auto',
-      marginBottom: '115px',
+      padding: '5px',
+      // borderRadius: '12px',
+      flex: 1,
       overflowY: 'auto',
     },
     message: {
@@ -325,12 +315,10 @@ const Chat: React.FC = () => {
       borderBottomLeftRadius: '4px',
     },
     bottomTools: {
-      position: 'absolute',
-      left: '0',
-      bottom: '0px',
       backgroundColor: isDark ? '#2e2e2e' : '#fff',
-      maxHeight: '50vh',
-      overflowY: 'auto',
+      borderTop: isDark ? '1px solid #444' : '1px solid #f0f0f0',
+      padding: '10px 0',
+      // paddingBottom: 'calc(env(safe-area-inset-bottom))',
     },
     uploadButton: {
       flexShrink: 0,
@@ -365,23 +353,21 @@ const Chat: React.FC = () => {
     }
   };
   return (
-    <Spin spinning={loading} tip="WebSocket连接中..." size="large">
-      <Card
-        style={{
-          height: 'calc(100vh - 100px)',
-        }}
-      >
+    <QueueAnim type={'bottom'} delay={100}>
+      <Spin spinning={loading} tip="WebSocket连接中..." size="large">
+        {/*上传进度提示*/}
         {contextHolder}
-        <div
+          <div
           ref={chatContainRef}
           style={{
             width: '100%',
-            height: 'calc(100vh - 100px)',
+            height: 'calc(100dvh - 80px)',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <div style={styles.chatContainer} ref={chatContainerRef}>
+          {/* 聊天框 */}
+          <div style={styles.chatContainer as any} ref={chatContainerRef}>
             <Bubble.List
               ref={listRef}
               items={messages.map((msg, index) => {
@@ -405,15 +391,16 @@ const Chat: React.FC = () => {
                     />
                   ),
                 };
-              })}
+              }) as any}
             />
           </div>
 
+          {/* 发送框 */}
           <Sender
             ref={senderRef}
             loading={sendMsgBtn}
+            style={styles.bottomTools as any}
             placeholder="请输入..."
-            style={styles.bottomTools}
             //自动调节输入框大小
             autoSize={{ maxRows: 8 }}
             onSubmit={(v) => {
@@ -495,12 +482,13 @@ const Chat: React.FC = () => {
               );
             }
             }
+            //避免出现2个发送按钮
             suffix={false}
           // prefix={<></>}
           />
         </div>
-      </Card>
-    </Spin>
+      </Spin>
+    </QueueAnim>
   );
 };
 

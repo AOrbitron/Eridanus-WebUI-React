@@ -3,7 +3,7 @@ import { message, Button, Switch, Input, InputNumber, List, Affix, Card, Spin, S
 import { PlusOutlined, DeleteOutlined, DownOutlined, PlusSquareOutlined, SearchOutlined } from '@ant-design/icons';
 import { getYamlFiles, loadYamlFile, saveYamlFile, searchYamlKeys } from '@/services/ant-design-pro/api';
 import { useParams, history } from 'umi';
-
+import QueueAnim from '@/components/QueueAnim';
 interface YamlData {
   data?: any;
   comments?: Record<string, string>;
@@ -511,6 +511,7 @@ const YamlEditor: React.FC = () => {
   };
 
   return (
+    <QueueAnim type={'bottom'} delay={100}>
     <Spin spinning={loading} size='large'>
       {/* <QueueAnim type={'bottom'} delay={100}> */}
       {contextHolder}
@@ -654,7 +655,8 @@ const YamlEditor: React.FC = () => {
         </div>
       </Card>
       {/* </QueueAnim> */}
-    </Spin >
+    </Spin>
+    </QueueAnim>
 
   );
 };

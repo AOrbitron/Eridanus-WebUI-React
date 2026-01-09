@@ -1,22 +1,18 @@
-import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
   FooterToolbar,
   ModalForm,
-  PageContainer,
   ProDescriptions,
   ProFormText,
   ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Drawer, Card, message, Modal } from 'antd';
+import { Button, Card, message, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-// import type { TableListPagination } from './data';
 import { addUser, delUser, modUser, getUserList } from '@/services/ant-design-pro/api';
 import { useModel } from '@umijs/max';
 import QueueAnim from '@/components/QueueAnim';
+import XMarkdown from '@ant-design/x-markdown';
 // const { initialState, setInitialState } = useModel('@@initialState');
 // const isDark = initialState?.settings?.isDark;
 //添加用户
@@ -154,6 +150,9 @@ const TableList: React.FC = () => {
       title: '用户画像',
       dataIndex: 'user_portrait',
       valueType: 'textarea',
+      render: (_,data) => [
+        <XMarkdown content={data.user_portrait} />,
+      ],
       search: false,
       hideInTable: true,
     },

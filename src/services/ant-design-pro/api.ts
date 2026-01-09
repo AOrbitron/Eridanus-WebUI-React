@@ -2,10 +2,11 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-// const requestURL = 'http://192.168.195.128:5007';
-// export const requestURL = 'http://192.168.195.41:5007';
-// export const requestURL = 'http://localhost:5007';
-export const requestURL = '';
+const devURL0 = 'http://192.168.195.128:5007';
+const devURL1 = 'http://192.168.195.41:5007';
+const devURL2 = 'http://localhost:5007';
+
+export const requestURL = process.env.NODE_ENV === 'development' ? devURL1 : '';
 
 //获取当前webui用户信息
 export async function getCurrentUser() {
@@ -95,7 +96,7 @@ export async function getBasicInfo(
     ...(options || {}),
   });
 }
-
+/** 获取音乐信息 POST /api/chat/music */
 export async function getMusicInfo(body: { type: string; id?: string | number }, options?: { [key: string]: any },) {
   return request<API.MusicInfo>(`${requestURL}/api/chat/music`, {
     method: 'POST',
@@ -103,7 +104,7 @@ export async function getMusicInfo(body: { type: string; id?: string | number },
     ...(options || {}),
   });
 }
-
+/** 获取聊天记录 GET /api/chat/get_history */
 export async function getChatHistory(params?: { [key: string]: any }, options?: { [key: string]: any }) {
   return request<any>(`${requestURL}/api/chat/get_history`, {
     method: 'GET',
@@ -111,10 +112,13 @@ export async function getChatHistory(params?: { [key: string]: any }, options?: 
     ...(options || {}),
   });
 }
-export async function delChatHistory(body: any) {
+
+/** 删除聊天记录 POST /api/chat/del_history */
+export async function delChatHistory(body: any, options?: { [key: string]: any }) {
   return request<any>(`${requestURL}/api/chat/del_history`, {
     method: 'POST',
     data: body,
+    ...(options || {}),
   });
 }
 
@@ -205,7 +209,7 @@ export async function importConfig(fileName: string, options?: { [key: string]: 
   });
 }
 
-
+/** 加载菜单 GET /api/menu/load */
 export async function loadMenu(options?: { [key: string]: any }) {
   return request<any>(`${requestURL}/api/menu/load`, {
     method: 'GET',
@@ -213,6 +217,7 @@ export async function loadMenu(options?: { [key: string]: any }) {
   });
 }
 
+/** 更新菜单 POST /api/menu/update */
 export async function updateMenu(body: any, options?: { [key: string]: any }) {
   return request<any>(`${requestURL}/api/menu/update`, {
     method: 'POST',
