@@ -225,3 +225,37 @@ export async function updateMenu(body: any, options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+/** 列出所有插件函数及启用状态 GET /api/functions/list */
+export async function getFunctionList(options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/functions/list`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 保存被禁用的函数名列表 POST /api/functions/save */
+export async function saveDisabledFunctions(body: { disabled: string[] }, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/functions/save`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 列出所有 skill 包及启用状态 GET /api/skills/list */
+export async function getSkillList(options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/skills/list`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 保存被禁用的 skill 名列表 POST /api/skills/save */
+export async function saveDisabledSkills(body: { disabled: string[] }, options?: { [key: string]: any }) {
+  return request<any>(`${requestURL}/api/skills/save`, {
+    method: 'POST',
+    data: body,
+    ...(options || {}),
+  });
+}

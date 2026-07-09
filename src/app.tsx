@@ -49,11 +49,19 @@ export async function getInitialState(): Promise<{
       navTheme: isDark ? 'realDark' : 'light',
       isDark: isDark, // 将 isDark 添加到 settings 中
       token: {
-        bgLayout: isDark ? '#181818' : '#f5f5f5',
-        // bgLayout: 'linear-gradient(to bottom, #181818 0%,#252525 100%)',
+        // 桃雾(#FFC0E9) → 青瑶(#99A5FF) 渐变；组件用毛玻璃透出该渐变，避免纯白块割裂
+        bgLayout: isDark
+          ? '#181818'
+          : 'linear-gradient(160deg, #ffd8ef 0%, #ece8ff 50%, #ccd3ff 100%)',
+        header: {
+          colorBgHeader: isDark ? 'rgba(24,24,28,0.55)' : 'rgba(255,255,255,0.30)',
+        },
         sider: {
-          colorMenuBackground: isDark ? ' #1f1f1f' : " #fbfbfb",
-        }
+          colorMenuBackground: isDark ? 'rgba(24,24,28,0.42)' : 'rgba(255,255,255,0.30)',
+        },
+        pageContainer: {
+          colorBgPageContainer: 'transparent',
+        },
       },
     } as Partial<LayoutSettings> & { isDark: boolean }; // 更新类型定义以包含 isDark
   };
@@ -85,6 +93,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     theme: {
       algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
       token: {
+        colorPrimary: "#99A5FF",
         colorBgBase: isDark ? "#1b1b1b" : "#f5f5f5",
         fontSize: 16,
         sizeStep: 4,
@@ -182,6 +191,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             theme={{
               algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
               token: {
+                colorPrimary: "#99A5FF",
+                colorLink: "#7f8dff",
                 colorSuccess: "#95da73",
                 colorBgBase: isDark ? "#0e0e0e" : "#fbfbfb",
                 fontSize: 14,
@@ -268,6 +279,55 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
               }
               .aplayer-list ol li.aplayer-list-light {
                 background: ${isDark ? '#2d2d2d' : '#e9e9e9'} !important;
+              }
+
+              /* ==== 毛玻璃统一质感：让 桃雾/青瑶 渐变透过各组件，消除纯白色块的割裂感 ==== */
+              .ant-card {
+                background: ${isDark ? 'rgba(30,30,36,0.50)' : 'rgba(255,255,255,0.42)'} !important;
+                -webkit-backdrop-filter: blur(16px) saturate(1.3);
+                backdrop-filter: blur(16px) saturate(1.3);
+                border: 1px solid ${isDark ? 'rgba(153,165,255,0.16)' : 'rgba(153,165,255,0.22)'};
+                box-shadow: 0 6px 26px rgba(153,165,255,0.14) !important;
+              }
+              /* 顶栏（含 mix 布局顶部导航）+ 侧栏：强模糊 + 低不透明度，透出背景渐变 */
+              .ant-layout-header, .ant-pro-top-nav-header, .ant-pro-layout .ant-layout-header {
+                background: ${isDark ? 'rgba(24,24,28,0.50)' : 'rgba(255,255,255,0.30)'} !important;
+                -webkit-backdrop-filter: blur(18px) saturate(1.3);
+                backdrop-filter: blur(18px) saturate(1.3);
+              }
+              .ant-layout-sider, .ant-pro-sider {
+                background: ${isDark ? 'rgba(22,22,28,0.5)' : 'rgba(255,255,255,0.4)'} !important;
+                -webkit-backdrop-filter: blur(28px) saturate(1.5);
+                backdrop-filter: blur(28px) saturate(1.5);
+                border-right: 1px solid ${isDark ? 'rgba(153,165,255,0.14)' : 'rgba(153,165,255,0.22)'};
+                box-shadow: 4px 0 24px rgba(153,165,255,0.10);
+              }
+              .ant-layout-sider-children, .ant-menu, .ant-menu-sub, .ant-menu-root {
+                background: transparent !important;
+              }
+              /* 内容区透明，露出整幅渐变（不再是白底上贴色块） */
+              .ant-pro-layout .ant-layout-content, .ant-page-container,
+              .ant-pro-page-container, .ant-pro-grid-content {
+                background: transparent !important;
+              }
+              /* 输入类：仅做半透明（不加模糊，控成本），透出所在卡片的玻璃质感 */
+              .ant-input, .ant-input-affix-wrapper, .ant-input-number,
+              .ant-input-number-affix-wrapper, .ant-select-selector, .ant-picker,
+              textarea.ant-input {
+                background: ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.45)'} !important;
+              }
+              .ant-collapse, .ant-collapse-content, .ant-collapse-item, .ant-collapse-header {
+                background: transparent !important;
+              }
+              .ant-collapse {
+                border-color: ${isDark ? 'rgba(153,165,255,0.16)' : 'rgba(153,165,255,0.22)'} !important;
+              }
+              /* 浮层保持更高不透明度 + 强模糊，保证可读性 */
+              .ant-select-dropdown, .ant-dropdown-menu, .ant-modal-content,
+              .ant-popover-inner, .ant-picker-panel-container, .ant-message-notice-content {
+                background: ${isDark ? 'rgba(30,30,36,0.94)' : 'rgba(255,255,255,0.9)'} !important;
+                -webkit-backdrop-filter: blur(18px);
+                backdrop-filter: blur(18px);
               }
             `}</style>
           </Helmet>

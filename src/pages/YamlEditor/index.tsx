@@ -632,6 +632,14 @@ const YamlEditor: React.FC = () => {
         .yaml-content {
           width: 100%;
         }
+        /* 每个字段是嵌套在外层玻璃卡内的 Card：置为透明，避免多层半透明叠加又变回纯白 */
+        .yaml-content.ant-card {
+          background: transparent !important;
+          box-shadow: none !important;
+          border: none !important;
+          -webkit-backdrop-filter: none !important;
+          backdrop-filter: none !important;
+        }
         .key-container {
           margin-bottom: 8px;
         }

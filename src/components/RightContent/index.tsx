@@ -40,10 +40,18 @@ export const ColorMode = () => {
           navTheme: newNavTheme,
           // 根据新主题设置 token
           token: {
-            bgLayout: newIsDark ? '#181818' : '#f5f5f5',
+            bgLayout: newIsDark
+              ? '#181818'
+              : 'linear-gradient(160deg, #ffd8ef 0%, #ece8ff 50%, #ccd3ff 100%)',
+            header: {
+              colorBgHeader: newIsDark ? 'rgba(24,24,28,0.55)' : 'rgba(255,255,255,0.30)',
+            },
             sider: {
-              colorMenuBackground: newIsDark ? ' #1f1f1f' : " #fbfbfb",
-            }
+              colorMenuBackground: newIsDark ? 'rgba(24,24,28,0.42)' : 'rgba(255,255,255,0.30)',
+            },
+            pageContainer: {
+              colorBgPageContainer: 'transparent',
+            },
           },
         },
       }));

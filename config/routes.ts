@@ -7,7 +7,14 @@ export default [
   },
   { path: '/dashboard', name: '总览', icon: 'compass', component: './Dashboard' },
   { path: '/chat', name: '聊天', icon: 'comment', component: './Chat' },
+  { path: '/live2dchat', name: 'Live2D 对话', icon: 'smile', component: './Live2DChat' },
   { path: '/configEditor', name: '修改配置文件', icon: 'form', component: './YamlEditor', routes: [{ path: '/configEditor/:fileName', component: './YamlEditor' }] },
+  {
+    path: '/functionManager',
+    name: '功能管理',
+    icon: 'appstoreAdd',
+    component: './FunctionManager',
+  },
   {
     path: '/menuEditor',
     name: '菜单编辑器',
