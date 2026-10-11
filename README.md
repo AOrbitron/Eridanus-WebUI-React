@@ -53,31 +53,57 @@
 - [x] 导入导出配置文件
 
 ## 开发前的环境准备
-- 请确认电脑已经安装好node.js
+- 请安装 Node.js 22+ 与 pnpm 10+
 - 切换到项目目录下，执行：
----
-
-换淘宝镜像源
 ```bash
- npm config set registry https://registry.npmmirror.com
-```
-安装环境
-```bash
-npm install
+pnpm install --frozen-lockfile
 ```
 
-视网络环境，稍等10分钟左右，环境部署完成
+## 启动与配置
 
-## 运行
-会在8000端口启动服务器，可以实时修改代码，查看效果
-```bash
-npm run start
+开发服务器默认运行在 `http://localhost:8000`。Umi 开发模式默认启用 `mock/` 下的本地接口；使用 `start:no-mock` 或 `start:test` 才会关闭 Mock。
+
+| 命令 | 环境标记 | Mock | 用途 |
+| --- | --- | --- | --- |
+| `pnpm start` | `UMI_ENV=dev` | 启用 | 本地开发，默认入口 |
+| `pnpm start:dev` | `UMI_ENV=dev`, `REACT_APP_ENV=dev` | 启用 | 本地开发，带 dev 标记 |
+| `pnpm start:no-mock` | `UMI_ENV=dev` | 关闭 | 连接真实后端进行本地联调 |
+| `pnpm start:pre` | `UMI_ENV=dev`, `REACT_APP_ENV=pre` | 启用 | 带 pre 标记的开发启动 |
+| `pnpm start:test` | `UMI_ENV=dev`, `REACT_APP_ENV=test` | 关闭 | 带 test 标记的真实后端联调 |
+
+`REACT_APP_ENV` 当前只作为环境标记，`UMI_ENV` 用于选择 Umi 配置环境。本仓库目前没有按这些标记配置不同的代理或 API 主机；请求地址由 `UMI_APP_API_BASE_URL` 决定。未设置时使用同源 `/api` 地址，适合 Mock 或由 Web 服务器反向代理 API 的部署。
+
+### 连接真实后端
+
+将 API 基础地址设为 Eridanus WebUI 后端地址。PowerShell 示例：
+
+```powershell
+$env:UMI_APP_API_BASE_URL = "http://localhost:5007"
+pnpm start:no-mock
 ```
+
+也可以通过 `cross-env` 一次性设置，便于在不同操作系统使用：
+
+```bash
+pnpm exec cross-env UMI_APP_API_BASE_URL=http://localhost:5007 pnpm start:no-mock
+```
+
+API 基础地址不要附加 `/api`；页面会自动拼接接口路径。部署构建时也需要在构建命令前设置该变量，例如：
+
+```bash
+pnpm exec cross-env UMI_APP_API_BASE_URL=https://bot.example.com pnpm build
+```
+
+没有单独后端域名时，保持变量为空，并让部署服务器将 `/api` 与 `/api/ws` 转发到 Eridanus 后端。跨域部署还需要后端允许 WebUI 域名访问。
+
+### 本地 Mock
+
+Mock 定义在 `mock/user.ts`，目前包含登录、用户资料、仪表盘、日志、菜单和部分 YAML 文件接口。登录账号和密码均为 `eridanus`。聊天记录、WebSocket、文件上传、用户管理等接口没有完整 Mock，需要连接真实后端才能使用。
 
 ## 编译
 编译后的文件在`dist`目录下
 ```bash
-npm run build
+pnpm build
 ```
 ## 提示
 - `mock`目录下为模拟API的数据，用于本地调试，可根据需要修改

@@ -1,7 +1,8 @@
-import { Button, Card, message, Upload, Modal, Flex } from 'antd';
+import { Button, Card, Upload, Modal, Flex } from 'antd';
 import type { FC } from 'react';
 import { useState } from 'react';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 import { UploadOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { RcFile } from 'antd/es/upload';
 import { restartServer, exportConfig, importConfig, uploadFiles } from '@/services/ant-design-pro/api';
@@ -17,12 +18,12 @@ const Tools: FC<any> = () => {
     try {
       const response = await restartServer();
       if (response.message) {
-        message.success(response.message);
+        appMessage.success(response.message);
       } else if (response.error) {
-        message.error(response.error);
+        appMessage.error(response.error);
       }
     } catch (error) {
-      message.error('服务端重启失败: ' + error);
+      appMessage.error('服务端重启失败: ' + error);
     }
   };
 
@@ -32,14 +33,14 @@ const Tools: FC<any> = () => {
       setExportLoading(true);
       const response = await exportConfig();
       if (response.file) {
-        message.success(response.message);
+        appMessage.success(response.message);
         setDownloadUrl(response.file);
         setIsModalVisible(true);
       } else if (response.error) {
-        message.error(response.error);
+        appMessage.error(response.error);
       }
     } catch (error) {
-      message.error('导出配置文件失败: ' + error);
+      appMessage.error('导出配置文件失败: ' + error);
     } finally {
       setExportLoading(false);
     }
@@ -54,16 +55,16 @@ const Tools: FC<any> = () => {
       const response1 = await uploadFiles(formData);
       const fileName = response1.files[0].name || '';
       if (response1.error) {
-        message.error(response1.error);
+        appMessage.error(response1.error);
       }
       const response2 = await importConfig(fileName);
       if (response2.error) {
-        message.error(response2.error);
+        appMessage.error(response2.error);
       } else {
-        message.success(response2.message);
+        appMessage.success(response2.message);
       }
     } catch (error) {
-      message.error('配置文件导入失败: ' + error);
+      appMessage.error('配置文件导入失败: ' + error);
     } finally {
       setImportLoading(false);
     }

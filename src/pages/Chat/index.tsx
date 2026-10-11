@@ -10,6 +10,7 @@ import BubbleRender from './bubbleRender';
 import { requestURL, delChatHistory, getChatHistory } from '@/services/ant-design-pro/api';
 import isArray from 'lodash/isArray';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 const wsURL = `/api/ws`;
 
 const Chat: React.FC = () => {
@@ -104,7 +105,7 @@ const Chat: React.FC = () => {
       setMessages(parsedList);
       messagesRef.current = parsedList;
     } catch (e) {
-      message.error(`历史消息加载失败: ${e}`);
+      appMessage.error(`历史消息加载失败: ${e}`);
     } finally {
       // 连接WebSocket
       connectWebSocket();
@@ -155,7 +156,7 @@ const Chat: React.FC = () => {
     };
 
     newWs.onerror = (error: Event) => {
-      message.error('WebSocket 连接错误');
+      appMessage.error('WebSocket 连接错误');
     };
     setWs(newWs);
   };
@@ -262,7 +263,7 @@ const Chat: React.FC = () => {
         setSendMsgBtn(false);
       }, 500);
     } else {
-      message.error('WebSocket 未连接');
+      appMessage.error('WebSocket 未连接');
     }
   };
 
@@ -271,9 +272,9 @@ const Chat: React.FC = () => {
     const result = await delChatHistory(null);
     if (result?.message) {
       setMessages([]);
-      message.success(result.message);
+      appMessage.success(result.message);
     } else {
-      message.error(result?.error);
+      appMessage.error(result?.error);
     }
     setDelAllLoading(false);
     setDelAllModal(false);

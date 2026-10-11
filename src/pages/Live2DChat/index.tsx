@@ -1,5 +1,5 @@
 import { useModel } from '@umijs/max';
-import { Avatar, Badge, Button, Image, Input, Tooltip, Typography, message } from 'antd';
+import { Avatar, Badge, Button, Image, Input, Tooltip, Typography } from 'antd';
 import {
   ClearOutlined,
   PlusOutlined,
@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 import { Live2DEngine } from './live2dEngine';
 import type { HistoryItem } from './live2dEngine';
 
@@ -75,7 +76,7 @@ const Live2DChat: React.FC = () => {
     if (!t) return;
     const ok = engineRef.current?.sendChat(t);
     if (!ok) {
-      message.warning('未连接到对话后端 (/api/ws)，稍候重试。');
+      appMessage.warning('未连接到对话后端 (/api/ws)，稍候重试。');
       return;
     }
     setInput('');

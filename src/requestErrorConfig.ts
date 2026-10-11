@@ -1,6 +1,7 @@
 ﻿import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
-import { message, notification } from 'antd';
+import { notification } from 'antd';
+import { appMessage } from '@/utils/appMessage';
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -51,10 +52,10 @@ export const errorConfig: RequestConfig = {
               // do nothing
               break;
             case ErrorShowType.WARN_MESSAGE:
-              message.warning(errorMessage);
+              appMessage.warning(errorMessage);
               break;
             case ErrorShowType.ERROR_MESSAGE:
-              message.error(errorMessage);
+              appMessage.error(errorMessage);
               break;
             case ErrorShowType.NOTIFICATION:
               notification.open({
@@ -66,7 +67,7 @@ export const errorConfig: RequestConfig = {
               // TODO: redirect
               break;
             default:
-              message.error(errorMessage);
+              appMessage.error(errorMessage);
           }
         }
       } else if (error.response) {
@@ -77,10 +78,10 @@ export const errorConfig: RequestConfig = {
         // 请求已经成功发起，但没有收到响应
         // \`error.request\` 在浏览器中是 XMLHttpRequest 的实例，
         // 而在node.js中是 http.ClientRequest 的实例
-        message.error('请求无响应，请检查网络连接');
+        appMessage.error('请求无响应，请检查网络连接');
       } else {
         // 发送请求时出了点问题
-        message.error('请求出错，请检查网络连接');
+        appMessage.error('请求出错，请检查网络连接');
       }
     },
   },
@@ -102,7 +103,7 @@ export const errorConfig: RequestConfig = {
       const { data } = response as unknown as ResponseStructure;
 
       if (data?.success === false) {
-        message.error('请求失败！');
+        appMessage.error('请求失败！');
       }
       return response;
     },

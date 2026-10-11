@@ -16,12 +16,12 @@ import {
   Switch,
   Tag,
   Typography,
-  message,
 } from 'antd';
 import { ReloadOutlined, SaveOutlined } from '@ant-design/icons';
 import type { CollapseProps } from 'antd';
 import React, { useEffect, useState } from 'react';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 
 const { Text } = Typography;
 
@@ -81,7 +81,7 @@ const FunctionManager: React.FC = () => {
         });
         setDisabledSkills(dSk);
       })
-      .catch(() => message.error('加载失败'))
+      .catch(() => appMessage.error('加载失败'))
       .finally(() => setLoading(false));
   };
 
@@ -122,10 +122,10 @@ const FunctionManager: React.FC = () => {
     setSavingFns(true);
     try {
       const res = await saveDisabledFunctions({ disabled: Array.from(disabledFns) });
-      if (res?.message) message.success(res.message);
-      else if (res?.error) message.error(res.error);
+      if (res?.message) appMessage.success(res.message);
+      else if (res?.error) appMessage.error(res.error);
     } catch {
-      message.error('保存失败');
+      appMessage.error('保存失败');
     } finally {
       setSavingFns(false);
     }
@@ -135,10 +135,10 @@ const FunctionManager: React.FC = () => {
     setSavingSkills(true);
     try {
       const res = await saveDisabledSkills({ disabled: Array.from(disabledSkills) });
-      if (res?.message) message.success(res.message);
-      else if (res?.error) message.error(res.error);
+      if (res?.message) appMessage.success(res.message);
+      else if (res?.error) appMessage.error(res.error);
     } catch {
-      message.error('保存失败');
+      appMessage.error('保存失败');
     } finally {
       setSavingSkills(false);
     }

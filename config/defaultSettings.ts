@@ -9,7 +9,7 @@ const Settings: ProLayoutProps & {
 } = {
   navTheme: 'light',
   // 青瑶
-  colorPrimary: '#99A5FF',
+  colorPrimary: '#6274d8',
   layout: 'mix',
   contentWidth: 'Fluid',
   fixedHeader: false,

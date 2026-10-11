@@ -1,9 +1,10 @@
 import { loadMenu, updateMenu } from '@/services/ant-design-pro/api';
-import { Card, Input, Typography, Space, Divider, Button, Affix, Collapse, message } from 'antd';
+import { Card, Input, Typography, Space, Alert, Button, Affix, Collapse } from 'antd';
 import { DeleteOutlined, PlusOutlined, MinusOutlined, SaveOutlined } from '@ant-design/icons';
 import type { CollapseProps } from 'antd';
 import React, { useEffect, useState, useRef } from 'react';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -129,13 +130,13 @@ const MenuEditor: React.FC = () => {
     try {
       const response = await updateMenu(menu);
       if (response.message) {
-        message.success(response.message);
+        appMessage.success(response.message);
       } else if (response.error) {
-        message.error(response.error);
+        appMessage.error(response.error);
       }
     }
     catch (error) {
-      message.error('菜单保存失败');
+      appMessage.error('菜单保存失败');
     } finally {
       setSaving(false);
     }
@@ -205,102 +206,110 @@ const MenuEditor: React.FC = () => {
   };
 
   return (
-    <QueueAnim type={'bottom'} delay={100}>
-      <Card loading={loading}>
-        <Affix offsetTop={60}>
-          <Space wrap direction="horizontal"
-            style={{
-              borderRadius: 8,
-              backdropFilter: 'blur(8px)',
-              padding: 10,
-              boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)',
-              width: '100%',
-              marginBottom: 20,
-            }}>
-            插入标签：
-            <Button
-              type="primary"
-              disabled={!activeTextArea}
-              onClick={() => insertTag('title')}
-            >
-              标题
-            </Button>
-            <Button
-              type="primary"
-              disabled={!activeTextArea}
-              onClick={() => insertTag('des')}
-            >
-              描述
-            </Button>
-            操作：
-            <Button
-              type="primary"
-              loading={saving}
-              onClick={handleSaveMenu}
-              style={{ float: 'right' }}
-            >
-              保存菜单
-            </Button>
-          </Space>
-        </Affix>
-        <div>
-          {(() => {
-            const pageItems: CollapseProps['items'] = Object.keys(menu).map((page) => ({
-              key: page,
-              label: formatPageName(page),
-              children: (
-                <div>
-                  {/* 栏目编辑区域 */}
-                  <div style={{ marginBottom: 16 }}>
-                    {Object.keys(menu[page]).map((item) => (
-                      <Card key={item} style={{ marginBottom: 16 }}>
-                        <Space direction="vertical" style={{ width: '100%' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text strong>{formatItemName(item)}</Text>
-                          </div>
-                          {isEmptyLine(menu[page][item]) ? (
-                            <div style={{ textAlign: 'center' }}>
-                              ---占位空行---
+    <>
+      <Affix offsetTop={60}>
+        <Space wrap direction="horizontal"
+          style={{
+            borderRadius: 8,
+            backdropFilter: 'blur(8px)',
+            padding: 10,
+            boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)',
+            width: '100%',
+            marginBottom: 20,
+          }}>
+          插入标签：
+          <Button
+            type="primary"
+            disabled={!activeTextArea}
+            onClick={() => insertTag('title')}
+          >
+            标题
+          </Button>
+          <Button
+            type="primary"
+            disabled={!activeTextArea}
+            onClick={() => insertTag('des')}
+          >
+            描述
+          </Button>
+          操作：
+          <Button
+            type="primary"
+            loading={saving}
+            onClick={handleSaveMenu}
+            style={{ float: 'right' }}
+          >
+            保存菜单
+          </Button>
+        </Space>
+      </Affix>
+      <QueueAnim type={'bottom'} delay={100}>
+        <Alert
+          key="tip"
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message="如果菜单为空，请先在bot私聊中发送指令 /remenu 来更新菜单结构！"
+        />
+        <Card loading={loading}>
+          <div>
+            {(() => {
+              const pageItems: CollapseProps['items'] = Object.keys(menu).map((page) => ({
+                key: page,
+                label: formatPageName(page),
+                children: (
+                  <div>
+                    {/* 栏目编辑区域 */}
+                    <div style={{ marginBottom: 16 }}>
+                      {Object.keys(menu[page]).map((item) => (
+                        <Card key={item} style={{ marginBottom: 16 }}>
+                          <Space direction="vertical" style={{ width: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Text strong>{formatItemName(item)}</Text>
                             </div>
-                          ) : (
-                            <div>
-                              {menu[page][item]["图片链接"] && (
-                                <div style={{ marginBottom: '8px' }}>
-                                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-                                    {menu[page][item]["类型"]}<br />图片链接：
-                                  </label>
-                                  <Input
-                                    value={menu[page][item]["图片链接"] || ''}
-                                    onChange={(e) => {
-                                      const newMenu = { ...menu };
-                                      newMenu[page][item]["图片链接"] = e.target.value;
-                                      setMenu(newMenu);
-                                    }}
-                                    placeholder="请输入图片链接URL"
-                                  />
-                                </div>
-                              )}
-                              文本内容：
-                              <TextArea
-                                ref={(ref) => {
-                                  if (ref) {
-                                    textAreaRefs.current[`${page}-${item}`] = ref;
-                                  }
-                                }}
-                                autoSize={{ maxRows: 20 }}
-                                value={getTextContent(menu[page][item])}
-                                onChange={(e) => handleTextChange(page, item, e.target.value)}
-                                onFocus={() => handleTextAreaFocus(page, item)}
-                                placeholder="输入内容，使用[title]标题[/title]和[des]描述[/des]标记"
-                              />
-                            </div>
-                          )}
-                        </Space>
-                      </Card>
-                    ))}
+                            {isEmptyLine(menu[page][item]) ? (
+                              <div style={{ textAlign: 'center' }}>
+                                ---占位空行---
+                              </div>
+                            ) : (
+                              <div>
+                                {menu[page][item]["图片链接"] && (
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+                                      {menu[page][item]["类型"]}<br />图片链接：
+                                    </label>
+                                    <Input
+                                      value={menu[page][item]["图片链接"] || ''}
+                                      onChange={(e) => {
+                                        const newMenu = { ...menu };
+                                        newMenu[page][item]["图片链接"] = e.target.value;
+                                        setMenu(newMenu);
+                                      }}
+                                      placeholder="请输入图片链接URL"
+                                    />
+                                  </div>
+                                )}
+                                文本内容：
+                                <TextArea
+                                  ref={(ref) => {
+                                    if (ref) {
+                                      textAreaRefs.current[`${page}-${item}`] = ref;
+                                    }
+                                  }}
+                                  autoSize={{ maxRows: 20 }}
+                                  value={getTextContent(menu[page][item])}
+                                  onChange={(e) => handleTextChange(page, item, e.target.value)}
+                                  onFocus={() => handleTextAreaFocus(page, item)}
+                                  placeholder="输入内容，使用[title]标题[/title]和[des]描述[/des]标记"
+                                />
+                              </div>
+                            )}
+                          </Space>
+                        </Card>
+                      ))}
 
-                    {/* 添加按钮区域 */}
-                    {/* <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: 16 }}>
+                      {/* 添加按钮区域 */}
+                      {/* <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: 16 }}>
                      <Button 
                        type="dashed" 
                        icon={<PlusOutlined />}
@@ -316,43 +325,44 @@ const MenuEditor: React.FC = () => {
                        添加空行
                      </Button>
                    </div> */}
-                  </div>
+                    </div>
 
-                  {/* 页面级别的预览 */}
-                  <div style={{ marginTop: 16 }}>
-                    <Title level={4}>页面预览</Title>
-                    <Card>
-                      {Object.keys(menu[page]).map((item) => {
-                        const content = getTextContent(menu[page][item]);
-                        if (content.trim() === '') {
-                          return <div key={item} style={{ marginBottom: 16 }} />;
-                        }
-                        return (
-                          <Card key={item} style={{ marginBottom: 16, boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)' }}>
-                            <span style={{ fontSize: '20px' }}></span>
-                            <div style={{ marginTop: 8 }}>
-                              {renderMarkedText(content)}
-                            </div>
-                          </Card>
-                        );
-                      })}
-                    </Card>
+                    {/* 页面级别的预览 */}
+                    <div style={{ marginTop: 16 }}>
+                      <Title level={4}>页面预览</Title>
+                      <Card>
+                        {Object.keys(menu[page]).map((item) => {
+                          const content = getTextContent(menu[page][item]);
+                          if (content.trim() === '') {
+                            return <div key={item} style={{ marginBottom: 16 }} />;
+                          }
+                          return (
+                            <Card key={item} style={{ marginBottom: 16, boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)' }}>
+                              <span style={{ fontSize: '20px' }}></span>
+                              <div style={{ marginTop: 8 }}>
+                                {renderMarkedText(content)}
+                              </div>
+                            </Card>
+                          );
+                        })}
+                      </Card>
+                    </div>
                   </div>
-                </div>
-              ),
-            }));
+                ),
+              }));
 
-            return (
-              <Collapse
-                items={pageItems}
-                defaultActiveKey={Object.keys(menu).length > 0 ? [Object.keys(menu)[0]] : []}
-                style={{ marginBottom: 16 }}
-              />
-            );
-          })()}
-        </div>
-      </Card>
-    </QueueAnim>
+              return (
+                <Collapse
+                  items={pageItems}
+                  defaultActiveKey={Object.keys(menu).length > 0 ? [Object.keys(menu)[0]] : []}
+                  style={{ marginBottom: 16 }}
+                />
+              );
+            })()}
+          </div>
+        </Card>
+      </QueueAnim>
+    </>
   );
 };
 

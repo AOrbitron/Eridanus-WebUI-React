@@ -6,8 +6,6 @@ import { XMarkdown } from '@ant-design/x-markdown';
 // const md = markdownit({ html: true, breaks: true });
 import { getMusicInfo } from '@/services/ant-design-pro/api';
 import { Bubble, FileCard } from '@ant-design/x';
-import { APlayer } from 'aplayer-react';
-import 'aplayer-react/dist/index.css';
 import isArray from 'lodash/isArray';
 import { requestURL } from '@/services/ant-design-pro/api';
 import { VerticalAlignBottomOutlined } from '@ant-design/icons';

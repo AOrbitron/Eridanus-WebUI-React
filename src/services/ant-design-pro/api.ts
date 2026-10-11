@@ -2,11 +2,7 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-const devURL0 = 'http://192.168.195.128:5007';
-const devURL1 = 'http://192.168.195.41:5007';
-const devURL2 = 'http://localhost:5007';
-
-export const requestURL = process.env.NODE_ENV === 'development' ? devURL1 : '';
+export const requestURL = (process.env.UMI_APP_API_BASE_URL || '').replace(/\/$/, '');
 
 //获取当前webui用户信息
 export async function getCurrentUser() {

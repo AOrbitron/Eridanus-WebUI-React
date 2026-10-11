@@ -51,6 +51,31 @@ main {
   padding: 10px !important;
 }
 
+/* ProLayout 在移动端以内嵌方式渲染菜单抽屉，需要显式锁定到视口，
+   否则长页面滚动后遮罩和抽屉会停留在文档顶部。 */
+@media (max-width: 767px) {
+  .ant-pro-layout-drawer-sider,
+  .ant-pro-layout-drawer-sider.ant-drawer {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1100 !important;
+  }
+
+  .ant-pro-layout-drawer-sider .ant-drawer-mask {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  .ant-pro-layout-drawer-sider .ant-drawer-content-wrapper {
+    height: 100vh !important;
+    max-height: 100vh;
+  }
+}
+
 @media (max-width: 768px) {
   .ant-table {
     width: 100%;

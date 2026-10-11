@@ -3,7 +3,7 @@ import { Modal } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormText, ProFormCheckbox } from '@ant-design/pro-components';
 import { history, useModel, Helmet } from '@umijs/max';
-import { message } from 'antd';
+import { appMessage } from '@/utils/appMessage';
 import Settings from '../../../../config/defaultSettings';
 import React, { useState, useEffect } from 'react';
 import { flushSync } from 'react-dom';
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
       const loginResult = await userLogin(values);
 
       if (loginResult.error) {
-        message.error('用户名或密码错误');
+        appMessage.error('用户名或密码错误');
         // 如果登录失败且使用的是保存的凭据，清除它们
         if (values.account === localStorage.getItem('saved_account')) {
           clearCredentials();
@@ -68,7 +68,7 @@ const Login: React.FC = () => {
             currentUser,
           }));
         });
-        message.success('登录成功');
+        appMessage.success('登录成功');
         const urlParams = new URL(window.location.href).searchParams;
         history.push(urlParams.get('redirect') || '/');
         // 获取当前用户信息并更新到全局状态
@@ -95,7 +95,7 @@ const Login: React.FC = () => {
         });
 
         if (loginResult.message) {
-          message.success(loginResult.message);
+          appMessage.success(loginResult.message);
         }
 
         if (loginResult.error) {
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
           }));
         });
 
-        message.success('自动登录成功');
+        appMessage.success('自动登录成功');
         const urlParams = new URL(window.location.href).searchParams;
         history.push(urlParams.get('redirect') || '/');
       } catch (error) {

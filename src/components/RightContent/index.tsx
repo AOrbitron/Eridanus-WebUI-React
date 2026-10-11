@@ -1,5 +1,5 @@
 import { SunOutlined, UserOutlined, MoonOutlined, LogoutOutlined } from '@ant-design/icons';
-import { Tooltip, Popconfirm, message } from "antd";
+import { Button, Tooltip, Popconfirm } from "antd";
 import '@umijs/max';
 import React, { useState } from 'react';
 import { useModel } from '@umijs/max';
@@ -8,16 +8,9 @@ import { stringify } from 'querystring';
 import { userLogout } from '@/services/ant-design-pro/api';
 import { flushSync } from 'react-dom';
 import UserProfileModal from './UserProfileModal';
+import { appMessage } from '@/utils/appMessage';
 
 export type SiderTheme = 'light' | 'dark';
-
-const BottonStyle = {
-  display: 'flex',
-  height: 50,
-  width: 50,
-  alignItems: 'center',
-  justifyContent: 'center',
-}
 
 //深色模式切换
 export const ColorMode = () => {
@@ -41,13 +34,13 @@ export const ColorMode = () => {
           // 根据新主题设置 token
           token: {
             bgLayout: newIsDark
-              ? '#181818'
-              : 'linear-gradient(160deg, #ffd8ef 0%, #ece8ff 50%, #ccd3ff 100%)',
+              ? '#17191f'
+              : 'linear-gradient(160deg, #f9dceb 0%, #e9e7f7 52%, #dce8f4 100%)',
             header: {
-              colorBgHeader: newIsDark ? 'rgba(24,24,28,0.55)' : 'rgba(255,255,255,0.30)',
+              colorBgHeader: newIsDark ? 'rgba(23,25,31,0.78)' : 'rgba(255,255,255,0.62)',
             },
             sider: {
-              colorMenuBackground: newIsDark ? 'rgba(24,24,28,0.42)' : 'rgba(255,255,255,0.30)',
+              colorMenuBackground: newIsDark ? 'rgba(23,25,31,0.74)' : 'rgba(255,255,255,0.64)',
             },
             pageContainer: {
               colorBgPageContainer: 'transparent',
@@ -63,12 +56,12 @@ export const ColorMode = () => {
 
   return (
     <Tooltip title={isDark ? "切换到浅色模式" : "切换到深色模式"}>
-      <div
-        style={BottonStyle}
+      <Button
+        type="text"
+        aria-label={isDark ? '切换到浅色模式' : '切换到深色模式'}
+        icon={isDark ? <SunOutlined /> : <MoonOutlined />}
         onClick={toggleTheme}
-      >
-        {isDark ? <SunOutlined /> : <MoonOutlined />}
-      </div>
+      />
     </Tooltip>
   );
 };
@@ -80,12 +73,12 @@ export const UserProfile = () => {
   return (
     <>
       <Tooltip title="修改登录信息">
-        <div
-          style={BottonStyle}
+        <Button
+          type="text"
+          aria-label="修改登录信息"
+          icon={<UserOutlined />}
           onClick={() => setModalVisible(true)}
-        >
-          <UserOutlined />
-        </div>
+        />
       </Tooltip>
       <UserProfileModal
         visible={modalVisible}
@@ -107,10 +100,10 @@ export const LogOut = () => {
     try {
       const logoutResult = await userLogout();
       if (logoutResult.message) {
-        message.success(logoutResult.message);
+        appMessage.success(logoutResult.message);
       }
       if (logoutResult.error) {
-        message.error(logoutResult.error);
+        appMessage.error(logoutResult.error);
         return;
       }
     } catch (error) {
@@ -120,16 +113,13 @@ export const LogOut = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('saved_account');
     localStorage.removeItem('saved_password');
-    document.cookie = "auth_token=;";
+    document.cookie = 'auth_token=; Max-Age=0; path=/';
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
     const redirect = urlParams.get('redirect');
     // Note: There may be security issues, please note
     if (window.location.pathname !== '/user/login' && !redirect) {
-      flushSync(() => {
-        setInitialState((s: any) => ({ ...s, currentUser: undefined }));
-      });
       history.replace({
         pathname: '/user/login',
         search: stringify({
@@ -137,6 +127,9 @@ export const LogOut = () => {
         }),
       });
     }
+    flushSync(() => {
+      setInitialState((state: any) => ({ ...state, currentUser: undefined }));
+    });
     return;
   };
 
@@ -149,11 +142,7 @@ export const LogOut = () => {
         okText="是"
         cancelText="否"
       >
-        <div
-          style={BottonStyle}
-        >
-          <LogoutOutlined />
-        </div>
+        <Button type="text" aria-label="退出登录" icon={<LogoutOutlined />} />
       </Popconfirm>
     </Tooltip>
   );

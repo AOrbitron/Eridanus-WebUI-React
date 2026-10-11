@@ -7,11 +7,12 @@ import {
   ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Card, message, Modal } from 'antd';
+import { Button, Card, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 import { addUser, delUser, modUser, getUserList } from '@/services/ant-design-pro/api';
 import { useModel } from '@umijs/max';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 import XMarkdown from '@ant-design/x-markdown';
 // const { initialState, setInitialState } = useModel('@@initialState');
 // const isDark = initialState?.settings?.isDark;
@@ -20,13 +21,13 @@ const handleAdd = async (fields: API.UserItem) => {
   try {
     const result = await addUser({ ...fields });
     if (result.message) {
-      message.success(result.message);
+      appMessage.success(result.message);
     } else {
-      message.error(result.error);
+      appMessage.error(result.error);
     }
     return true;
   } catch (error) {
-    message.error('网络错误');
+    appMessage.error('网络错误');
     return false;
   }
 };
@@ -36,13 +37,13 @@ const handleMod = async (fields: API.UserItem) => {
   try {
     const result = await modUser({ ...fields });
     if (result.message) {
-      message.success(result.message);
+      appMessage.success(result.message);
     } else {
-      message.error(result.error);
+      appMessage.error(result.error);
     }
     return true;
   } catch (error) {
-    message.error('网络错误');
+    appMessage.error('网络错误');
     return false;
   }
 };
@@ -55,13 +56,13 @@ const handleDel = async (selectedRows: API.UserItem[]) => {
   try {
     const result = await delUser(selectedRows.map((row) => row.user_id));
     if (result.message) {
-      message.success(result.message);
+      appMessage.success(result.message);
     } else {
-      message.error(result.error);
+      appMessage.error(result.error);
     }
     return true;
   } catch (error) {
-    message.error('网络错误');
+    appMessage.error('网络错误');
     return false;
   }
 };
@@ -274,7 +275,7 @@ const TableList: React.FC = () => {
           >
             <Button
               onClick={async () => {
-                message.warning('功能开发中，敬请期待');
+                appMessage.warning('功能开发中，敬请期待');
                 // await handleDel(selectedRowsState);
                 // setSelectedRows([]);
                 actionRef.current?.reloadAndRest?.();
@@ -285,7 +286,7 @@ const TableList: React.FC = () => {
             <Button
               type="primary"
               onClick={() => {
-                message.warning('功能开发中，敬请期待');
+                appMessage.warning('功能开发中，敬请期待');
                 actionRef.current?.reloadAndRest?.();
               }}
             >

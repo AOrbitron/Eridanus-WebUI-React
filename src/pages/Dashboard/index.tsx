@@ -1,11 +1,12 @@
 // import { GridContent } from '@ant-design/pro-components';
-import { Col, message, Row } from 'antd';
+import { Col, Row } from 'antd';
 import type { FC } from 'react';
 import { useRef, useEffect, useState } from 'react';
 import BasicInfoCard from './components/BasicInfoCard';
 import RankingCard from './components/RankingCard';
 import { getBasicInfo } from '@/services/ant-design-pro/api';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 
 const Dashboard: FC<any> = () => {
   // 使用useRef存储数据
@@ -22,7 +23,7 @@ const Dashboard: FC<any> = () => {
         setLoading(true);
         const result = await getBasicInfo();
         if (result.error) {
-          message.error(result.error);
+          appMessage.error(result.error);
           return;
         }
         dataRef.current = result;
@@ -40,13 +41,13 @@ const Dashboard: FC<any> = () => {
       try {
         const result = await getBasicInfo({ systemInfo: 1 });
         if (result.error) {
-          message.error(result.error);
+          appMessage.error(result.error);
           return;
         }
         dataRef.current = { ...dataRef.current, systemInfo: result.systemInfo };
         setSystemInfoState(result.systemInfo);
       } catch (error) {
-        message.error('网络错误');
+        appMessage.error('网络错误');
       }
     }, 5000);
 
@@ -56,7 +57,7 @@ const Dashboard: FC<any> = () => {
   return (
     // <GridContent>
     <QueueAnim type={'bottom'} delay={100}>
-      <Row gutter={24} key="a">
+      <Row key="a">
         <Col xl={24} lg={24} md={24} sm={24} xs={24}>
           <BasicInfoCard
             loading={loading}
@@ -65,7 +66,7 @@ const Dashboard: FC<any> = () => {
           />
         </Col>
       </Row>
-      <Row gutter={24} key="b">
+      <Row key="b">
         <Col xl={24} lg={24} md={24} sm={24} xs={24}>
           <RankingCard loading={loading} ranks={dataRef.current?.ranks} />
         </Col>

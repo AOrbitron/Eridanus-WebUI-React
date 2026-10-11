@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { message, Button, Card, Select, Space, Input, Typography, DatePicker, Spin } from 'antd';
+import { Button, Card, Select, Space, Input, Typography, DatePicker, Spin } from 'antd';
 import { SearchOutlined, DownloadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { getLogFiles, getLogContent } from '@/services/ant-design-pro/api';
@@ -9,6 +9,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { useModel } from '@umijs/max';
 import QueueAnim from '@/components/QueueAnim';
+import { appMessage } from '@/utils/appMessage';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -59,12 +60,12 @@ const Diagnosis: React.FC = () => {
           }
         } else {
           setFiles([]);
-          message.error(response?.error || '服务器返回的数据格式不正确');
+          appMessage.error(response?.error || '服务器返回的数据格式不正确');
         }
       })
       .catch(error => {
         setFiles([]);
-        message.error('获取文件列表失败: ' + error.message);
+        appMessage.error('获取文件列表失败: ' + error.message);
       });
   }, []);
 
@@ -238,11 +239,11 @@ const Diagnosis: React.FC = () => {
           setLogs(parsedLogs);
           // 不再直接设置filteredLogs，让useEffect钩子来处理筛选
         } else {
-          message.error(response?.error || '服务器返回的数据格式不正确');
+          appMessage.error(response?.error || '服务器返回的数据格式不正确');
         }
       })
       .catch(error => {
-        message.error('获取日志内容失败: ' + error.message);
+        appMessage.error('获取日志内容失败: ' + error.message);
       })
       .finally(() => {
         setLoading(false);

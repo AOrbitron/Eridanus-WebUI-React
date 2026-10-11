@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, Popconfirm, message, PopconfirmProps } from 'antd';
+import { Modal, Form, Input, Button, Popconfirm, PopconfirmProps } from 'antd';
 import { history } from '@umijs/max';
 import { sha3_256 } from 'js-sha3';
 import { updateProfile } from '@/services/ant-design-pro/api';
+import { appMessage } from '@/utils/appMessage';
 interface UserProfileModalProps {
   visible: boolean;
   onClose: () => void;
@@ -29,11 +30,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ visible, onClose })
       localStorage.removeItem('saved_account');
       localStorage.removeItem('saved_password');
       history.push('/user/login');
-      message.success(submitResult.message);
+      appMessage.success(submitResult.message);
       // setTimeout(()=>{location.reload()},1000);
     }
     if (submitResult.error) {
-      message.error(submitResult.error);
+      appMessage.error(submitResult.error);
       return;
     }
     // onClose();

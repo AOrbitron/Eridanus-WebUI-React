@@ -511,51 +511,49 @@ const YamlEditor: React.FC = () => {
   };
 
   return (
-    <QueueAnim type={'bottom'} delay={100}>
     <Spin spinning={loading} size='large'>
-      {/* <QueueAnim type={'bottom'} delay={100}> */}
       {contextHolder}
+      <Affix offsetTop={60}>
+        <div className="file-controls">
+          <Space wrap direction="horizontal"
+            style={{
+              borderRadius: 8,
+              backdropFilter: 'blur(8px)',
+              padding: 10,
+              boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)',
+              width: '100%'
+            }}>
+            <Select
+              style={{ width: '320px' }}
+              value={currentFile || undefined}
+              placeholder="选择文件"
+              onChange={(value) => {
+                setCurrentFile(value);
+                handleLoadYamlFile(value);
+                // 更新URL参数
+                history.push(`/configEditor/${value}`);
+                //滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              suffixIcon={<DownOutlined />}
+              options={fileList.map((file) => ({
+                value: file,
+                label: file
+              }))}
+            />
+            <Button type="primary" onClick={handleSaveYamlFile} loading={saving}>
+              保存配置
+            </Button>
+
+            <Button type="primary" onClick={() => setSearchModalVisible(true)}>
+              <SearchOutlined />搜索配置项
+            </Button>
+          </Space>
+        </div>
+      </Affix>
+      <QueueAnim type={'bottom'} delay={100}>
       <Card style={{ padding: 0 }} key="a">
         <div className="yaml-editor">
-          {/* 固钉组件,用于将下拉菜单和按钮固定到顶部 */}
-          <Affix offsetTop={60}>
-            <div className="file-controls">
-              <Space wrap direction="horizontal"
-                style={{
-                  borderRadius: 8,
-                  backdropFilter: 'blur(8px)',
-                  padding: 10,
-                  boxShadow: '0 0 10px rgba(112, 112, 112, 0.63)',
-                  width: '100%'
-                }}>
-                <Select
-                  style={{ width: '320px' }}
-                  value={currentFile || undefined}
-                  placeholder="选择文件"
-                  onChange={(value) => {
-                    setCurrentFile(value);
-                    handleLoadYamlFile(value);
-                    // 更新URL参数
-                    history.push(`/configEditor/${value}`);
-                    //滚动到顶部
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  suffixIcon={<DownOutlined />}
-                  options={fileList.map((file) => ({
-                    value: file,
-                    label: file
-                  }))}
-                />
-                <Button type="primary" onClick={handleSaveYamlFile} loading={saving}>
-                  保存配置
-                </Button>
-
-                <Button type="primary" onClick={() => setSearchModalVisible(true)}>
-                  <SearchOutlined />搜索配置项
-                </Button>
-              </Space>
-            </div>
-          </Affix>
           <div className="editor-content">
             {/* YAML编辑器 */}
             {yamlData.data && renderYamlEditor(yamlData.data, yamlData.comments, yamlData.order)}
@@ -662,9 +660,8 @@ const YamlEditor: React.FC = () => {
       `}</style>
         </div>
       </Card>
-      {/* </QueueAnim> */}
+      </QueueAnim>
     </Spin>
-    </QueueAnim>
 
   );
 };

@@ -1,9 +1,7 @@
 // https://umijs.org/config/
 import { defineConfig } from '@umijs/max';
-import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import routes from './routes';
-const { REACT_APP_ENV = 'dev' } = process.env;
 export default defineConfig({
   /**
    * @name 开启 hash 模式
@@ -27,8 +25,8 @@ export default defineConfig({
   // umi routes: https://umijs.org/docs/routing
   routes,
   /**
-   * @name 主题的配置
-   * @description 虽然叫主题，但是其实只是 less 的变量设置
+   * @name 主题兼容配置
+   * @description 保留 Umi/Ant Design 的主题入口；运行时主题由 ConfigProvider 的 Design Token 控制
    * @doc antd的主题设置 https://ant.design/docs/react/customize-theme-cn
    * @doc umi 的theme 配置 https://umijs.org/docs/api/config#theme
    */
@@ -126,8 +124,7 @@ export default defineConfig({
     '@xterm/xterm',
     '@xterm/addon-fit',
   ],
-  //================ pro 插件配置 =================
-  presets: ['umi-presets-pro'],
+  plugins: ['@umijs/request-record'],
   /**
    * @name openAPI 插件的配置
    * @description 基于 openapi 的规范生成serve 和mock，能减少很多样板代码
