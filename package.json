@@ -28,6 +28,7 @@
     "start": "cross-env UMI_ENV=dev max dev",
     "start:dev": "cross-env REACT_APP_ENV=dev UMI_ENV=dev max dev",
     "start:no-mock": "cross-env MOCK=none UMI_ENV=dev max dev",
+    "start:remote": "cross-env MOCK=none UMI_ENV=dev max dev",
     "start:pre": "cross-env REACT_APP_ENV=pre UMI_ENV=dev max dev",
     "start:test": "cross-env REACT_APP_ENV=test MOCK=none UMI_ENV=dev max dev",
     "test": "jest",

@@ -1,9 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, message, Spin, Card, Modal, Flex, Switch, UploadProps, Upload, GetRef } from 'antd';
 import {
-  CloudUploadOutlined,
-  DeleteOutlined,
-} from '@ant-design/icons';
+  Button,
+  message,
+  Spin,
+  Card,
+  Modal,
+  Flex,
+  Switch,
+  UploadProps,
+  Upload,
+  GetRef,
+} from 'antd';
+import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Bubble, Sender } from '@ant-design/x';
 import { useModel } from '@umijs/max';
 import BubbleRender from './bubbleRender';
@@ -14,7 +22,6 @@ import { appMessage } from '@/utils/appMessage';
 const wsURL = `/api/ws`;
 
 const Chat: React.FC = () => {
-
   const [sendMsgBtn, setSendMsgBtn] = useState(false);
 
   const [uploadFileBtn, setUploadFileBtn] = useState(false);
@@ -34,6 +41,7 @@ const Chat: React.FC = () => {
 
   // 使用useRef存储最新的messages，解决异步状态更新问题
   const messagesRef = useRef<API.ChatMessage[]>([]);
+  const messageSequenceRef = useRef(0);
 
   const senderRef = useRef<GetRef<typeof Sender>>(null);
 
@@ -63,9 +71,7 @@ const Chat: React.FC = () => {
 12. … …
 */
 
-  const props: UploadProps = {
-
-  };
+  const props: UploadProps = {};
 
   useEffect(() => {
     initialize();
@@ -85,6 +91,7 @@ const Chat: React.FC = () => {
 
   // 加载历史消息并连接WebSocket
   const initialize = async () => {
+    let isMockHistory = false;
     try {
       const data = await getChatHistory({ start: 0, end: 999999 });
       // 先批量解析所有消息
@@ -94,30 +101,32 @@ const Chat: React.FC = () => {
         if (Array.isArray(subArray) && subArray.length === 1) {
           const parsedJson = JSON.parse(subArray[0]);
           // 用已解析的 parsedList 查找 replyContent
-          const replyContent =
-            parsedJson.message?.params?.message?.[0]?.data?.id
-              ? findMessageContentFromList(parsedList, parsedJson.message.params.message[0].data.id)
-              : null;
+          const replyContent = parsedJson.message?.params?.message?.[0]?.data?.id
+            ? findMessageContentFromList(parsedList, parsedJson.message.params.message[0].data.id)
+            : null;
           parsedJson.replyContent = replyContent;
           parsedList.push(parsedJson);
         }
       }
       setMessages(parsedList);
       messagesRef.current = parsedList;
+      if (data.mock === true) {
+        isMockHistory = true;
+        setLoading(false);
+      }
     } catch (e) {
       appMessage.error(`历史消息加载失败: ${e}`);
     } finally {
       // 连接WebSocket
-      connectWebSocket();
+      if (!isMockHistory) connectWebSocket();
     }
   };
 
   // 用于批量查找历史消息的工具函数
   const findMessageContentFromList = (list: API.ChatMessage[], messageId: number): string => {
     const message = list.find((msg) => msg.message_id == messageId);
-    const replyContent = message?.role == 'start'
-      ? message?.message.params.message.at(-1)
-      : message?.message.at(-1);
+    const replyContent =
+      message?.role == 'start' ? message?.message.params.message.at(-1) : message?.message.at(-1);
     if (replyContent?.type == 'text') return replyContent.data.text;
     else if (replyContent?.type) {
       const typeMap: Record<string, string> = {
@@ -134,8 +143,9 @@ const Chat: React.FC = () => {
   };
 
   const connectWebSocket = () => {
+    const wsBaseURL = (requestURL || window.location.origin).replace(/^http/, 'ws');
     const newWs = new WebSocket(
-      `${requestURL}${wsURL}?auth_token=${localStorage.getItem('auth_token')}`,
+      `${wsBaseURL}${wsURL}?auth_token=${localStorage.getItem('auth_token')}`,
     );
 
     newWs.onopen = () => {
@@ -169,28 +179,41 @@ const Chat: React.FC = () => {
   const handleServerMessage = (rawData: string) => {
     try {
       const data = JSON.parse(rawData);
-      //status啥的消息，不需要处理
-      if (!data.message) {
+      // WS 既可能用 message 包裹事件，也可能直接发送 action/params/echo。
+      const isChatAction = [
+        'send_group_msg',
+        'send_group_forward_msg',
+        'upload_group_file',
+      ].includes(data.action);
+      const message = data.message ?? (isChatAction ? data : undefined);
+      // status 等不包含消息事件的推送不需要显示。
+      if (!message) {
         console.warn('收到无效消息:', data);
         return;
       }
-      //如果有message_id，说明是回复消息
-      const replyContent =
-        data.message?.params?.message?.[0]?.data?.id
-          ? findMessageContent(data.message.params.message[0].data.id)
-          : null;
+      // 事件通常没有 message_id，优先使用服务端消息 ID 或 echo 作为稳定标识。
+      const messageId =
+        data.message_id ??
+        data.msg_id ??
+        message.message_id ??
+        message.echo ??
+        data.echo ??
+        `ws-${Date.now()}-${++messageSequenceRef.current}`;
+      const replyContent = message?.params?.message?.[0]?.data?.id
+        ? findMessageContent(message.params.message[0].data.id)
+        : null;
       const newMsg: API.ChatMessage = {
-        role: isArray(data?.message) ? "end" : "start",
+        role:
+          data.role === 'end' || data.role === 'start'
+            ? data.role
+            : isArray(message)
+              ? 'end'
+              : 'start',
         replyContent: replyContent,
-        message_id: data.message_id,
-        message: data.message,
+        message_id: messageId,
+        message,
       };
-      setMessages((prev) => {
-        if (prev.some(msg => msg.message_id === newMsg.message_id)) {
-          return prev;
-        }
-        return [...prev, newMsg];
-      });
+      appendMessage(newMsg);
     } catch (e) {
       console.warn(e);
       // addServerMessage(1, '解析服务器消息失败: ' + e);
@@ -198,12 +221,24 @@ const Chat: React.FC = () => {
     }
   };
 
+  const appendMessage = (newMsg: API.ChatMessage) => {
+    const current = messagesRef.current;
+    if (current.some((msg) => msg.message_id === newMsg.message_id)) {
+      return;
+    }
+    const next = [...current, newMsg];
+    // 立即同步 ref，连续的 WS 推送不必等待 React effect 提交。
+    messagesRef.current = next;
+    setMessages(next);
+  };
+
   // 查找回复对应的消息内容
   const findMessageContent = (messageId: number): string => {
     // 使用messagesRef.current获取最新的消息数组，而不是使用可能过时的messages状态
     const message = messagesRef.current.find((msg) => msg.message_id == messageId);
     // console.log(`回复的消息id:${messageId},内容:`, JSON.stringify(message, null, 2));
-    const replyContent = message?.role == 'start' ? message?.message.params.message.at(-1) : message?.message.at(-1);
+    const replyContent =
+      message?.role == 'start' ? message?.message.params.message.at(-1) : message?.message.at(-1);
     // console.log('回复的消息内容:', replyContent);
     if (replyContent?.type == 'text') return replyContent.data.text;
     else if (replyContent?.type) {
@@ -223,16 +258,11 @@ const Chat: React.FC = () => {
 
   const addUserMessage = (content: any, id: number) => {
     const newMsg: API.ChatMessage = {
-      role: "end",
+      role: 'end',
       message_id: id,
       message: content,
     };
-    setMessages((prev) => {
-      if (prev.some(msg => msg.message_id === newMsg.message_id)) {
-        return prev;
-      }
-      return [...prev, newMsg];
-    });
+    appendMessage(newMsg);
   };
 
   const scrollToBottom = () => {
@@ -250,7 +280,10 @@ const Chat: React.FC = () => {
       //时间戳作为消息唯一id
       const id = Date.now();
       //构建消息数组
-      const msg: any = [{ msg_id: id }, { type: type, data: type == 'text' ? { text: content } : { file: content } }];
+      const msg: any = [
+        { msg_id: id },
+        { type: type, data: type == 'text' ? { text: content } : { file: content } },
+      ];
       //如果是@，添加at消息
       if (isAt) {
         msg.splice(1, 0, { type: 'at', data: { qq: '1000000', name: 'Eridanus' } });
@@ -272,6 +305,7 @@ const Chat: React.FC = () => {
     const result = await delChatHistory(null);
     if (result?.message) {
       setMessages([]);
+      messagesRef.current = [];
       appMessage.success(result.message);
     } else {
       appMessage.error(result?.error);
@@ -342,7 +376,7 @@ const Chat: React.FC = () => {
         key: safeName,
         type: 'loading',
         content: `正在上传: ${progress}%`,
-        duration: 0
+        duration: 0,
       });
     } else if (isDone) {
       uploadMsgBox.open({
@@ -358,7 +392,7 @@ const Chat: React.FC = () => {
       <Spin spinning={loading} tip="WebSocket连接中..." size="large">
         {/*上传进度提示*/}
         {contextHolder}
-          <div
+        <div
           ref={chatContainRef}
           style={{
             width: '100%',
@@ -371,28 +405,30 @@ const Chat: React.FC = () => {
           <div style={styles.chatContainer as any} ref={chatContainerRef}>
             <Bubble.List
               ref={listRef}
-              items={messages.map((msg, index) => {
-                return {
-                  key: index,
-                  placement: msg.role,
-                  shape: 'corner',
-                  // 为啥没用呢？
-                  // styles: {
-                  //   content:{
-                  //     fontSize:'100px',
-                  //   }
-                  // },
-                  content: (
-                    <BubbleRender
-                      key={index}
-                      role={msg.role}
-                      replyContent={msg.replyContent}
-                      message={msg.message}
-                      message_id={msg.message_id}
-                    />
-                  ),
-                };
-              }) as any}
+              items={
+                messages.map((msg, index) => {
+                  return {
+                    key: index,
+                    placement: msg.role,
+                    shape: 'corner',
+                    // 为啥没用呢？
+                    // styles: {
+                    //   content:{
+                    //     fontSize:'100px',
+                    //   }
+                    // },
+                    content: (
+                      <BubbleRender
+                        key={index}
+                        role={msg.role}
+                        replyContent={msg.replyContent}
+                        message={msg.message}
+                        message_id={msg.message_id}
+                      />
+                    ),
+                  };
+                }) as any
+              }
             />
           </div>
 
@@ -413,9 +449,9 @@ const Chat: React.FC = () => {
                 <Flex justify="space-between" align="center">
                   <Flex gap="small" align="center">
                     <Upload
-                      accept='image/*'
+                      accept="image/*"
                       pastable={true}
-                      name='file'
+                      name="file"
                       action={`${requestURL}/api/chat/uploadFile`}
                       // beforeUpload={() => false}
                       onChange={(info) => {
@@ -431,7 +467,7 @@ const Chat: React.FC = () => {
                             uploadMessage(100, true, false, name);
                             setUploadFileBtn(false);
                           } else {
-                            handleSendMsg(response?.files[0]?.path, 'image')
+                            handleSendMsg(response?.files[0]?.path, 'image');
                             uploadMessage(100, true, true, name);
                             setUploadFileBtn(false);
                           }
@@ -445,11 +481,11 @@ const Chat: React.FC = () => {
                       maxCount={1}
                       multiple={false}
                       showUploadList={false}
-                    // placeholder={{
-                    //   icon: <CloudUploadOutlined />,
-                    //   title: '松开上传',
-                    //   description: '当前仅支持图片',
-                    // }}
+                      // placeholder={{
+                      //   icon: <CloudUploadOutlined />,
+                      //   title: '松开上传',
+                      //   description: '当前仅支持图片',
+                      // }}
                     >
                       <Button disabled={uploadFileBtn} type="text" icon={<CloudUploadOutlined />} />
                     </Upload>
@@ -476,16 +512,13 @@ const Chat: React.FC = () => {
                       }}
                     />
                   </Flex>
-                  <Flex align="center">
-                    {actionNode}
-                  </Flex>
+                  <Flex align="center">{actionNode}</Flex>
                 </Flex>
               );
-            }
-            }
+            }}
             //避免出现2个发送按钮
             suffix={false}
-          // prefix={<></>}
+            // prefix={<></>}
           />
         </div>
       </Spin>
