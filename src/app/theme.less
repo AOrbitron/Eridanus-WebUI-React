@@ -12,32 +12,178 @@ html[data-theme='dark'] body {
   background: #17191f;
 }
 
-html[data-theme='light'] .aplayer-list ol li:hover {
-  background: #efefef !important;
-}
-
-html[data-theme='dark'] .aplayer-list ol li:hover {
-  background: #3a3a3a !important;
-}
-
-html[data-theme='light'] .aplayer-list ol li.aplayer-list-light {
-  background: #e9e9e9 !important;
-}
-
-html[data-theme='dark'] .aplayer-list ol li.aplayer-list-light {
-  background: #2d2d2d !important;
-}
-
 .app-theme {
   --app-border: rgba(98, 116, 216, 0.2);
   --app-surface: rgba(255, 255, 255, 0.9);
   --app-text: #252936;
+  --player-width: min(350px, calc(100vw - 28px));
+  --player-surface: #fff;
+  --player-text: #252936;
+  --player-muted: #626879;
+  --player-border: #e3e5ed;
+  --player-hover: #f0f2fb;
+  --player-selected: #e8ecff;
+  --player-accent: #6476d9;
+  --player-track: #d4d7e2;
+  --player-loaded: #a0a7bd;
 }
 
 .app-theme-dark {
   --app-border: rgba(173, 183, 255, 0.18);
   --app-surface: rgba(30, 32, 40, 0.96);
   --app-text: #f1f2f6;
+  --player-surface: #252830;
+  --player-text: #f1f2f6;
+  --player-muted: #b4bacb;
+  --player-border: #414653;
+  --player-hover: #333847;
+  --player-selected: #3b435f;
+  --player-accent: #b5bfff;
+  --player-track: #484e5e;
+  --player-loaded: #747e98;
+}
+
+.app-player {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  box-sizing: border-box;
+  width: var(--player-width);
+  border: 1px solid var(--player-border);
+  background: var(--player-surface);
+  color: var(--player-text);
+  font-size: 14px;
+  transition: right 0.3s ease-in-out;
+
+  &.app-player-collapsed {
+    right: calc(-1 * var(--player-width));
+  }
+
+  .aplayer {
+    background: var(--player-surface);
+    color: var(--player-text);
+  }
+
+  .aplayer .aplayer-info .aplayer-music .aplayer-author,
+  .aplayer .aplayer-info .aplayer-controller .aplayer-time,
+  .aplayer .aplayer-list ol li .aplayer-list-index,
+  .aplayer .aplayer-list ol li .aplayer-list-author,
+  .aplayer .aplayer-lrc p {
+    color: var(--player-muted);
+  }
+
+  .aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon {
+    path {
+      fill: var(--player-muted);
+    }
+
+    &:hover path {
+      fill: var(--player-accent);
+    }
+  }
+
+  .aplayer .aplayer-icon:focus-visible {
+    outline: 2px solid var(--player-accent);
+    outline-offset: 2px;
+  }
+
+  .aplayer .aplayer-list ol li {
+    border-color: var(--player-border);
+
+    &:hover {
+      background: var(--player-hover);
+    }
+
+    &.aplayer-list-light {
+      background: var(--player-selected);
+    }
+  }
+
+  .aplayer .aplayer-info {
+    border-color: var(--player-border);
+  }
+
+  .aplayer .aplayer-lrc p.aplayer-lrc-current {
+    color: var(--player-text);
+  }
+
+  .aplayer .aplayer-lrc::before {
+    background: linear-gradient(to bottom, var(--player-surface), transparent);
+  }
+
+  .aplayer .aplayer-lrc::after {
+    background: linear-gradient(to top, var(--player-surface), transparent);
+  }
+
+  .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar,
+  .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap .aplayer-volume-bar-wrap .aplayer-volume-bar {
+    background: var(--player-track);
+  }
+
+  .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+    background: var(--player-loaded);
+  }
+
+  .aplayer .aplayer-list ol {
+    scrollbar-color: var(--player-loaded) var(--player-surface);
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--player-loaded);
+    }
+  }
+}
+
+.app-player-toggle {
+  position: fixed;
+  right: var(--player-width);
+  bottom: 5px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 26px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--player-border);
+  border-radius: 8px 0 0 8px;
+  background: var(--player-surface);
+  color: var(--player-muted);
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  cursor: pointer;
+  transition: right 0.3s ease-in-out, background-color 0.15s, color 0.15s;
+
+  &.app-player-toggle-collapsed {
+    right: 0;
+  }
+
+  &:hover,
+  &:active {
+    background: var(--player-hover);
+    color: var(--player-accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--player-accent);
+    outline-offset: 2px;
+  }
+}
+
+.app-theme-dark .app-player .aplayer .aplayer-lrc p {
+  opacity: 0.75;
+
+  &.aplayer-lrc-current {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-player,
+  .app-player-toggle {
+    transition: none;
+  }
 }
 
 .ant-card {

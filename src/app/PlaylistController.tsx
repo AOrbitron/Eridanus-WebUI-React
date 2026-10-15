@@ -80,22 +80,9 @@ const PlaylistController: React.FC<Props> = ({ isDark }) => {
   return (
     <>
       <div
+        id="music-playlist-panel"
         className={`app-player${collapsed ? ' app-player-collapsed' : ''}`}
         aria-label="音乐播放列表"
-        style={{
-          position: 'fixed',
-          right: collapsed ? '-350px' : '0',
-          bottom: '0',
-          width: '350px',
-          zIndex: 999,
-          transition: 'right 0.3s ease-in-out',
-          backgroundColor: isDark ? '#2e2e2e' : '#fff',
-          color: isDark ? '#fff' : '#000',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '14px',
-          border: isDark ? '1px solid #3a3a3a' : '1px solid #e9e9e9',
-        }}
       >
         <div ref={containerRef} />
         {!songs.length && (
@@ -107,38 +94,17 @@ const PlaylistController: React.FC<Props> = ({ isDark }) => {
           </div>
         )}
       </div>
-      <div
+      <button
+        type="button"
         className={`app-player-toggle${collapsed ? ' app-player-toggle-collapsed' : ''}`}
-        role="button"
-        tabIndex={0}
         aria-label={collapsed ? '展开播放列表' : '收起播放列表'}
+        title={collapsed ? '展开播放列表' : '收起播放列表'}
+        aria-expanded={!collapsed}
+        aria-controls="music-playlist-panel"
         onClick={() => setCollapsed((value) => !value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            setCollapsed((value) => !value);
-          }
-        }}
-        style={{
-          position: 'fixed',
-          right: collapsed ? '0' : '350px',
-          bottom: '5px',
-          zIndex: 1000,
-          backgroundColor: isDark ? '#2e2e2e' : '#fff',
-          color: isDark ? '#fff' : '#000',
-          border: '1px solid #d9d9d9',
-          borderRadius: '5px',
-          width: '20px',
-          height: '40px',
-          cursor: 'pointer',
-          transition: 'right 0.3s ease-in-out',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
       >
         {collapsed ? <LeftOutlined /> : <RightOutlined />}
-      </div>
+      </button>
     </>
   );
 };
