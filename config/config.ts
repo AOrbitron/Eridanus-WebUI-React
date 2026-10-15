@@ -1,5 +1,8 @@
 // https://umijs.org/config/
 import { defineConfig } from '@umijs/max';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import ChunkLoadingPlugin from './ChunkLoadingPlugin';
 import defaultSettings from './defaultSettings';
 import routes from './routes';
 export default defineConfig({
@@ -110,20 +113,16 @@ export default defineConfig({
    * @description 配置 <head> 中额外的 script
    */
   headScripts: [
-    // 解决首次加载时白屏的问题
-    // {
-    //   src: 'https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/??dplayer/1.26.0/DPlayer.min.js,aplayer/1.10.1/APlayer.min.js',
-    //   async: false,
-    // },
     {
-      src: '/scripts/loading.js',
-      async: true,
+      // Inline so the loading/error UI works even when the entry bundle fails.
+      content: readFileSync(join(__dirname, '../public/scripts/loading.js'), 'utf8'),
     },
   ],
-  extraBabelIncludes: [
-    '@xterm/xterm',
-    '@xterm/addon-fit',
-  ],
+  chainWebpack(memo) {
+    memo.output.chunkLoadTimeout(30000);
+    memo.plugin('eridanus-chunk-loading').use(ChunkLoadingPlugin);
+  },
+  extraBabelIncludes: ['@xterm/xterm', '@xterm/addon-fit'],
   plugins: ['@umijs/request-record'],
   /**
    * @name openAPI 插件的配置
